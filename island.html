@@ -271,3 +271,21 @@ function rv(idx){
   document.getElementById("pe").textContent=p.e;document.getElementById("pt").textContent=p.t;document.getElementById("pt").style.color=p.c;document.getElementById("pd").textContent=p.d;
   setTimeout(function(){document.getElementById("pnb").style.display="block";pc=false;},2000);}
 </script></body></html>
+
+<a href="index.html" id="homeBtn" title="الرئيسية">🏠</a>
+<style>
+#homeBtn{position:fixed;top:15px;left:15px;z-index:99999;background:rgba(255,255,255,0.95);font-size:28px;padding:8px 14px;border-radius:50px;text-decoration:none;box-shadow:0 4px 15px rgba(0,0,0,0.3);cursor:pointer;line-height:1}
+#homeBtn:hover{transform:scale(1.15)}
+</style>
+<script>
+const AudioKit={ctx:null,musicOn:false,
+init(){if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)();if(this.ctx.state==='suspended')this.ctx.resume()},
+tone(f,d,t='sine',v=0.2,dl=0){this.init();const c=this.ctx.currentTime+dl,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c);g.gain.exponentialRampToValueAtTime(0.001,c+d);o.connect(g);g.connect(this.ctx.destination);o.start(c);o.stop(c+d)},
+click(){this.tone(700,0.08,'square',0.08)},
+correct(){this.tone(523,0.12,'sine',0.2,0);this.tone(659,0.12,'sine',0.2,0.1);this.tone(784,0.22,'sine',0.25,0.2)},
+wrong(){this.tone(300,0.15,'sawtooth',0.12,0);this.tone(220,0.25,'sawtooth',0.12,0.12)},
+win(){[523,659,784,1047,1319].forEach((f,i)=>this.tone(f,0.25,'triangle',0.2,i*0.12))},
+startMusic(){if(this.musicOn)return;this.init();this.musicOn=true;const m=[[392,0.6],[440,0.6],[523,0.6],[440,0.6],[392,0.6],[349,0.6],[330,1.2],[0,0.6],[349,0.6],[392,0.6],[440,0.6],[523,0.6],[440,1.2],[0,0.6]];const lt=m.reduce((s,n)=>s+n[1],0);const loop=()=>{if(!this.musicOn)return;let t=this.ctx.currentTime;m.forEach(([f,d])=>{if(f>0){const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.04,t+0.05);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g);g.connect(this.ctx.destination);o.start(t);o.stop(t+d)}t+=d});setTimeout(loop,lt*1000)};loop()},
+stopMusic(){this.musicOn=false}};
+document.addEventListener('click',()=>{if(!AudioKit.musicOn)AudioKit.startMusic()},{once:true});
+</script>
