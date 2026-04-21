@@ -289,3 +289,12 @@ startMusic(){if(this.musicOn)return;this.init();this.musicOn=true;const m=[[392,
 stopMusic(){this.musicOn=false}};
 document.addEventListener('click',()=>{if(!AudioKit.musicOn)AudioKit.startMusic()},{once:true});
 </script>
+
+<script>
+AudioKit.cup=function(){[523,659,784,1047].forEach((f,i)=>AudioKit.tone(f,0.18,'triangle',0.22,i*0.1));AudioKit.tone(1319,0.5,'sine',0.15,0.45);AudioKit.tone(1568,0.6,'sine',0.12,0.55)};
+AudioKit.genie=function(){AudioKit.tone(110,0.4,'sawtooth',0.18,0);AudioKit.tone(165,0.3,'sawtooth',0.15,0.25);AudioKit.tone(220,0.3,'sine',0.18,0.5);AudioKit.tone(440,0.3,'sine',0.15,0.7);AudioKit.tone(880,0.4,'triangle',0.12,0.9);AudioKit.tone(1175,0.5,'sine',0.1,1.1)};
+(function(){let last='',lt=0;const tr=[{re:/مارد|جني/,s:'genie'},{re:/كأس/,s:'cup'},{re:/مبروك|فوز|ممتاز|أحسنت|نجحت|رائع/,s:'win'},{re:/خطأ|للأسف|غلط|فشل|حاول/,s:'wrong'},{re:/صحيح/,s:'correct'}];
+new MutationObserver(()=>{const n=Date.now();if(n-lt<800)return;const t=document.body.innerText;for(const x of tr){const m=t.match(x.re);if(m&&m[0]+x.s!==last){last=m[0]+x.s;lt=n;AudioKit[x.s]&&AudioKit[x.s]();return}}}).observe(document.body,{childList:true,subtree:true,characterData:true});
+document.addEventListener('click',e=>{if(e.target.closest('button'))AudioKit.click()});
+})();
+</script>
