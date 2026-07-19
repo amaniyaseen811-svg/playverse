@@ -2084,7 +2084,7 @@ if ('serviceWorker' in navigator) {
 <div class="intro-modal" id="introModal">
 <button class="intro-close" onclick="closeIntro()">✕</button>
 <video id="introVideo" controls playsinline preload="none" poster="poster.jpg" crossorigin="anonymous"
-       style="width:100%;max-width:480px;max-height:88vh;border-radius:14px;background:#000">
+       style="height:92vh;max-height:92vh;width:auto;max-width:96vw;border-radius:14px;background:#000;object-fit:contain">
   <source src="intro.mp4" type="video/mp4">
   <track kind="subtitles" src="subs/ar.vtt" srclang="ar" label="العربية">
   <track kind="subtitles" src="subs/en.vtt" srclang="en" label="English">
@@ -2134,7 +2134,7 @@ function closeIntro(){
 <!-- ===== فيديو تحفيزي قبل اللعبة ===== -->
 <div id="gameIntro" style="display:none;position:fixed;inset:0;z-index:2147483600;background:#000;align-items:center;justify-content:center;flex-direction:column">
   <video id="gameIntroVideo" playsinline preload="none" crossorigin="anonymous"
-         style="width:100%;max-width:480px;max-height:88vh;background:#000">
+         style="height:94vh;max-height:94vh;width:auto;max-width:96vw;background:#000;object-fit:contain">
     <source src="motiv.mp4" type="video/mp4">
     <track kind="subtitles" src="subs/motiv_ar.vtt" srclang="ar" label="العربية">
     <track kind="subtitles" src="subs/motiv_en.vtt" srclang="en" label="English">
