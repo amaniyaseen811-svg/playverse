@@ -732,15 +732,189 @@ body{
     } catch(e){}
   };
 
-  // الموسيقى تبدأ بعد أول لمسة (سياسة المتصفحات)
+  // الموسيقى تبدأ عند أول تفاعل حقيقي — ونعيد المحاولة حتى تنجح
   function armPicker(){
     var p = document.getElementById('langPicker');
-    if (p && p.style.display !== 'none') window.playPickerMusic();
+    var gate = document.getElementById('logoGate');
+    var gateOpen = gate && gate.style.display !== 'none';
+    var pickerOpen = p && p.style.display !== 'none';
+    if (!gateOpen && !pickerOpen) return;
+    // لو السياق موجود بس معلّق، نوقظه
+    if (pickerCtx && pickerCtx.state === 'suspended'){
+      try { pickerCtx.resume(); } catch(e){}
+      return;
+    }
+    window.playPickerMusic();
+    if (pickerCtx && pickerCtx.state === 'suspended'){
+      try { pickerCtx.resume(); } catch(e){}
+    }
   }
-  ['click','touchstart','keydown'].forEach(function(ev){
-    document.addEventListener(ev, armPicker, { once:true, passive:true });
+  window._armPickerMusic = armPicker;
+  ['click','touchend','keydown'].forEach(function(ev){
+    document.addEventListener(ev, armPicker, { passive:true });
   });
 })();
+</script>
+
+<!-- ===== شاشة اللوجو الدوّار (قبل شاشة اللغة) ===== -->
+<style>
+#logoGate{
+  position:fixed; inset:0; z-index:2147483646;
+  background:radial-gradient(ellipse at center,#1a1040,#050510 70%);
+  display:none; flex-direction:column;
+  align-items:center; justify-content:center; gap:26px;
+  font-family:'Tajawal','Cairo',sans-serif;
+  cursor:pointer; overflow:hidden;
+}
+#logoGate .gate-stars{ position:absolute; inset:0; pointer-events:none; }
+#logoGate .gate-star{
+  position:absolute; background:#fff; border-radius:50%;
+  animation:gateTwinkle 3s ease-in-out infinite;
+}
+@keyframes gateTwinkle{
+  0%,100%{ opacity:.15; transform:scale(1); }
+  50%{ opacity:.9; transform:scale(1.4); }
+}
+.gate-logo-wrap{
+  position:relative; width:min(260px,64vw); height:min(260px,64vw);
+  display:flex; align-items:center; justify-content:center;
+}
+.gate-halo{
+  position:absolute; inset:-14%;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(139,92,246,.42) 0%,rgba(139,92,246,0) 68%);
+  animation:gatePulse 3.4s ease-in-out infinite;
+}
+@keyframes gatePulse{
+  0%,100%{ transform:scale(1); opacity:.55; }
+  50%{ transform:scale(1.16); opacity:1; }
+}
+.gate-ring{
+  position:absolute; inset:0;
+  border-radius:50%;
+  border:2px solid rgba(167,139,250,.5);
+  border-top-color:rgba(255,255,255,.95);
+  border-right-color:rgba(236,72,153,.75);
+  animation:gateSpin 6s linear infinite;
+}
+.gate-ring.r2{
+  inset:9%;
+  border-color:rgba(96,165,250,.42);
+  border-bottom-color:rgba(255,255,255,.9);
+  border-left-color:rgba(16,185,129,.7);
+  animation:gateSpin 4.2s linear infinite reverse;
+}
+.gate-ring.r3{
+  inset:19%;
+  border-color:rgba(245,158,11,.34);
+  border-top-color:rgba(255,255,255,.8);
+  animation:gateSpin 8.5s linear infinite;
+}
+@keyframes gateSpin{ to{ transform:rotate(360deg); } }
+#gateLogoImg{
+  position:relative; z-index:3;
+  width:66%; height:66%;
+  object-fit:contain;
+  border-radius:50%;
+  animation:gateFloat 4.5s ease-in-out infinite;
+  filter:drop-shadow(0 0 22px rgba(139,92,246,.85));
+}
+@keyframes gateFloat{
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-11px) scale(1.05); }
+}
+.gate-spark{
+  position:absolute; width:7px; height:7px;
+  background:#fff; border-radius:50%;
+  box-shadow:0 0 12px 3px rgba(255,255,255,.9);
+  animation:gateOrbit 5s linear infinite;
+}
+.gate-spark.s2{ animation-duration:7s; animation-delay:-2s; background:#f0abfc; }
+.gate-spark.s3{ animation-duration:9s; animation-delay:-4s; background:#7dd3fc; }
+@keyframes gateOrbit{
+  from{ transform:rotate(0deg) translateX(min(130px,32vw)) rotate(0deg); }
+  to{   transform:rotate(360deg) translateX(min(130px,32vw)) rotate(-360deg); }
+}
+.gate-title{
+  font-size:26px; font-weight:900; letter-spacing:1px;
+  background:linear-gradient(90deg,#a78bfa,#f0abfc,#7dd3fc,#a78bfa);
+  background-size:280% auto;
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+  animation:gateShimmer 4s linear infinite;
+  text-align:center;
+}
+@keyframes gateShimmer{ to{ background-position:280% center; } }
+.gate-tap{
+  font-size:15px; font-weight:800; color:#cbd5e1;
+  padding:12px 30px; border-radius:30px;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(255,255,255,.07);
+  backdrop-filter:blur(6px);
+  animation:gateBreathe 2s ease-in-out infinite;
+}
+@keyframes gateBreathe{
+  0%,100%{ transform:scale(1); opacity:.82; }
+  50%{ transform:scale(1.07); opacity:1; }
+}
+</style>
+
+<div id="logoGate" onclick="enterFromGate()">
+  <div class="gate-stars" id="gateStars"></div>
+  <div class="gate-logo-wrap">
+    <div class="gate-halo"></div>
+    <div class="gate-ring"></div>
+    <div class="gate-ring r2"></div>
+    <div class="gate-ring r3"></div>
+    <div class="gate-spark"></div>
+    <div class="gate-spark s2"></div>
+    <div class="gate-spark s3"></div>
+    <img id="gateLogoImg" alt="PlayVerse">
+  </div>
+  <div class="gate-title">PlayVerse</div>
+  <div class="gate-tap" id="gateTapTxt">✨ اضغط للدخول ✨</div>
+</div>
+
+<script>
+(function(){
+  // نجوم الخلفية
+  var box = document.getElementById('gateStars');
+  if (box){
+    for (var i = 0; i < 46; i++){
+      var s = document.createElement('div');
+      s.className = 'gate-star';
+      var sz = Math.random() * 2.6 + 1;
+      s.style.width = sz + 'px';
+      s.style.height = sz + 'px';
+      s.style.left = (Math.random() * 100) + '%';
+      s.style.top = (Math.random() * 100) + '%';
+      s.style.animationDelay = (Math.random() * 3) + 's';
+      box.appendChild(s);
+    }
+  }
+  // نستعير نفس صورة اللوجو الموجودة بشاشة اللغة
+  function loadGateLogo(){
+    var src = document.querySelector('#langPicker .pl-img');
+    var img = document.getElementById('gateLogoImg');
+    if (src && img) img.src = src.src;
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', loadGateLogo);
+  else loadGateLogo();
+})();
+
+function enterFromGate(){
+  var gate = document.getElementById('logoGate');
+  // الموسيقى تبدأ من هون — ضغطة صريحة فالمتصفح بيسمح بالصوت
+  try { if (typeof window._armPickerMusic === 'function') window._armPickerMusic(); } catch(e){}
+  if (gate){
+    gate.style.transition = 'opacity .45s';
+    gate.style.opacity = '0';
+    setTimeout(function(){ gate.style.display = 'none'; }, 450);
+  }
+  var p = document.getElementById('langPicker');
+  if (p) p.style.display = 'flex';
+}
 </script>
 
 <!-- ===== زر الرجوع للشاشة الرئيسية ===== -->
@@ -768,15 +942,21 @@ body{
   <span style="font-size:17px">🏠</span><span id="homeBackTxt">الرئيسية</span>
 </button>
 <script>
+var GATE_TXT = {
+  ar:"✨ اضغط للدخول ✨", en:"✨ Tap to enter ✨", fr:"✨ Appuyez pour entrer ✨",
+  es:"✨ Toca para entrar ✨", sv:"✨ Tryck för att öppna ✨",
+  ru:"✨ Нажмите, чтобы войти ✨", zh:"✨ 点击进入 ✨", hi:"✨ प्रवेश के लिए दबाएं ✨"
+};
 var HOME_TXT = {
   ar:"الرئيسية", en:"Home", fr:"Accueil", es:"Inicio",
   sv:"Hem", ru:"Главная", zh:"首页", hi:"होम"
 };
 function updateHomeBtnText(){
-  var el = document.getElementById('homeBackTxt');
-  if (!el) return;
   var L = (typeof LANG !== 'undefined' && LANG) ? LANG : 'ar';
-  el.textContent = HOME_TXT[L] || HOME_TXT.ar;
+  var el = document.getElementById('homeBackTxt');
+  if (el) el.textContent = HOME_TXT[L] || HOME_TXT.ar;
+  var gt = document.getElementById('gateTapTxt');
+  if (gt) gt.textContent = GATE_TXT[L] || GATE_TXT.ar;
 }
 function showHomeBtn(){
   var b = document.getElementById('homeBackBtn');
@@ -1347,8 +1527,15 @@ function setLang(l){
     var ALWAYS_ASK = true;
 
     if (ALWAYS_ASK || !LANG) {
+      // شاشة اللوجو الدوّار تظهر أولاً، وشاشة اللغة بعد الضغط عليها
+      var gate = document.getElementById('logoGate');
       var p = document.getElementById('langPicker');
-      if (p) p.style.display = 'flex';
+      if (gate) {
+        gate.style.display = 'flex';
+        if (p) p.style.display = 'none';
+      } else {
+        if (p) p.style.display = 'flex';
+      }
       var sp = document.getElementById('splashScreen');
       if (sp) sp.style.visibility = 'hidden';
       if (!LANG) LANG = 'ar';
