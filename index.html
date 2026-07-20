@@ -664,90 +664,52 @@ body{
   <div id="langGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(370px,94vw)"></div>
 </div>
 
-<!-- ===== موسيقى شاشة اختيار اللغة (مختلفة عن موسيقى الترحيب) ===== -->
+<!-- ===== موسيقى شاشة اللوجو + شاشة اللغة (ملف MP3) ===== -->
+<audio id="pickerAudio" src="bg.mp3" loop preload="auto"></audio>
 <script>
 (function(){
-  var pickerCtx = null, pickerStarted = false;
+  var a = null;
+
+  function el(){
+    if (!a) a = document.getElementById('pickerAudio');
+    return a;
+  }
 
   window.playPickerMusic = function(){
-    if (pickerStarted) return;
-    pickerStarted = true;
+    var au = el();
+    if (!au) return;
     try {
-      pickerCtx = new (window.AudioContext || window.webkitAudioContext)();
-      var ctx = pickerCtx, now = ctx.currentTime;
-
-      var master = ctx.createGain();
-      master.gain.value = 0.22;
-      master.connect(ctx.destination);
-
-      var rev = ctx.createDelay();
-      rev.delayTime.value = 0.55;
-      var revG = ctx.createGain();
-      revG.gain.value = 0.3;
-      rev.connect(revG); revG.connect(master);
-
-      // نغمة وترية دافئة — مختلفة تماماً عن أجراس شاشة الترحيب
-      function pad(freq, start, dur, vol){
-        var o = ctx.createOscillator();
-        var g = ctx.createGain();
-        var f = ctx.createBiquadFilter();
-        f.type = 'lowpass'; f.frequency.value = 1200;
-        o.type = 'triangle';
-        o.frequency.value = freq;
-        o.connect(f); f.connect(g);
-        g.connect(master); g.connect(rev);
-        g.gain.setValueAtTime(0, now + start);
-        g.gain.linearRampToValueAtTime(vol, now + start + 0.6);
-        g.gain.linearRampToValueAtTime(vol * 0.7, now + start + dur - 0.8);
-        g.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
-        o.start(now + start);
-        o.stop(now + start + dur);
-      }
-
-      // حلقة تتكرر: A minor -> F -> C -> G  (هادئة وعالمية)
-      var chords = [
-        [220.00, 261.63, 329.63],
-        [174.61, 220.00, 261.63],
-        [130.81, 196.00, 261.63],
-        [196.00, 246.94, 293.66]
-      ];
-      var LOOPS = 6, BAR = 3.2;
-      for (var L = 0; L < LOOPS; L++){
-        for (var c = 0; c < chords.length; c++){
-          var st = L * (chords.length * BAR) + c * BAR;
-          for (var n = 0; n < chords[c].length; n++){
-            pad(chords[c][n], st, BAR + 0.9, 0.09);
-          }
-        }
-      }
-    } catch(e){ console.log('picker music:', e); }
-  };
-
-  window.stopPickerMusic = function(){
-    if (!pickerCtx) return;
-    try {
-      var c = pickerCtx;
-      pickerCtx = null;
-      setTimeout(function(){ try { c.close(); } catch(e){} }, 100);
+      au.volume = 0.55;
+      var pr = au.play();
+      if (pr && pr.catch) pr.catch(function(){});
     } catch(e){}
   };
 
-  // الموسيقى تبدأ عند أول تفاعل حقيقي — ونعيد المحاولة حتى تنجح
+  // تلاشي تدريجي عند الخروج (بدل القطع المفاجئ)
+  window.stopPickerMusic = function(){
+    var au = el();
+    if (!au) return;
+    try {
+      var v = au.volume, steps = 14;
+      var fade = setInterval(function(){
+        v -= (0.55 / steps);
+        if (v <= 0.02){
+          clearInterval(fade);
+          try { au.pause(); au.currentTime = 0; au.volume = 0.55; } catch(e){}
+        } else {
+          au.volume = Math.max(0, v);
+        }
+      }, 55);
+    } catch(e){ try { au.pause(); } catch(e2){} }
+  };
+
   function armPicker(){
     var p = document.getElementById('langPicker');
     var gate = document.getElementById('logoGate');
     var gateOpen = gate && gate.style.display !== 'none';
     var pickerOpen = p && p.style.display !== 'none';
     if (!gateOpen && !pickerOpen) return;
-    // لو السياق موجود بس معلّق، نوقظه
-    if (pickerCtx && pickerCtx.state === 'suspended'){
-      try { pickerCtx.resume(); } catch(e){}
-      return;
-    }
     window.playPickerMusic();
-    if (pickerCtx && pickerCtx.state === 'suspended'){
-      try { pickerCtx.resume(); } catch(e){}
-    }
   }
   window._armPickerMusic = armPicker;
   ['click','touchend','keydown'].forEach(function(ev){
