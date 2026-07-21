@@ -105,16 +105,76 @@ body{font-family:'Tajawal',sans-serif;background:#050208;color:#fff;min-height:1
 .quiz-opt{width:100%;padding:10px 14px;font-size:16px;text-align:right;border-radius:10px;margin:4px 0;cursor:pointer;color:#fff;background:#1A1040;border:2px solid rgba(147,51,234,.3);font-family:'Tajawal',sans-serif;transition:all .2s}
 .quiz-opt:hover{border-color:#F59E0B}
 </style>
+<style>
+.cg-mode{display:flex;align-items:center;gap:12px;text-align:right;background:rgba(245,158,11,.08);
+  border:2px solid rgba(245,158,11,.3);border-radius:16px;padding:13px 15px;margin:10px auto;max-width:340px;
+  cursor:pointer;transition:.2s}
+.cg-mode:hover{border-color:#F59E0B;background:rgba(245,158,11,.16)}
+.cg-mode:active{transform:scale(.97)}
+.cg-mi{flex-shrink:0;font-size:1.7rem}
+.cg-mt{font-weight:900;font-size:16px;color:#FDE9C0}
+.cg-md{font-size:12px;color:#D0C0E8;line-height:1.6;margin-top:2px}
+.cg-empty{text-align:center;color:#D0C0E8;padding:34px 8px;line-height:1.9}
+.cg-row{display:flex;align-items:center;gap:9px;background:rgba(245,158,11,.08);
+  border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:9px 11px;margin-bottom:7px}
+.cg-rank{flex-shrink:0;width:32px;text-align:center;font-weight:900;color:#F59E0B}
+.cg-mid{flex:1;min-width:0}
+.cg-nm{font-weight:900;font-size:15px;color:#FDE9C0}
+.cg-st{font-size:12px;color:#D0C0E8;line-height:1.6;margin-top:2px}
+.cg-del{flex-shrink:0;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#FCA5A5;
+  width:29px;height:29px;border-radius:8px;cursor:pointer;font-size:13px;opacity:.55}
+.cg-del:hover{opacity:1}
+</style>
 </head>
 <body>
 <div class="ct">
 <div class="global-timer" id="globalTimer">⏱️ 00:00</div>
 
-<div id="pgName" class="pg on">
+<div id="pgMode" class="pg on">
+  <div style="text-align:center;padding-top:40px">
+    <div style="font-size:60px;margin-bottom:6px">🏰</div>
+    <h1 class="gold-tl">القصر الملعون</h1>
+    <p style="color:#D0C0E8;font-size:15px;margin:8px 0 16px">اختر نمط اللعب</p>
+
+    <div class="cg-mode" onclick="cgPickMode('solo')">
+      <div class="cg-mi">🎯</div>
+      <div><div class="cg-mt">لعب فردي</div>
+      <div class="cg-md">تلعب وحدك — نتيجتك لا تُرصد ولا يراها أحد</div></div>
+    </div>
+
+    <div class="cg-mode" onclick="cgPickMode('exam')">
+      <div class="cg-mi">📋</div>
+      <div><div class="cg-mt">اختبار</div>
+      <div class="cg-md">تكتب اسمك — نتيجتك تصل للمعلّمة فقط</div></div>
+    </div>
+
+    <div class="cg-mode" onclick="cgPickMode('team')">
+      <div class="cg-mi">👥</div>
+      <div><div class="cg-mt">تحدي الصف</div>
+      <div class="cg-md">تكتب اسمك — نتيجتك تظهر في لوحة الصف للجميع</div></div>
+    </div>
+
+    <button class="btn btn-dark" style="width:80%;max-width:300px;margin:14px auto 4px" onclick="cgShowLB()">🏆 لوحة نتائج الصف</button>
+    <button class="btn btn-dark" style="width:80%;max-width:300px;margin:4px auto;opacity:.45;font-size:13px" onclick="cgExamLog()">📋 سجل الاختبارات (للمعلّمة)</button>
+  </div>
+</div>
+
+<div id="pgLB" class="pg">
+  <div style="text-align:center;padding-top:20px">
+    <h1 class="gold-tl" id="cgLBTitle" style="font-size:24px">🏆 لوحة نتائج الصف</h1>
+    <p style="color:#D0C0E8;font-size:14px;margin:6px 0 12px" id="cgLBSub">القصر الملعون</p>
+    <div id="cgLBContent" style="max-width:520px;margin:0 auto;text-align:right"></div>
+    <button class="btn btn-dark" style="width:80%;max-width:300px;margin:14px auto 4px" onclick="go('pgMode')">🔙 رجوع</button>
+    <button class="btn btn-dark" style="width:80%;max-width:300px;margin:4px auto;opacity:.5;font-size:13px" onclick="cgDelAll()">🗑️ حذف كل النتائج (للمعلّمة)</button>
+  </div>
+</div>
+
+<div id="pgName" class="pg">
   <div style="text-align:center;padding-top:60px">
     <div style="font-size:70px;margin-bottom:10px">🏰</div>
     <h1 class="gold-tl">القصر الملعون</h1>
-    <p style="color:#D0C0E8;font-size:16px;margin:10px 0">أدخل اسمك لبدء المغامرة!</p>
+    <h2 class="gold-tl" id="cgNameTitle" style="font-size:22px;margin:4px 0">تحدي الصف</h2>
+    <p id="cgNameDesc" style="color:#D0C0E8;font-size:15px;margin:8px 0">اكتب اسمك ليظهر في لوحة نتائج الصف</p>
     <input class="name-input" id="playerName" placeholder="اكتب اسمك هنا..." maxlength="20">
     <button class="btn btn-gold" style="width:80%;max-width:300px;margin:14px auto" onclick="startWithName()">⚔️ ابدأ!</button>
   </div>
@@ -206,6 +266,7 @@ function startWithName(){
   var n=document.getElementById('playerName').value.trim();
   if(!n){document.getElementById('playerName').style.borderColor='#EF4444';return}
   playerName=n;
+  try{localStorage.setItem('cg_name',n)}catch(e){}
   document.getElementById('playerName').style.borderColor='#F59E0B';
   cs=0;updSlide();go('pgStory');
 }
@@ -525,6 +586,7 @@ function showQuizResult(){
     +'<div class="screenshot-hint">📸 صوّر هذه الشاشة وأرسلها لمعلّمك!</div>'
     +'</div>'
     +'<div class="ws-card" style="width:100%;max-width:100%;text-align:center"><div style="color:#F59E0B;font-weight:700;font-size:16px;margin-bottom:8px">📋 النتيجة النهائية</div><div style="font-size:54px;font-weight:900;color:#F59E0B;margin:12px 0">'+quizScore+' / 10</div><div style="font-size:18px;margin:8px 0">'+msg+'</div><div style="font-size:15px;color:#D0C0E8">العلامة: '+pct+'%</div></div>';
+  if(typeof cgSaveResult==='function')cgSaveResult();
   document.getElementById('genieSection').style.display='block';
   var prizes=[
     {txt:'🏆 فزت بأربعين نقطة!<br>مبروووك!',c:'#F59E0B'},
@@ -545,6 +607,126 @@ function revPrize(el){
   el.style.borderColor=el.getAttribute('data-c');
   el.style.background='rgba(245,158,11,.05)';
   var _c=document.querySelectorAll('.prize-card');for(var _i=0;_i<_c.length;_i++){if(_c[_i]!==el){_c[_i].style.opacity='.3';_c[_i].style.pointerEvents='none'}}
+}
+</script>
+
+<script>
+/* ===== لوحة النتائج — القصر الملعون ===== */
+var CG_PASS='amani2026', CG_GAME='castle', cgDB=null, CG_MODE='solo';
+(function(){
+  function boot(){
+    try{
+      firebase.initializeApp({
+        apiKey:"AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",
+        authDomain:"cursed-castle-bb43b.firebaseapp.com",
+        projectId:"cursed-castle-bb43b",
+        storageBucket:"cursed-castle-bb43b.firebasestorage.app",
+        messagingSenderId:"458563878259",
+        appId:"1:458563878259:web:715ce9f960b2972ccd9906"
+      });
+      cgDB=firebase.firestore();
+    }catch(e){console.log('FB',e)}
+  }
+  function ld(u,cb){var x=document.createElement('script');x.src=u;x.onload=cb;x.onerror=function(){cb()};document.head.appendChild(x)}
+  ld('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',function(){
+    if(typeof firebase==='undefined')return;
+    ld('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',boot);
+  });
+})();
+
+function cgEsc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function cgPickMode(m){
+  CG_MODE=m;
+  if(m==='solo'){ if(typeof playerName!=='undefined')playerName='لاعب'; cs=0; updSlide(); go('pgStory'); return; }
+  var t=document.getElementById('cgNameTitle'), d=document.getElementById('cgNameDesc');
+  if(m==='exam'){ if(t)t.textContent='📋 اختبار'; if(d)d.innerHTML='اكتب اسمك — نتيجتك تصل إلى <b style="color:#F59E0B">المعلّمة</b> فقط'; }
+  else { if(t)t.textContent='تحدي الصف'; if(d)d.textContent='اكتب اسمك ليظهر في لوحة نتائج الصف'; }
+  try{var v=localStorage.getItem('cg_name')||'';var i=document.getElementById('playerName');if(i&&v)i.value=v;}catch(e){}
+  go('pgName');
+}
+
+function cgSaveResult(){
+  if(CG_MODE==='solo')return;
+  if(!cgDB)return;
+  try{
+    cgDB.collection('playverse_scores').add({
+      game:CG_GAME, mode:CG_MODE,
+      name:(typeof playerName!=='undefined'?playerName:'لاعب'),
+      stages:(typeof stagesCompleted!=='undefined'?stagesCompleted:0),
+      correct:(typeof totalCorrect!=='undefined'?totalCorrect:0),
+      total:(typeof totalWords!=='undefined'?totalWords:0),
+      quiz:(typeof quizScore!=='undefined'?quizScore:0),
+      time:(typeof totalGameTime!=='undefined'?totalGameTime:0),
+      timestamp:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(e){console.log('save',e)}
+}
+
+function cgRender(rows, box, showRank){
+  var med=['🥇','🥈','🥉'],h='';
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    var m=Math.floor((r.time||0)/60),sc=(r.time||0)%60;
+    h+='<div class="cg-row"><div class="cg-rank">'+(showRank&&i<3?med[i]:(i+1))+'</div>'
+      +'<div class="cg-mid"><div class="cg-nm">'+cgEsc(r.name)+'</div>'
+      +'<div class="cg-st">📝 '+(r.quiz||0)+'/10 • ⭐ '+(r.stages||0)+'/7 مراحل • ✅ '
+      +(r.correct||0)+'/'+(r.total||0)+' • ⏱ '+m+':'+(sc<10?'0':'')+sc+'</div></div>'
+      +'<button class="cg-del" onclick="cgDelOne(\''+r._id+'\')">🗑️</button></div>';
+  }
+  box.innerHTML=h;
+}
+
+function cgShowLB(){
+  go('pgLB');
+  document.getElementById('cgLBTitle').textContent='🏆 لوحة نتائج الصف';
+  document.getElementById('cgLBSub').textContent='القصر الملعون';
+  var box=document.getElementById('cgLBContent');
+  box.innerHTML='<div class="cg-empty">جارٍ التحميل... ⏳</div>';
+  if(!cgDB){box.innerHTML='<div class="cg-empty">لا يوجد اتصال بالإنترنت.<br>افتح اللعبة من الرابط على الإنترنت 🌐</div>';return}
+  cgDB.collection('playverse_scores').where('game','==',CG_GAME).limit(400).get().then(function(snap){
+    var rows=[];snap.forEach(function(d){var o=d.data();o._id=d.id;if(o.mode==='exam')return;rows.push(o)});
+    if(!rows.length){box.innerHTML='<div class="cg-empty">لا توجد نتائج بعد! كن أول من يسجّل 🌟</div>';return}
+    rows.sort(function(a,b){
+      if((b.quiz||0)!==(a.quiz||0))return (b.quiz||0)-(a.quiz||0);
+      if((b.stages||0)!==(a.stages||0))return (b.stages||0)-(a.stages||0);
+      return (a.time||0)-(b.time||0);
+    });
+    cgRender(rows, box, true);
+  }).catch(function(){box.innerHTML='<div class="cg-empty">تعذّر التحميل.</div>'});
+}
+
+function cgExamLog(){
+  var p=prompt('أدخلي كلمة السر لعرض سجل الاختبارات:');
+  if(p!==CG_PASS){if(p!==null)alert('كلمة السر غير صحيحة');return}
+  go('pgLB');
+  document.getElementById('cgLBTitle').textContent='📋 سجل الاختبارات';
+  document.getElementById('cgLBSub').textContent='للمعلّمة فقط — نتائج نمط الاختبار';
+  var box=document.getElementById('cgLBContent');
+  box.innerHTML='<div class="cg-empty">جارٍ التحميل... ⏳</div>';
+  if(!cgDB){box.innerHTML='<div class="cg-empty">لا يوجد اتصال بالإنترنت 🌐</div>';return}
+  cgDB.collection('playverse_scores').where('game','==',CG_GAME).limit(400).get().then(function(snap){
+    var rows=[];snap.forEach(function(d){var o=d.data();o._id=d.id;if(o.mode==='exam')rows.push(o)});
+    if(!rows.length){box.innerHTML='<div class="cg-empty">لا توجد نتائج اختبار بعد.</div>';return}
+    rows.sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'ar')});
+    cgRender(rows, box, false);
+  }).catch(function(){box.innerHTML='<div class="cg-empty">تعذّر التحميل.</div>'});
+}
+
+function cgDelOne(id){
+  var p=prompt('أدخلي كلمة السر لحذف هذه النتيجة:');
+  if(p!==CG_PASS){if(p!==null)alert('كلمة السر غير صحيحة');return}
+  if(!cgDB){alert('لا يوجد اتصال');return}
+  cgDB.collection('playverse_scores').doc(id).delete().then(cgShowLB).catch(function(){alert('تعذّر الحذف')});
+}
+function cgDelAll(){
+  var p=prompt('أدخلي كلمة السر لحذف كل النتائج:');
+  if(p!==CG_PASS){if(p!==null)alert('كلمة السر غير صحيحة');return}
+  if(!confirm('سيتم حذف كل نتائج القصر الملعون. متأكدة؟'))return;
+  if(!cgDB){alert('لا يوجد اتصال');return}
+  cgDB.collection('playverse_scores').where('game','==',CG_GAME).get().then(function(snap){
+    var bt=cgDB.batch();snap.forEach(function(d){bt.delete(d.ref)});return bt.commit();
+  }).then(function(){alert('تم الحذف ✅');cgShowLB()}).catch(function(){alert('تعذّر الحذف')});
 }
 </script>
 </body>

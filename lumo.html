@@ -343,6 +343,25 @@ body{font-family:Cairo,sans-serif;background:#05030f;color:#fff;overflow-x:hidde
   animation:tPulse 1.2s ease-in-out infinite}
 .pauseveil .pv-note{font-size:.76rem;color:rgba(255,255,255,.45);margin-bottom:16px}
 
+
+/* ===== لوحة النتائج ===== */
+.lb-empty{text-align:center;color:rgba(255,255,255,.5);padding:38px 10px;font-family:Amiri,serif;line-height:1.9}
+.lb-row{display:flex;align-items:center;gap:10px;background:rgba(160,90,255,.09);border:1px solid rgba(160,90,255,.22);
+  border-radius:13px;padding:10px 12px;margin-bottom:8px}
+.lb-rank{flex-shrink:0;width:34px;text-align:center;font-weight:900;font-size:1.05rem;color:#ffc107}
+.lb-mid{flex:1;text-align:right;min-width:0}
+.lb-name{font-family:Amiri,serif;font-weight:700;font-size:1rem;color:#e8d5ff}
+.lb-sub{font-size:.68rem;color:rgba(255,255,255,.45);margin:1px 0 3px}
+.lb-stats{font-size:.72rem;color:rgba(255,225,160,.8);line-height:1.6}
+.lb-del{flex-shrink:0;background:rgba(244,67,54,.14);border:1px solid rgba(244,67,54,.3);color:#ef9a9a;
+  width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:.8rem;opacity:.5;transition:.2s}
+.lb-del:hover{opacity:1;background:rgba(244,67,54,.28)}
+/* شاشة الاسم */
+.namebox{width:100%;max-width:400px;margin:auto;text-align:center;padding:20px}
+.nameinput{width:100%;padding:14px;border-radius:14px;border:2px solid rgba(160,90,255,.4);
+  background:rgba(255,255,255,.07);color:#fff;font-family:Cairo,sans-serif;font-size:1.05rem;text-align:center}
+.nameinput:focus{outline:none;border-color:#b34cff;box-shadow:0 0 18px rgba(160,60,255,.4)}
+
 </style>
 </head>
 <body>
@@ -355,9 +374,67 @@ body{font-family:Cairo,sans-serif;background:#05030f;color:#fff;overflow-x:hidde
 <div class="hero1" id="hero0" style="min-height:auto;margin-bottom:2px"></div>
 <div class="gtitle">✨ عالم اللومو<br>والنواة السحرية</div>
 <div class="gsub">رحلة إنقاذ النور من داروك ملك الظُلمات<br><span style="font-size:.6rem;opacity:.5">v5</span></div>
-<button class="benter" onclick="go('p_levels')">🎮 ابدأ المغامرة!</button>
+<button class="benter" onclick="go('p_mode')">🎮 ابدأ المغامرة!</button>
 </div></div>
 </div>
+
+<!-- ========== اختيار نمط اللعب ========== -->
+<div id="p_mode" class="pg col" style="background:linear-gradient(180deg,#0d0522,#1a0a35,#05030f)">
+<div class="lvwrap">
+<div class="lvhead">
+<h1>⚔️ كيف تريد أن تلعب؟</h1>
+<p>اختر نمط اللعب المناسب لك</p>
+</div>
+
+<div class="lvcard" onclick="pickMode('solo')">
+<div class="lvnum">🎯</div>
+<div class="lvtxt"><b>لعب فردي</b>
+<span>تلعب وحدك — نتيجتك تبقى على جهازك ولا تظهر لأحد</span></div>
+</div>
+
+<div class="lvcard" onclick="pickMode('exam')">
+<div class="lvnum">📋</div>
+<div class="lvtxt"><b>اختبار</b>
+<span>تكتب اسمك — نتيجتك تصل للمعلّمة فقط، ولا يراها أحد غيرها</span></div>
+</div>
+
+<div class="lvcard" onclick="pickMode('team')">
+<div class="lvnum">👥</div>
+<div class="lvtxt"><b>تحدي الصف</b>
+<span>تكتب اسمك — نتيجتك تظهر في لوحة نتائج الصف للجميع</span></div>
+</div>
+
+<div style="text-align:center;margin-top:14px">
+<button class="btn bghost" style="max-width:280px;font-size:.85rem" onclick="showLB()">🏆 عرض لوحة النتائج</button>
+<button class="btn bghost" style="max-width:280px;font-size:.78rem;opacity:.45" onclick="showExamLog()">📋 سجل الاختبارات (للمعلّمة)</button>
+</div>
+</div></div>
+
+<!-- ========== إدخال الاسم ========== -->
+<div id="p_name" class="pg col" style="background:linear-gradient(180deg,#0d0522,#1a0a35,#05030f)">
+<div class="namebox">
+<div style="font-size:2.4rem;margin-bottom:6px">🧝</div>
+<div class="stitle" id="nameTitle" style="margin-bottom:6px">من أنت أيها البطل؟</div>
+<div id="nameDesc" style="font-family:Amiri,serif;font-size:.9rem;color:rgba(255,255,255,.55);line-height:1.8;margin-bottom:14px">
+اكتب اسمك ليظهر في لوحة نتائج الصف
+</div>
+<input class="nameinput" id="nameInput" maxlength="24" placeholder="اسمك هنا..." autocomplete="off">
+<button class="btn bgo" onclick="saveNameAndGo()">✨ ابدأ!</button>
+<button class="btn bghost" onclick="showLB()">🏆 لوحة النتائج</button>
+</div></div>
+
+<!-- ========== لوحة النتائج ========== -->
+<div id="p_lb" class="pg col" style="background:linear-gradient(180deg,#0d0522,#1a0a35,#05030f)">
+<div class="lvwrap">
+<div class="lvhead">
+<h1 id="lbTitle">🏆 لوحة نتائج الصف</h1>
+<p id="lbSub">عالم اللومو والنواة السحرية</p>
+</div>
+<div id="lbContent"></div>
+<button class="btn bghost" style="margin-top:14px" onclick="go('p_levels')">🏠 المراحل</button>
+<button class="btn bghost" style="opacity:.5;font-size:.8rem" onclick="delAllLB()">🗑️ حذف كل النتائج (للمعلّمة)</button>
+<button class="btn bghost" style="opacity:.5;font-size:.8rem" onclick="showExamLog()">📋 سجل الاختبارات (للمعلّمة)</button>
+</div></div>
 
 <!-- ========== اختيار المراحل ========== -->
 <div id="p_levels" class="pg col" style="background:linear-gradient(180deg,#0d0522,#1a0a35,#05030f)">
@@ -365,6 +442,8 @@ body{font-family:Cairo,sans-serif;background:#05030f;color:#fff;overflow-x:hidde
 <div class="lvhead">
 <h1>🔮 اختر مرحلتك</h1>
 <p>ثلاث مراحل — كلها مفتوحة، ابدأ من حيث تشاء</p>
+<button class="btn bghost" style="max-width:260px;margin-top:8px;font-size:.85rem" onclick="showLB()">🏆 لوحة نتائج الصف</button>
+<button class="btn bghost" style="max-width:260px;margin-top:5px;font-size:.78rem;opacity:.6" onclick="go('p_mode')">⚔️ تغيير نمط اللعب</button>
 </div>
 
 <div class="lvcard" onclick="startLevel(0)">
@@ -540,6 +619,7 @@ body{font-family:Cairo,sans-serif;background:#05030f;color:#fff;overflow-x:hidde
 <div style="font-family:Amiri,serif;font-size:clamp(1.1rem,4vw,1.6rem);color:#ffc107;margin-bottom:10px" id="resTitle"></div>
 <div id="resDetail" style="font-family:Amiri,serif;font-size:.9rem;color:rgba(255,235,190,.85);line-height:2;margin-bottom:14px"></div>
 <button class="btn bgo" onclick="go('p_genie')">🧞‍♂️ اذهب إلى أورو!</button>
+<button class="btn bghost" id="resLbBtn" style="display:none" onclick="showLB()">🏆 لوحة نتائج الصف</button>
 <button class="btn bghost" onclick="go('p_levels')">🏠 المراحل</button>
 </div></div></div>
 
@@ -1125,10 +1205,15 @@ function checkWS() {
   }
 
   if (bothDone) {
+    if (typeof saveResult === 'function' && !p._saved) { p._saved = true; saveResult(); }
     var b3 = document.createElement('button');
     b3.className = 'btn bgo'; b3.textContent = '🏅 عرض نتيجة المرحلة';
     b3.onclick = showResult;
     res.appendChild(b3);
+    var b5 = document.createElement('button');
+    b5.className = 'btn bghost'; b5.textContent = '🏆 لوحة نتائج الصف';
+    b5.onclick = showLB;
+    res.appendChild(b5);
   }
 
   var b4 = document.createElement('button');
@@ -1154,6 +1239,8 @@ function showResult() {
 
   document.getElementById('resEm').textContent = em;
   document.getElementById('resTitle').textContent = ttl + ' — ' + L.name;
+  var rb = document.getElementById('resLbBtn');
+  if (rb) rb.style.display = 'block';
   document.getElementById('resDetail').innerHTML =
     '🎮 نقاط اللعبة: <b class="y">' + p.game + '</b><br>'
     + '📝 الورقة الأساسية: <b class="y">' + p.easy + '/' + eT + '</b><br>'
@@ -1463,6 +1550,230 @@ function onTimeUp() {
     + '<p style="font-size:.85rem;color:rgba(255,255,255,.5)">أكمل ورقتي العمل لتظهر النتيجة و<b class="y">أورو</b>!</p>';
   refreshLevels();
   go('p_win');
+}
+
+
+/* ============ ربط شاشة الاسم ============ */
+function openName() {
+  loadName();
+  go('p_name');
+}
+
+/* ============ لوحة النتائج المشتركة (Firebase) ============ */
+var LB_PASS = 'amani2026';
+var LB_GAME = 'lumo';
+var db = null;
+var playerName = '';
+var PLAY_MODE = 'solo';   // solo | exam | team
+
+(function initFB() {
+  function boot() {
+    try {
+      firebase.initializeApp({
+        apiKey: "AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",
+        authDomain: "cursed-castle-bb43b.firebaseapp.com",
+        projectId: "cursed-castle-bb43b",
+        storageBucket: "cursed-castle-bb43b.firebasestorage.app",
+        messagingSenderId: "458563878259",
+        appId: "1:458563878259:web:715ce9f960b2972ccd9906"
+      });
+      db = firebase.firestore();
+    } catch (e) { console.log('FB init', e); }
+  }
+  function load(src, cb) {
+    var s = document.createElement('script');
+    s.src = src; s.onload = cb; s.onerror = function () { cb(); };
+    document.head.appendChild(s);
+  }
+  load('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js', function () {
+    if (typeof firebase === 'undefined') return;
+    load('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js', boot);
+  });
+})();
+
+/* --- اسم اللاعب --- */
+function loadName() {
+  try { playerName = localStorage.getItem('lumo_name') || ''; } catch (e) { playerName = ''; }
+  var i = document.getElementById('nameInput');
+  if (i) i.value = playerName;
+}
+
+function saveNameAndGo() {
+  var i = document.getElementById('nameInput');
+  var v = (i && i.value || '').trim();
+  if (v.length < 2) { alert('اكتبي اسمك أولاً 🙂'); return; }
+  playerName = v;
+  try { localStorage.setItem('lumo_name', v); } catch (e) {}
+  go('p_levels');
+}
+
+/* --- حفظ النتيجة --- */
+function saveResult() {
+  if (PLAY_MODE === 'solo') return;   // الفردي لا يُرفع إطلاقاً
+  if (!db) return;
+  var L = LEVELS[CUR], p = PROG[CUR] || { game: 0, easy: null, hard: null };
+  var eT = L.WS_EASY.length, hT = L.WS_HARD.length;
+  var used = GAME_SECONDS - gLeft; if (used < 0) used = 0;
+  try {
+    db.collection('playverse_scores').add({
+      game: LB_GAME,
+      mode: PLAY_MODE,
+      name: playerName || 'لاعب',
+      level: CUR + 1,
+      levelName: L.name,
+      score: p.game || 0,
+      easy: (p.easy === null ? -1 : p.easy),
+      easyTotal: eT,
+      hard: (p.hard === null ? -1 : p.hard),
+      hardTotal: hT,
+      time: used,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) { console.log('save err', e); }
+}
+
+/* --- عرض اللوحة --- */
+function showLB() {
+  go('p_lb');
+  var t = document.getElementById('lbTitle'), sb = document.getElementById('lbSub');
+  if (t) t.textContent = '🏆 لوحة نتائج الصف';
+  if (sb) sb.textContent = 'عالم اللومو والنواة السحرية';
+  var box = document.getElementById('lbContent');
+  box.innerHTML = '<div class="lb-empty">جارٍ التحميل... ⏳</div>';
+  if (!db) {
+    box.innerHTML = '<div class="lb-empty">لا يوجد اتصال بالإنترنت.<br>افتحي اللعبة من الرابط على الإنترنت لتظهر النتائج المشتركة 🌐</div>';
+    return;
+  }
+  db.collection('playverse_scores').where('game', '==', LB_GAME).limit(400).get()
+    .then(function (snap) {
+      var rows = [];
+      snap.forEach(function (d) {
+        var o = d.data(); o._id = d.id;
+        if (o.mode === 'exam') return;      // نتائج الاختبار سرّية
+        rows.push(o);
+      });
+      if (!rows.length) {
+        box.innerHTML = '<div class="lb-empty">لا توجد نتائج بعد! كوني أول من يسجّل 🌟</div>';
+        return;
+      }
+      // ترتيب: النقاط ثم أوراق العمل ثم الأسرع
+      rows.sort(function (a, b) {
+        var as = (a.score || 0) + Math.max(a.easy, 0) + Math.max(a.hard, 0);
+        var bs = (b.score || 0) + Math.max(b.easy, 0) + Math.max(b.hard, 0);
+        if (bs !== as) return bs - as;
+        return (a.time || 0) - (b.time || 0);
+      });
+      var medals = ['🥇', '🥈', '🥉'];
+      var h = '';
+      for (var i = 0; i < rows.length; i++) {
+        var s = rows[i];
+        var m = Math.floor((s.time || 0) / 60), sec = (s.time || 0) % 60;
+        var tm = m + ':' + (sec < 10 ? '0' : '') + sec;
+        var ws = function (v, t) { return (v < 0) ? '—' : (v + '/' + t); };
+        h += '<div class="lb-row">'
+          + '<div class="lb-rank">' + (i < 3 ? medals[i] : (i + 1)) + '</div>'
+          + '<div class="lb-mid">'
+          + '<div class="lb-name">' + esc(s.name) + '</div>'
+          + '<div class="lb-sub">المرحلة ' + (s.level || 1) + ' — ' + esc(s.levelName || '') + '</div>'
+          + '<div class="lb-stats">🔮 ' + (s.score || 0)
+          + ' • 📝 ' + ws(s.easy, s.easyTotal)
+          + ' • 🔥 ' + ws(s.hard, s.hardTotal)
+          + ' • ⏱ ' + tm + '</div>'
+          + '</div>'
+          + '<button class="lb-del" onclick="delOne(\'' + s._id + '\')" title="حذف">🗑️</button>'
+          + '</div>';
+      }
+      box.innerHTML = h;
+    })
+    .catch(function (e) {
+      box.innerHTML = '<div class="lb-empty">تعذّر تحميل النتائج.</div>';
+    });
+}
+
+function esc(t) {
+  return String(t == null ? '' : t)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* --- حذف (للمعلمة فقط) --- */
+function delOne(id) {
+  var pass = prompt('أدخلي كلمة السر لحذف هذه النتيجة:');
+  if (pass !== LB_PASS) { if (pass !== null) alert('كلمة السر غير صحيحة'); return; }
+  if (!db) { alert('لا يوجد اتصال'); return; }
+  db.collection('playverse_scores').doc(id).delete()
+    .then(function () { showLB(); })
+    .catch(function () { alert('تعذّر الحذف'); });
+}
+
+function delAllLB() {
+  var pass = prompt('أدخلي كلمة السر لحذف كل النتائج:');
+  if (pass !== LB_PASS) { if (pass !== null) alert('كلمة السر غير صحيحة'); return; }
+  if (!confirm('سيتم حذف كل نتائج هذه اللعبة. متأكدة؟')) return;
+  if (!db) { alert('لا يوجد اتصال'); return; }
+  db.collection('playverse_scores').where('game', '==', LB_GAME).get().then(function (snap) {
+    var batch = db.batch();
+    snap.forEach(function (d) { batch.delete(d.ref); });
+    return batch.commit();
+  }).then(function () { alert('تم الحذف ✅'); showLB(); })
+    .catch(function () { alert('تعذّر الحذف'); });
+}
+
+
+/* --- اختيار النمط --- */
+function pickMode(m) {
+  PLAY_MODE = m;
+  if (m === 'solo') { playerName = ''; go('p_levels'); return; }
+  loadName();
+  var t = document.getElementById('nameTitle');
+  var d = document.getElementById('nameDesc');
+  if (m === 'exam') {
+    if (t) t.textContent = '📋 اختبار';
+    if (d) d.innerHTML = 'اكتب اسمك — نتيجتك تصل إلى <b class="y">المعلّمة</b> فقط';
+  } else {
+    if (t) t.textContent = 'من أنت أيها البطل؟';
+    if (d) d.textContent = 'اكتب اسمك ليظهر في لوحة نتائج الصف';
+  }
+  go('p_name');
+}
+
+/* --- سجل الاختبارات (للمعلّمة فقط) --- */
+function showExamLog() {
+  var pass = prompt('أدخلي كلمة السر لعرض سجل الاختبارات:');
+  if (pass !== LB_PASS) { if (pass !== null) alert('كلمة السر غير صحيحة'); return; }
+  go('p_lb');
+  var box = document.getElementById('lbContent');
+  document.getElementById('lbTitle').textContent = '📋 سجل الاختبارات';
+  document.getElementById('lbSub').textContent = 'للمعلّمة فقط — نتائج نمط الاختبار';
+  box.innerHTML = '<div class="lb-empty">جارٍ التحميل... ⏳</div>';
+  if (!db) { box.innerHTML = '<div class="lb-empty">لا يوجد اتصال بالإنترنت 🌐</div>'; return; }
+  db.collection('playverse_scores').where('game', '==', LB_GAME).limit(400).get().then(function (snap) {
+    var rows = [];
+    snap.forEach(function (d) {
+      var o = d.data(); o._id = d.id;
+      if (o.mode === 'exam') rows.push(o);
+    });
+    if (!rows.length) { box.innerHTML = '<div class="lb-empty">لا توجد نتائج اختبار بعد.</div>'; return; }
+    rows.sort(function (a, b) { return String(a.name || '').localeCompare(String(b.name || ''), 'ar'); });
+    var h = '';
+    for (var i = 0; i < rows.length; i++) {
+      var s = rows[i];
+      var m = Math.floor((s.time || 0) / 60), sec = (s.time || 0) % 60;
+      var ws = function (v, t) { return (v < 0) ? '—' : (v + '/' + t); };
+      h += '<div class="lb-row">'
+        + '<div class="lb-rank">' + (i + 1) + '</div>'
+        + '<div class="lb-mid">'
+        + '<div class="lb-name">' + esc(s.name) + '</div>'
+        + '<div class="lb-sub">المرحلة ' + (s.level || 1) + ' — ' + esc(s.levelName || '') + '</div>'
+        + '<div class="lb-stats">🔮 ' + (s.score || 0)
+        + ' • 📝 ' + ws(s.easy, s.easyTotal)
+        + ' • 🔥 ' + ws(s.hard, s.hardTotal)
+        + ' • ⏱ ' + m + ':' + (sec < 10 ? '0' : '') + sec + '</div>'
+        + '</div>'
+        + '<button class="lb-del" onclick="delOne(\'' + s._id + '\')">🗑️</button>'
+        + '</div>';
+    }
+    box.innerHTML = h;
+  }).catch(function () { box.innerHTML = '<div class="lb-empty">تعذّر التحميل.</div>'; });
 }
 
 </script>
