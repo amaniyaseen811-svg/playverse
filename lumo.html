@@ -1340,7 +1340,7 @@ refreshLevels();
 
 /* ============ شخصية واحدة سحرية ============ */
 var CHARS = [
-  { k: 'niro', n: 'نيرو', p: '🌿 طاقة الطبيعة' },
+  { k: 'niro', n: 'نيرو', p: '🌿 طاقة الطبيعة' set
   { k: 'lumo', n: 'لومو', p: '💨 طاقة الرياح' },
   { k: 'zilo', n: 'زيلو', p: '✚ طاقة الشفاء' },
   { k: 'folo', n: 'فولو', p: '⚡ طاقة الكهرباء' },
@@ -1524,12 +1524,40 @@ function pauseGame() {
   gPaused = true;
   document.getElementById('pauseVeil').classList.add('on');
   paintTime();
+  lvStartBreak();
 }
-
-function resumeGame() {
+var lvBreakInt=null,lvBreakLeft=80;
+function lvStartBreak(){
+lvBreakLeft=80;
+var m=document.getElementById('lvBreakMsg');
+if(!m){m=document.createElement('div');m.id='lvBreakMsg';m.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2147483647;background:rgba(0,0,0,.92);color:#fff;padding:20px 24px;border-radius:16px;font-size:17px;text-align:center;line-height:1.8;max-width:300px;';document.body.appendChild(m);}
+m.style.display='block';
+clearInterval(lvBreakInt);
+lvBreakInt=setInterval(function(){
+lvBreakLeft--;
+if(lvBreakLeft>10){m.innerHTML='⏸ استراحة<br>'+lvBreakLeft+' ثانية<br><small>⚠️ وقت اللعبة ما زال يُحسب!</small>';}
+else if(lvBreakLeft>0){m.innerHTML='⏳ باقي '+lvBreakLeft+' ثوانٍ!<br><small>وقت الانتظار على وشك الانتهاء</small>';}
+else{clearInterval(lvBreakInt);m.innerHTML='⛔ انتهى وقت الانتظار!<br><small>وقت اللعبة كان يُحسب طوال الاستراحة</small><br><button onclick="lvEndBreak();resumeGame();" style="margin-top:10px;background:#10B981;color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:15px;cursor:pointer;">▶️ متابعة</button>';}
+},1000);
+}
+function lvEndBreak(){
+clearInterval(lvBreakInt);
+var m=document.getElementById('lvBreakMsg');
+if(m)m.style.display='none';
+}
+  function pauseGame() {
+if (timeUp) return;
+gPaused = true;
+document.getElementById('pauseVeil').classList.add('on');
+paintTime();
+  lvStartBreak();
+    }
+  function resumeGame() {
   gPaused = false;
+   lvEndBreak();
   document.getElementById('pauseVeil').classList.remove('on');
-}
+   } 
+
 
 function quitToLevels() {
   gPaused = false;
