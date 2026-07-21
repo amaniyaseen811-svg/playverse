@@ -1804,5 +1804,23 @@ function showExamLog() {
   }).catch(function () { box.innerHTML = '<div class="lb-empty">تعذّر التحميل.</div>'; });
 }
 
+document.write('<button id="lvBrkBtn" onclick="lvBrkGo()" style="position:fixed;top:12px;right:12px;z-index:2147483647;background:#F59E0B;color:#000;border:none;padding:10px 16px;border-radius:12px;font-size:16px;cursor:pointer;">⏸ استراحة</button>');
+var lvBrkOn=false,lvBrkLeft=80,lvBrkT=null;
+function lvBrkGo(){
+var b=document.getElementById('lvBrkBtn');
+var m=document.getElementById('lvBrkMsg');
+if(!m){m=document.createElement('div');m.id='lvBrkMsg';m.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2147483647;background:rgba(0,0,0,.92);color:#fff;padding:20px 24px;border-radius:16px;font-size:17px;text-align:center;line-height:1.8;max-width:300px;display:none;';document.body.appendChild(m);}
+if(!lvBrkOn){
+lvBrkOn=true;lvBrkLeft=80;b.textContent='▶️ متابعة';m.style.display='block';
+lvBrkT=setInterval(function(){
+lvBrkLeft--;
+if(lvBrkLeft>10){m.innerHTML='⏸ استراحة<br>'+lvBrkLeft+' ثانية<br><small>⚠️ وقت اللعبة ما زال يُحسب!</small>';}
+else if(lvBrkLeft>0){m.innerHTML='⏳ باقي '+lvBrkLeft+' ثوانٍ!<br><small>وقت الانتظار على وشك الانتهاء</small>';}
+else{clearInterval(lvBrkT);m.innerHTML='⛔ انتهى وقت الانتظار!<br><small>وقت اللعبة كان يُحسب طوال الاستراحة</small><br><button onclick="lvBrkGo()" style="margin-top:10px;background:#10B981;color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:15px;cursor:pointer;">▶️ متابعة</button>';}
+},1000);
+}else{
+clearInterval(lvBrkT);lvBrkOn=false;b.textContent='⏸ استراحة';m.style.display='none';
+}
+}
 </script>
 <a href="index.html" style="position:fixed;top:12px;left:12px;z-index:2147483647;background:#8B0000;color:#fff;padding:10px 16px;border-radius:12px;font-size:16px;text-decoration:none;">🏠 الرئيسية</a><style>a[href="index.html"]{position:fixed!important;z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important;}</style></body></html>
