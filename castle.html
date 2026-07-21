@@ -728,13 +728,22 @@ function cgDelAll(){
     var bt=cgDB.batch();snap.forEach(function(d){bt.delete(d.ref)});return bt.commit();
   }).then(function(){alert('تم الحذف ✅');cgShowLB()}).catch(function(){alert('تعذّر الحذف')});
 }
-var cgPaused=false,cgPausedElapsed=0;
-function cgTogglePause(){
-var b=document.getElementById('cgPauseBtn');
-if(!cgPaused){cgPausedElapsed=Math.floor((Date.now()-gameStartTime)/1000);clearInterval(gameTimerInt);cgPaused=true;b.textContent='▶️ متابعة';}
-else{gameStartTime=Date.now()-(cgPausedElapsed*1000);startGameTimer();cgPaused=false;b.textContent='⏸ توقف';}
+var cgBreakOn=false,cgBreakLeft=80,cgBreakInt=null;
+function cgToggleBreak(){
+var b=document.getElementById('cgBreakBtn'),m=document.getElementById('cgBreakMsg');
+if(!cgBreakOn){
+cgBreakOn=true;cgBreakLeft=80;b.textContent='▶️ متابعة';m.style.display='block';
+cgBreakInt=setInterval(function(){
+cgBreakLeft--;
+if(cgBreakLeft>10){m.innerHTML='⏸ استراحة — '+cgBreakLeft+' ثانية<br><small>⚠️ وقت اللعبة ما زال يُحسب!</small>';}
+else if(cgBreakLeft>0){m.innerHTML='⏳ باقي '+cgBreakLeft+' ثوانٍ!<br><small>وقت الانتظار على وشك الانتهاء</small>';}
+else{clearInterval(cgBreakInt);m.innerHTML='⛔ انتهى وقت الانتظار!<br><small>وقت اللعبة كان يُحسب طوال الاستراحة</small><br><button onclick="cgToggleBreak()" style="margin-top:8px;background:#10B981;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;">▶️ متابعة</button>';}
+},1000);
+}else{
+clearInterval(cgBreakInt);cgBreakOn=false;b.textContent='⏸ استراحة';m.style.display='none';
 }
-document.write('<button id="cgPauseBtn" onclick="cgTogglePause()" style="position:fixed;top:12px;right:12px;z-index:2147483647;background:#F59E0B;color:#000;border:none;padding:10px 16px;border-radius:12px;font-size:16px;cursor:pointer;">⏸ توقف</button>');
+}
+document.write('<button id="cgBreakBtn" onclick="cgToggleBreak()" style="position:fixed;top:12px;right:12px;z-index:2147483647;background:#F59E0B;color:#000;border:none;padding:10px 16px;border-radius:12px;font-size:16px;cursor:pointer;">⏸ استراحة</button><div id="cgBreakMsg" style="display:none;position:fixed;top:62px;right:12px;z-index:2147483647;background:rgba(0,0,0,.88);color:#fff;padding:12px 16px;border-radius:12px;font-size:15px;max-width:260px;text-align:center;line-height:1.6;"></div>');
 </script>
   <a href="index.html" style="position:fixed;top:12px;left:12px;z-index:99999;background:#8B0000;color:#fff;
    <style>a[href="index.html"]{position:fixed!important;z-index:2147483647!important;display:block!important
