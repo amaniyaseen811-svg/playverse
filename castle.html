@@ -728,8 +728,16 @@ function cgDelAll(){
     var bt=cgDB.batch();snap.forEach(function(d){bt.delete(d.ref)});return bt.commit();
   }).then(function(){alert('تم الحذف ✅');cgShowLB()}).catch(function(){alert('تعذّر الحذف')});
 }
+var cgPaused=false,cgPausedElapsed=0;
+function cgTogglePause(){
+var b=document.getElementById('cgPauseBtn');
+if(!cgPaused){cgPausedElapsed=Math.floor((Date.now()-gameStartTime)/1000);clearInterval(gameTimerInt);cgPaused=true;b.textContent='▶️ متابعة';}
+else{gameStartTime=Date.now()-(cgPausedElapsed*1000);startGameTimer();cgPaused=false;b.textContent='⏸ توقف';}
+}
+document.write('<button id="cgPauseBtn" onclick="cgTogglePause()" style="position:fixed;top:12px;right:12px;z-index:2147483647;background:#F59E0B;color:#000;border:none;padding:10px 16px;border-radius:12px;font-size:16px;cursor:pointer;">⏸ توقف</button>');
 </script>
   <a href="index.html" style="position:fixed;top:12px;left:12px;z-index:99999;background:#8B0000;color:#fff;
-   <style>a[href="index.html"]{position:fixed!important;z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important;}</style> padding:10px 16px;border-radius:12px;font-size:16px;text-decoration:none;">🏠 الرئيسية</a>
+   <style>a[href="index.html"]{position:fixed!important;z-index:2147483647!important;display:block!important
+    ;visibility:visible!important;opacity:1!important;}</style> padding:10px 16px;border-radius:12px;font-size:16px;text-decoration:none;">🏠 الرئيسية</a>
 </body>
 </html>
