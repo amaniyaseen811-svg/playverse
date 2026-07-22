@@ -194,13 +194,14 @@ body{font-family:Cairo,sans-serif;background:#05030f;color:#fff;overflow-x:hidde
 .modelbl{text-align:center;font-size:.68rem;font-weight:700;margin-bottom:9px;color:rgba(255,193,7,.6)}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 @media(max-width:430px){.opts{grid-template-columns:1fr}.parts{grid-template-columns:1fr 1fr}}
-.opt{padding:12px 10px;border-radius:12px;font-family:Cairo,sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;transition:.22s;border:2px solid;text-align:center;line-height:1.5;position:relative;opacity:0;animation:optIn .45s forwards}
+.opt{padding:12px 10px;border-radius:12px;font-family:Cairo,sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;transition:.22s;border:2px solid;text-align:center;line-height:1.5;position:relative;opacity:1;animation:optIn .45s forwards}
 .opts .opt:nth-child(1){animation-delay:.05s}
 .opts .opt:nth-child(2){animation-delay:.15s}
 .opts .opt:nth-child(3){animation-delay:.25s}
 .opts .opt:nth-child(4){animation-delay:.35s}
 @keyframes optIn{0%{opacity:0;transform:translateY(16px) scale(.93)}100%{opacity:1;transform:none}}
-.part{animation:optIn .5s forwards;opacity:0}
+@media(prefers-reduced-motion:reduce){.opt,.part{opacity:1!important;animation:none!important;transform:none!important}}
+.part{animation:optIn .5s forwards;opacity:1}
 .opt:active{transform:scale(.96)}
 .opt:disabled{cursor:default}
 .opt.ok{background:rgba(76,175,80,.3)!important;border-color:#66bb6a!important;color:#c8e6c9!important;animation:winFlash .5s}
