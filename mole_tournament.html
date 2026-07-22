@@ -989,9 +989,47 @@
     .ans-text { font-size: 11px; }
     .ans-arrow { font-size: 16px; }
   }
+/* ===== Intro motivational video ===== */
+#introVideoOverlay {
+  position: fixed; inset: 0; z-index: 99999;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+}
+#introVideoOverlay.hidden { display: none; }
+#introVideo {
+  width: 100%; height: 100%;
+  object-fit: contain; background: #000;
+}
+#introSkipBtn {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  z-index: 100000;
+  background: rgba(0,0,0,0.6); color: #fff;
+  border: 2px solid rgba(255,255,255,0.7); border-radius: 30px;
+  padding: 10px 26px; font-size: 17px; font-weight: bold;
+  font-family: inherit; cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+#introSkipBtn:active { transform: translateX(-50%) scale(0.95); }
+#introTapHint {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  z-index: 100000;
+  background: rgba(0,0,0,0.75); color: #fff;
+  border: 2px solid rgba(255,255,255,0.85); border-radius: 40px;
+  padding: 16px 30px; font-size: 19px; font-weight: bold;
+  font-family: inherit; cursor: pointer; display: none;
+  backdrop-filter: blur(4px);
+  animation: hintPulse 1.3s ease-in-out infinite;
+}
+@keyframes hintPulse { 0%,100%{transform:translate(-50%,-50%) scale(1);} 50%{transform:translate(-50%,-50%) scale(1.06);} }
 </style>
 </head>
 <body>
+<!-- ========== INTRO MOTIVATIONAL VIDEO ========== -->
+<div id="introVideoOverlay">
+  <video id="introVideo" playsinline preload="auto" src="mole_motiv.mp4"></video>
+  <button id="introSkipBtn">تخطّي ⏭️</button>
+  <button id="introTapHint">🔊 اضغط للتشغيل بالصوت</button>
+</div>
 <div class="stadium-bg"></div>
 <div class="flash-overlay" id="flashOverlay"></div>
 <div class="toast" id="toast"></div>
@@ -4369,11 +4407,54 @@ function hideTurnBanner() {
 }
 
 // ============ Init ============
+// ===== Intro motivational video controller =====
+function initIntroVideo() {
+  var overlay = document.getElementById('introVideoOverlay');
+  var video   = document.getElementById('introVideo');
+  var skipBtn = document.getElementById('introSkipBtn');
+  var tapHint = document.getElementById('introTapHint');
+  if (!overlay || !video) return;
+
+  var finished = false;
+  function closeIntro() {
+    if (finished) return;
+    finished = true;
+    try { video.pause(); } catch(e){}
+    overlay.classList.add('hidden');
+  }
+
+  // Try to play WITH sound first
+  video.muted = false;
+  video.volume = 1.0;
+  var p = video.play();
+  if (p && p.catch) {
+    p.catch(function() {
+      // Autoplay with sound blocked -> show tap hint, play muted meanwhile
+      tapHint.style.display = 'block';
+      video.muted = true;
+      video.play().catch(function(){});
+    });
+  }
+
+  // Tap hint -> unmute and restart with sound
+  tapHint.addEventListener('click', function() {
+    tapHint.style.display = 'none';
+    video.muted = false;
+    video.volume = 1.0;
+    video.currentTime = 0;
+    video.play().catch(function(){});
+  });
+
+  skipBtn.addEventListener('click', closeIntro);
+  video.addEventListener('ended', closeIntro);
+}
+
 window.addEventListener('load', function() {
   applyBgImages();
   bindEvents();
   renderAll();
   showScreen('home');
+  initIntroVideo();
   
   // Try to init Firebase. Compat scripts load synchronously but may not be
   // available immediately on some environments. Retry a few times silently.
