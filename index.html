@@ -2343,10 +2343,12 @@ function renderGames(filter, search) {
     var thumbInner;
     if (g.animCover) {
       // غلاف متحرك: مشاهد مختارة من الفيديو التحفيزي (بدون صوت)
-      thumbInner = '<img src="' + g.cover + '" class="anim-poster" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:2;transition:opacity .5s">'
-        + '<video id="lumoVid" class="anim-cover" muted playsinline preload="metadata" '
-        + 'style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:1">'
-        + '<source src="' + g.animCover[0] + '" type="video/mp4"></video>'
+      var _multi = Array.isArray(g.animCover) && g.animCover.length > 1;
+      var _vsty = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;transition:opacity .6s ease';
+      thumbInner = '<img src="' + g.cover + '" class="anim-poster" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:3;transition:opacity .5s">'
+        + '<video id="lumoVid" class="anim-cover" muted playsinline preload="auto" style="' + _vsty + ';z-index:2;opacity:1">'
+        + (_multi ? '' : '<source src="' + g.animCover[0] + '" type="video/mp4">') + '</video>'
+        + (_multi ? '<video class="anim-cover-b" muted playsinline preload="auto" style="' + _vsty + ';z-index:1;opacity:0"></video>' : '')
         + '<div class="anim-shine"></div>';
 if(Array.isArray(g.animCover)){card.setAttribute('data-vids',g.animCover.join(','));}
     } else if (g.cover) {
@@ -2381,40 +2383,104 @@ function startAnimCovers(){
     (function(v){
       if (v._animOn) return;
       v._animOn = true;
-      var idx = 0, timer = null;
+      var timer  = null;
       var poster = v.parentNode.querySelector('.anim-poster');
+      var card   = v.closest('[data-vids]');
+      var list   = (card && card.getAttribute('data-vids'))
+                   ? card.getAttribute('data-vids').split(',').filter(Boolean) : [];
+      var multi  = list.length > 1;
+      var vb     = v.parentNode.querySelector('.anim-cover-b');
+      var idx    = 0;
 
-      function playScene(){
-        var s = ANIM_SCENES[idx % ANIM_SCENES.length];
-        try {
-          if (v.duration && s.start < v.duration) v.currentTime = s.start;
-          else v.currentTime = 0;
-          var p = v.play();
-          if (p && p.catch) p.catch(function(){});
-        } catch(e){}
-        if (poster) poster.style.opacity = '0';
-        clearTimeout(timer);
-        timer = setTimeout(function(){ idx++; playScene(); }, s.dur * 1000);
+      function hidePoster(){ if (poster) poster.style.opacity = '0'; }
+      function showPoster(){ if (poster) poster.style.opacity = '1'; }
+
+      if (multi && vb){
+        /* ---- عدة مقاطع منفصلة: تبديل بتلاشٍ ناعم ---- */
+        var front = v, back = vb, fails = 0;
+        function preload(el, src){ try { el.src = src; el.load(); } catch(e){} }
+        function swap(){
+          try { back.currentTime = 0; } catch(e){}
+          var pr = back.play(); if (pr && pr.catch) pr.catch(function(){});
+          back.style.opacity = '1';
+          front.style.opacity = '0';
+          hidePoster();
+          var tmp = front; front = back; back = tmp;
+          idx = (idx + 1) % list.length;
+          preload(back, list[(idx + 1) % list.length]);
+        }
+        function arm(el){
+          el.removeAttribute('loop');
+          el.addEventListener('ended', function(){ fails = 0; swap(); });
+          el.addEventListener('playing', hidePoster);
+          el.addEventListener('error', function(){
+            fails++;
+            if (fails > list.length * 2){ showPoster(); return; }
+            idx = (idx + 1) % list.length;
+            preload(back, list[(idx + 1) % list.length]);
+            swap();
+          });
+        }
+        arm(v); arm(vb);
+        preload(front, list[0]);
+        preload(back,  list[1 % list.length]);
+        v._kick = function(){ var pr = front.play(); if (pr && pr.catch) pr.catch(function(){}); };
+        v._kick();
+        setTimeout(v._kick, 400);
+        setTimeout(v._kick, 1500);
+      } else {
+        /* ---- ملف واحد: تنقّل بين مشاهد داخله ---- */
+        var playScene = function(){
+          var sc = ANIM_SCENES[idx % ANIM_SCENES.length];
+          try {
+            if (v.duration && sc.start < v.duration) v.currentTime = sc.start;
+            else v.currentTime = 0;
+            var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+          } catch(e){}
+          hidePoster();
+          clearTimeout(timer);
+          timer = setTimeout(function(){ idx++; playScene(); }, sc.dur * 1000);
+        };
+        v.addEventListener('loadedmetadata', playScene, { once:true });
+        v.addEventListener('error', function(){ showPoster(); clearTimeout(timer); });
+        v._kick = function(){ var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); };
+        try { v.load(); } catch(e){}
+        setTimeout(v._kick, 400);
       }
 
-      v.addEventListener('loadedmetadata', playScene, { once:true });
-      v.addEventListener('error', function(){
-        if (poster) poster.style.opacity = '1';
-        clearTimeout(timer);
-      });
-      // إيقاف التشغيل لما البطاقة تخرج من الشاشة (توفير بطارية)
       if ('IntersectionObserver' in window){
         new IntersectionObserver(function(entries){
           entries.forEach(function(en){
-            if (en.isIntersecting){ try { v.play(); } catch(e){} }
-            else { try { v.pause(); } catch(e){} }
+            var t = en.target;
+            var sib = t.parentNode.querySelector('.anim-cover-b');
+            if (en.isIntersecting){
+              if (t._kick) t._kick();
+              if (sib && parseFloat(sib.style.opacity) === 1){
+                var pr = sib.play(); if (pr && pr.catch) pr.catch(function(){});
+              }
+            } else {
+              try { t.pause(); } catch(e){}
+              if (sib){ try { sib.pause(); } catch(e){} }
+            }
           });
-        }, { threshold: 0.2 }).observe(v);
+        }, { threshold: 0.15 }).observe(v);
       }
-      try { v.load(); } catch(e){}
     })(vids[i]);
   }
 }
+
+/* ==== تشغيل الأغلفة عند أول تفاعل من المستخدم ==== */
+(function(){
+  function kickAll(){
+    var all = document.querySelectorAll('video.anim-cover');
+    for (var i = 0; i < all.length; i++){ if (all[i]._kick) all[i]._kick(); }
+  }
+  var evs = ['pointerdown','touchstart','click','scroll'];
+  for (var e = 0; e < evs.length; e++){
+    window.addEventListener(evs[e], kickAll, { passive:true });
+  }
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) kickAll(); });
+})();
 
 // Render filter chips
 function renderFilters() {
@@ -2707,23 +2773,7 @@ function skipGameIntro(){
   try{ v.pause(); }catch(e){}
   box.style.display='none';
   if(_pendingGame){ var f=_pendingGame; _pendingGame=null; window.location.href=f; }
-}setInterval(function(){
-document.querySelectorAll('[data-vids]').forEach(function(card){
-var v=card.querySelector('video');
-if(!v)return;
-if(v._lvSet)return;
-v._lvSet=true;
-var list=card.getAttribute('data-vids').split(',');
-var idx=0;
-v.removeAttribute('loop');
-v.addEventListener('ended',function(){
-idx=(idx+1)%list.length;
-v.src=list[idx];
-v.load();
-v.play().catch(function(){});
-});
-});
-},1500);
+}/* rotator removed - handled by startAnimCovers */
 
 </script>
 
