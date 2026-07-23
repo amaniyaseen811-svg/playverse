@@ -2726,6 +2726,27 @@ v.play().catch(function(){});
 
 </script>
 
+<script>
+/* إصلاح: التأكد أن شاشة اللوجو (الكوفر) تظهر فوق شاشة البداية */
+(function(){
+  function fixGate(){
+    var gate = document.getElementById('logoGate');
+    var sp   = document.getElementById('splashScreen');
+    if (!gate) return;
+    if (gate.style.display === 'flex' || gate.style.display === '') {
+      gate.style.display = 'flex';
+      gate.style.opacity = '1';
+      if (sp) { sp.style.display = 'none'; sp.style.visibility = 'hidden'; }
+    }
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', fixGate);
+  else fixGate();
+  setTimeout(fixGate, 60);
+  setTimeout(fixGate, 300);
+  setTimeout(fixGate, 900);
+})();
+</script>
 </body>
 </html>
 
