@@ -1984,4 +1984,63 @@ clearInterval(lvBrkT);lvBrkOn=false;b.textContent='⏸ استراحة';m.style.d
   }
 })();
 
-</script></body></html>
+</script>
+<style>
+.pv-back{position:fixed;top:12px;left:120px;z-index:2147483000;background:rgba(0,0,0,.78);color:#4fc3f7;border:2px solid #4fc3f7;border-radius:50px;padding:8px 14px;font-family:Tajawal,sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .25s;box-shadow:0 2px 12px rgba(0,0,0,.5)}
+.pv-back:hover{background:#4fc3f7;color:#00131f;transform:scale(1.05)}
+@media(max-width:480px){.pv-back{padding:7px 11px;font-size:.76rem;top:10px;left:104px}}
+</style>
+<button id="pvBack" class="pv-back" title="رجوع">
+  <span style="font-size:1.05rem">↩</span><span id="pvBackTxt">رجوع</span>
+</button>
+<script>
+(function(){
+  var BACK={ar:"رجوع",en:"Back",fr:"Retour",es:"Atrás",sv:"Tillbaka",ru:"Назад",zh:"返回",hi:"वापस"};
+  function lg(){try{var l=localStorage.getItem('pv_lang');if(l&&BACK[l])return l;}catch(e){}return 'ar';}
+  var hist=[], btn, ready=false;
+
+  function cur(){
+    var ps=document.querySelectorAll('.pg');
+    for(var i=0;i<ps.length;i++) if(ps[i].classList.contains('on')) return ps[i].id;
+    return null;
+  }
+  function paint(){ if(btn) btn.style.display='flex'; }
+
+  function boot(){
+    btn=document.getElementById('pvBack');
+    if(!btn) return;
+    var L=lg();
+    document.getElementById('pvBackTxt').textContent=BACK[L]||BACK.ar;
+    if(L!=='ar') btn.setAttribute('dir','ltr');
+
+    if(typeof window.go==='function' && !window.__pvGoWrapped){
+      var orig=window.go;
+      window.go=function(id){
+        var from=cur();
+        if(ready && from && from!==id) hist.push(from);
+        orig.apply(this,arguments);
+        paint();
+      };
+      window.__pvGoWrapped=true;
+    }
+    ready=true;
+    btn.addEventListener('click',function(){
+      if(hist.length){
+        var prev=hist.pop();
+        ready=false;
+        try{ window.go(prev); }catch(e){}
+        ready=true;
+        paint();
+      } else {
+        window.location.href='index.html';
+      }
+    });
+    setInterval(paint,400);
+    paint();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
+  else boot();
+})();
+</script>
+
+</body></html>
