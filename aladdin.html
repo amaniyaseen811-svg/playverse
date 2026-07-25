@@ -202,8 +202,11 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:white;direction
   .path-opts{grid-template-columns:1fr;} .story-panel{flex-direction:column;}
 }
 
-.home-btn{position:fixed;top:12px;left:12px;z-index:100000;background:rgba(0,0,0,.75);color:#ffc107;border:2px solid #ffc107;border-radius:50px;padding:8px 14px;font-family:Tajawal,sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .25s;text-decoration:none}
+.home-btn{position:fixed;top:12px;left:12px;z-index:90;background:rgba(0,0,0,.75);color:#ffc107;border:2px solid #ffc107;border-radius:50px;padding:8px 14px;font-family:Tajawal,sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .25s;text-decoration:none}
 .home-btn:hover{background:#ffc107;color:#1a1a00;transform:scale(1.05)}
+.back-btn{position:fixed;top:12px;right:12px;z-index:90;background:rgba(0,0,0,.75);color:#ffd54f;border:2px solid rgba(255,193,7,.55);border-radius:50px;padding:8px 14px;font-family:Tajawal,sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:6px;transition:all .25s}
+.back-btn:hover{background:rgba(255,193,7,.18);border-color:#ffc107;transform:scale(1.05)}
+@media(max-width:420px){.home-btn,.back-btn{font-size:.78rem;padding:7px 11px}}
 </style>
 </head>
 <body>
@@ -211,6 +214,11 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:white;direction
   <span style="font-size:1.1rem">🏠</span>
   <span>الرئيسية</span>
 </a>
+
+<button id="backBtn" class="back-btn" onclick="goBackStep()" title="رجوع للخلف">
+  <span style="font-size:1.05rem">↩</span>
+  <span>رجوع</span>
+</button>
 
 
 <!-- SPLASH -->
@@ -233,7 +241,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:white;direction
       <p>⚠️ <span class="rd">محاولتان</span> لكل جزيرة | <span class="rd">4 محاولات</span> لترتيب المدينة والخريطة!</p>
     </div>
 
-    <button class="btn-adv" onclick="startAdventure()">⚓ ابدأ المغامرة!</button>
+    <button class="btn-adv" id="btnStart" onclick="beginAdventure()">⚓ ابدأ المغامرة!</button>
   </div>
 </div>
 
@@ -426,12 +434,39 @@ let collGems=[],collLetters=[],doneI=[],pendGem=null;
 let cityAtts=4,cityAns=false;
 let pathAtts=4,pathAns=false;
 let fqAns=false;
+let islAtts={},arrInit=false,pathInit=false;
 
-function showS(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+/* ===== زر الرجوع المنطقي ===== */
+const BACK_MAP={'s-map':'s-splash','s-question':'s-map','s-genie':'s-map','s-arrange':'s-genie','s-path':'s-arrange'};
+function curScreen(){const e=document.querySelector('.screen.active');return e?e.id:'';}
+function updateBackBtn(){
+  const b=document.getElementById('backBtn');if(!b)return;
+  b.style.display=BACK_MAP[curScreen()]?'flex':'none';
+}
+function goBackStep(){
+  const cur=curScreen(),tgt=BACK_MAP[cur];
+  if(!tgt)return;
+  /* الخروج من سؤال قبل الإجابة: نحفظ القلوب حتى لا تُستعاد بالحيلة */
+  if(cur==='s-question'&&!isAns)islAtts[curI]=isAtts;
+  /* الرجوع للقصة: يصير الزر "تابع المغامرة" حتى لا يضيع التقدّم */
+  if(cur==='s-map'){
+    const sb=document.getElementById('btnStart');
+    if(sb)sb.textContent=(doneI.length>0||collGems.length>0)?'⚓ تابع المغامرة!':'⚓ ابدأ المغامرة!';
+  }
+  showS(tgt);
+}
+function beginAdventure(){
+  if(doneI.length>0||collGems.length>0){showS('s-map');return;}
+  startAdventure();
+}
+
+function showS(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);updateBackBtn();}
 
 function startAdventure(){
   score=0;curI=-1;isAtts=2;isAns=false;collGems=[];collLetters=[];doneI=[];pendGem=null;
   cityAtts=4;cityAns=false;pathAtts=4;pathAns=false;fqAns=false;
+  islAtts={};arrInit=false;pathInit=false;
+  const _sb=document.getElementById('btnStart');if(_sb)_sb.textContent='⚓ ابدأ المغامرة!';
   for(let i=0;i<10;i++){
     const g=document.getElementById('gs'+i);if(g){g.textContent='⬜';g.className='gs';}
     const ib=document.getElementById('ibi'+i);if(ib){ib.textContent=i+1;ib.style.background='rgba(0,0,0,0.7)';ib.style.borderColor='var(--gold)';}
@@ -443,7 +478,7 @@ function startAdventure(){
 
 function goIsland(idx){
   if(doneI.includes(idx))return;
-  curI=idx;isAtts=2;isAns=false;pendGem=null;
+  curI=idx;isAtts=(islAtts[idx]===undefined?2:islAtts[idx]);isAns=false;pendGem=null;
   const q=QS[idx];
   document.getElementById('qSI').textContent=q.icon;
   document.getElementById('qST').textContent=`الجزيرة ${idx+1}`;
@@ -451,7 +486,7 @@ function goIsland(idx){
   document.getElementById('qText').textContent=q.q;
   document.getElementById('qFb').className='fb';document.getElementById('qFb').textContent='';
   document.getElementById('btnNQ').className='btn-nq';
-  document.getElementById('qh1').className='ah';document.getElementById('qh2').className='ah';
+  document.getElementById('qh1').className='ah';document.getElementById('qh2').className=(isAtts<=1?'ah lost':'ah');
   const g=document.getElementById('optsGrid');g.innerHTML='';
   q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>checkIsland(i,b,q);g.appendChild(b);});
   showS('s-question');
@@ -463,14 +498,14 @@ function checkIsland(sel,btn,q){
   const fb=document.getElementById('qFb');
   if(sel===q.ans){
     isAns=true;all.forEach(b=>b.disabled=true);btn.classList.add('correct');score+=20;
-    collGems.push(q.icon);collLetters.push(q.letter);
+    delete islAtts[curI];collGems.push(q.icon);collLetters.push(q.letter);
     const gs=document.getElementById('gs'+(collGems.length-1));
     if(gs){gs.textContent=q.icon;gs.classList.add('lit');}
     document.getElementById('gemCount').textContent=collGems.length;
     fb.textContent='✅ '+q.exp;fb.className='fb ok show';
     pendGem=q;document.getElementById('btnNQ').className='btn-nq show';
   }else{
-    btn.classList.add('wrong');btn.disabled=true;isAtts--;
+    btn.classList.add('wrong');btn.disabled=true;isAtts--;islAtts[curI]=isAtts;
     if(isAtts===1){
       document.getElementById('qh2').className='ah lost';
       fb.textContent='❌ خطأ! محاولة أخيرة...';fb.className='fb bad show';
@@ -534,6 +569,8 @@ function spawnP(id){
 }
 
 function goArrange(){
+  if(arrInit){showS('s-arrange');return;}
+  arrInit=true;
   const ag=document.getElementById('arrGems');ag.innerHTML='';
   collGems.forEach(g=>{const d=document.createElement('div');d.className='ag';d.textContent=g;ag.appendChild(d);});
   const grid=document.getElementById('arrGrid');grid.innerHTML='';
@@ -569,6 +606,8 @@ function checkCity(sel,btn){
 }
 
 function goPath(){
+  if(pathInit){showS('s-path');return;}
+  pathInit=true;
   const po=document.getElementById('pathOpts');po.innerHTML='';
   PATH_NUMS.forEach(n=>{const b=document.createElement('button');b.className='po';b.textContent=`الشارع رقم ${n} 🏮`;b.onclick=()=>checkPath(n,b);po.appendChild(b);});
   pathAtts=4;pathAns=false;
@@ -623,6 +662,8 @@ function checkFQ(sel,btn,opt){
 }
 
 function showWin(){document.getElementById('finalScore').textContent=score;showS('s-win');spawnP('wCW');}
+
+updateBackBtn();
 
 function restartAll(){
   document.getElementById('lampOv').className='lamp-ov';
