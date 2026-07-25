@@ -896,22 +896,31 @@ function restartAll(){
 <script>
 (function(){
   var m=document.getElementById('bgMusic');
-  var started=false, muted=false;
+  var muted=false;
   m.volume=0.35;
-  function start(){
-    if(started||muted)return;
-    started=true;
-    var p=m.play(); if(p&&p.catch)p.catch(function(){started=false;});
+  m.loop=true;
+  function play(){
+    if(muted)return;
+    var p=m.play();
+    if(p&&p.catch)p.catch(function(){});
   }
-  // start on first user interaction (required by iOS/mobile)
-  ['click','touchstart','keydown'].forEach(function(ev){
-    document.addEventListener(ev,start,{once:false});
+  // start on first user interaction
+  ['click','touchstart','keydown','pointerdown'].forEach(function(ev){
+    document.addEventListener(ev,play,false);
   });
+  // if the browser/screen-change pauses it, resume automatically (unless muted)
+  m.addEventListener('pause',function(){
+    if(!muted && !m.ended){ setTimeout(play,100); }
+  });
+  // safety: keep it alive every 2s
+  setInterval(function(){
+    if(!muted && m.paused){ play(); }
+  },2000);
   window.toggleMute=function(){
     var btn=document.getElementById('muteBtn');
     muted=!muted;
     if(muted){ m.pause(); btn.textContent='🔇'; btn.classList.add('muted'); }
-    else{ btn.textContent='🔊'; btn.classList.remove('muted'); var p=m.play(); if(p&&p.catch)p.catch(function(){}); }
+    else{ btn.textContent='🔊'; btn.classList.remove('muted'); play(); }
   };
 })();
 </script>
