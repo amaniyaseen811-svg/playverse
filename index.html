@@ -665,7 +665,7 @@ body{
 </div>
 
 <!-- ===== موسيقى شاشة اللوجو + شاشة اللغة (ملف MP3) ===== -->
-<audio id="pickerAudio" src="bg.mp3" loop preload="auto"></audio>
+<audio id="pickerAudio" src="bg.mp3" loop preload="none"></audio>
 <script>
 (function(){
   var a = null;
@@ -719,7 +719,7 @@ body{
 </script>
 
 <!-- ===== موسيقى الشاشة الرئيسية (home.mp3) ===== -->
-<audio id="homeAudio" src="home.mp3" loop preload="auto"></audio>
+<audio id="homeAudio" src="home.mp3" loop preload="none"></audio>
 <style>
 #musicToggle{
   display:none;
@@ -2467,9 +2467,9 @@ function renderGames(filter, search) {
       var _multi = Array.isArray(g.animCover) && g.animCover.length > 1;
       var _vsty = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;transition:opacity .6s ease';
       thumbInner = '<img src="' + g.cover + '" class="anim-poster" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:3;transition:opacity .5s">'
-        + '<video id="lumoVid" class="anim-cover" muted playsinline preload="auto" style="' + _vsty + ';z-index:2;opacity:1">'
+        + '<video id="lumoVid" class="anim-cover" muted playsinline preload="none" style="' + _vsty + ';z-index:2;opacity:1">'
         + (_multi ? '' : '<source src="' + g.animCover[0] + '" type="video/mp4">') + '</video>'
-        + (_multi ? '<video class="anim-cover-b" muted playsinline preload="auto" style="' + _vsty + ';z-index:1;opacity:0"></video>' : '')
+        + (_multi ? '<video class="anim-cover-b" muted playsinline preload="none" style="' + _vsty + ';z-index:1;opacity:0"></video>' : '')
         + '<div class="anim-shine"></div>';
 if(Array.isArray(g.animCover)){card.setAttribute('data-vids',g.animCover.join(','));}
     } else if (g.cover) {
@@ -2543,12 +2543,15 @@ function startAnimCovers(){
           });
         }
         arm(v); arm(vb);
-        preload(front, list[0]);
-        preload(back,  list[1 % list.length]);
-        v._kick = function(){ var pr = front.play(); if (pr && pr.catch) pr.catch(function(){}); };
-        v._kick();
-        setTimeout(v._kick, 400);
-        setTimeout(v._kick, 1500);
+        var _started = false;
+        v._start = function(){
+          if (_started) return; _started = true;
+          preload(front, list[0]);
+          preload(back,  list[1 % list.length]);
+          var pr = front.play(); if (pr && pr.catch) pr.catch(function(){});
+          setTimeout(function(){ var p2=front.play(); if(p2&&p2.catch)p2.catch(function(){}); }, 400);
+        };
+        v._kick = function(){ if(v._start) v._start(); };
       } else {
         /* ---- ملف واحد: تنقّل بين مشاهد داخله ---- */
         var playScene = function(){
@@ -2564,9 +2567,11 @@ function startAnimCovers(){
         };
         v.addEventListener('loadedmetadata', playScene, { once:true });
         v.addEventListener('error', function(){ showPoster(); clearTimeout(timer); });
-        v._kick = function(){ var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); };
-        try { v.load(); } catch(e){}
-        setTimeout(v._kick, 400);
+        var _sLoaded = false;
+        v._kick = function(){
+          if (!_sLoaded){ _sLoaded = true; try { v.load(); } catch(e){} }
+          var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+        };
       }
 
       if ('IntersectionObserver' in window){
