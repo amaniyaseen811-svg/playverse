@@ -206,6 +206,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:white;direction
 .home-btn:hover{background:#ffc107;color:#1a1a00;transform:scale(1.05)}
 .back-btn{position:fixed;top:12px;right:12px;z-index:90;background:rgba(0,0,0,.75);color:#ffd54f;border:2px solid rgba(255,193,7,.55);border-radius:50px;padding:8px 14px;font-family:Tajawal,sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:6px;transition:all .25s}
 .back-btn:hover{background:rgba(255,193,7,.18);border-color:#ffc107;transform:scale(1.05)}
+.mus-btn{position:fixed;top:56px;left:12px;z-index:90;background:rgba(0,0,0,.75);color:#ffd54f;border:2px solid rgba(255,193,7,.55);border-radius:50px;padding:7px 13px;font-family:Tajawal,sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .25s}
+.mus-btn:hover{background:rgba(255,193,7,.18);border-color:#ffc107;transform:scale(1.05)}
+.mus-btn.off{color:#9e9e9e;border-color:rgba(158,158,158,.45)}
 @media(max-width:420px){.home-btn,.back-btn{font-size:.78rem;padding:7px 11px}}
 </style>
 </head>
@@ -214,6 +217,12 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:white;direction
   <span style="font-size:1.1rem">🏠</span>
   <span>الرئيسية</span>
 </a>
+
+<audio id="bgm" src="aladdin_bg.mp3" loop preload="auto"></audio>
+<button id="musBtn" class="mus-btn" onclick="toggleMusic()" title="تشغيل / كتم الموسيقى">
+  <span id="musIcon">🎵</span>
+  <span id="musTxt">الموسيقى</span>
+</button>
 
 <button id="backBtn" class="back-btn" onclick="goBackStep()" title="رجوع للخلف">
   <span style="font-size:1.05rem">↩</span>
@@ -435,6 +444,39 @@ let cityAtts=4,cityAns=false;
 let pathAtts=4,pathAns=false;
 let fqAns=false;
 let islAtts={},arrInit=false,pathInit=false;
+
+/* ===== موسيقى خلفية طوال اللعبة + زر كتم ===== */
+let musOn=true,musStarted=false;
+try{ if(localStorage.getItem('aladdinMus')==='off') musOn=false; }catch(e){}
+function paintMusBtn(){
+  const b=document.getElementById('musBtn'),ic=document.getElementById('musIcon'),tx=document.getElementById('musTxt');
+  if(!b)return;
+  b.className=musOn?'mus-btn':'mus-btn off';
+  ic.textContent=musOn?'🎵':'🔇';
+  tx.textContent=musOn?'الموسيقى':'مكتومة';
+}
+function startMusic(){
+  const a=document.getElementById('bgm');
+  if(!a||musStarted||!musOn)return;
+  a.volume=0.32;
+  a.play().then(()=>{musStarted=true;}).catch(()=>{});
+}
+function toggleMusic(){
+  const a=document.getElementById('bgm');
+  musOn=!musOn;
+  try{ localStorage.setItem('aladdinMus',musOn?'on':'off'); }catch(e){}
+  if(!a){paintMusBtn();return;}
+  if(musOn){ a.volume=0.32; a.play().then(()=>{musStarted=true;}).catch(()=>{}); }
+  else { a.pause(); }
+  paintMusBtn();
+}
+/* المتصفحات تمنع التشغيل التلقائي: نبدأ عند أول لمسة من المستخدم */
+['click','touchstart','keydown'].forEach(ev=>{
+  document.addEventListener(ev,function _once(){
+    startMusic();
+    if(musStarted)['click','touchstart','keydown'].forEach(e2=>document.removeEventListener(e2,_once));
+  },{passive:true});
+});
 
 /* ===== زر الرجوع المنطقي ===== */
 const BACK_MAP={'s-map':'s-splash','s-question':'s-map','s-genie':'s-map','s-arrange':'s-genie','s-path':'s-arrange'};
@@ -664,6 +706,7 @@ function checkFQ(sel,btn,opt){
 function showWin(){document.getElementById('finalScore').textContent=score;showS('s-win');spawnP('wCW');}
 
 updateBackBtn();
+paintMusBtn();
 
 function restartAll(){
   document.getElementById('lampOv').className='lamp-ov';
