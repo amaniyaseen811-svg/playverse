@@ -718,6 +718,108 @@ body{
 })();
 </script>
 
+<!-- ===== موسيقى الشاشة الرئيسية (home.mp3) ===== -->
+<audio id="homeAudio" src="home.mp3" loop preload="auto"></audio>
+<style>
+#musicToggle{
+  display:none;
+  position:fixed; top:62px; inset-inline-end:12px;
+  z-index:2147483200;
+  width:42px; height:42px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(10,10,26,.82);
+  backdrop-filter:blur(8px);
+  color:#fff; font-size:18px;
+  cursor:pointer;
+  align-items:center; justify-content:center;
+  box-shadow:0 4px 18px rgba(0,0,0,.45);
+  transition:transform .15s, background .2s;
+}
+#musicToggle:hover{ transform:scale(1.08); background:rgba(124,58,237,.55); }
+#musicToggle:active{ transform:scale(.94); }
+</style>
+<button id="musicToggle" onclick="toggleHomeMusic()">🔊</button>
+<script>
+(function(){
+  var HOME_VOL = 0.45;   // مستوى صوت موسيقى الشاشة الرئيسية
+  var h = null;
+  var muted = (localStorage.getItem('pv_music') === 'off');
+  var wantPlay = false;  // هل المفروض الموسيقى شغالة الآن؟
+
+  function el(){
+    if (!h) h = document.getElementById('homeAudio');
+    return h;
+  }
+  function btn(){ return document.getElementById('musicToggle'); }
+
+  function paintBtn(){
+    var b = btn();
+    if (b) b.textContent = muted ? '🔇' : '🔊';
+  }
+
+  // تشغيل بتلاشي تدريجي للأعلى
+  window.playHomeMusic = function(){
+    wantPlay = true;
+    var b = btn();
+    if (b) b.style.display = 'flex';
+    paintBtn();
+    if (muted) return;
+    var au = el();
+    if (!au) return;
+    try {
+      au.volume = 0;
+      var pr = au.play();
+      if (pr && pr.catch) pr.catch(function(){});
+      var v = 0, steps = 18;
+      var up = setInterval(function(){
+        v += (HOME_VOL / steps);
+        if (v >= HOME_VOL){ clearInterval(up); try{ au.volume = HOME_VOL; }catch(e){} }
+        else { try{ au.volume = Math.min(HOME_VOL, v); }catch(e){} }
+      }, 60);
+    } catch(e){}
+  };
+
+  // إيقاف بتلاشي تدريجي (بدل القطع المفاجئ)
+  window.stopHomeMusic = function(keepWant){
+    if (!keepWant) wantPlay = false;
+    var au = el();
+    if (!au || au.paused) return;
+    try {
+      var v = au.volume, steps = 14;
+      var fade = setInterval(function(){
+        v -= (HOME_VOL / steps);
+        if (v <= 0.02){
+          clearInterval(fade);
+          try { au.pause(); au.volume = HOME_VOL; } catch(e){}
+        } else {
+          try{ au.volume = Math.max(0, v); }catch(e){}
+        }
+      }, 55);
+    } catch(e){ try { au.pause(); } catch(e2){} }
+  };
+
+  // إيقاف مؤقّت (عند فتح فيديو) — بترجع تشتغل بعدها
+  window.pauseHomeMusic = function(){ window.stopHomeMusic(true); };
+  window.resumeHomeMusic = function(){
+    if (!wantPlay || muted) return;
+    window.playHomeMusic();
+  };
+
+  // زر 🔊 / 🔇
+  window.toggleHomeMusic = function(){
+    muted = !muted;
+    localStorage.setItem('pv_music', muted ? 'off' : 'on');
+    paintBtn();
+    if (muted) window.stopHomeMusic(true);
+    else if (wantPlay) window.playHomeMusic();
+  };
+
+  window.hideMusicBtn = function(){ var b = btn(); if (b) b.style.display = 'none'; };
+  window.showMusicBtn = function(){ var b = btn(); if (b && wantPlay) b.style.display = 'flex'; paintBtn(); };
+})();
+</script>
+
 <!-- ===== شاشة اللوجو الدوّار (قبل شاشة اللغة) ===== -->
 <style>
 #logoGate{
@@ -941,6 +1043,9 @@ function goHomeScreen(){
     }
   } catch(e){}
   try { if (typeof closeLangMenu === 'function') closeLangMenu(); } catch(e){}
+  // رجوع موسيقى الشاشة الرئيسية
+  try { if (typeof resumeHomeMusic === 'function') resumeHomeMusic(); } catch(e){}
+  try { if (typeof showMusicBtn === 'function') showMusicBtn(); } catch(e){}
   // الرجوع لأعلى الصفحة الرئيسية
   window.scrollTo({ top:0, behavior:'smooth' });
 }
@@ -1494,6 +1599,12 @@ function setLang(l){
   var sp = document.getElementById('splashScreen');
   if (sp) sp.style.visibility = '';
   try { if (typeof stopPickerMusic === 'function') stopPickerMusic(); } catch(e){}
+  // موسيقى الشاشة الرئيسية تبدأ بتلاشي ناعم بعد ما تخلص موسيقى شاشة اللغة
+  try {
+    setTimeout(function(){
+      if (typeof playHomeMusic === 'function') playHomeMusic();
+    }, 600);
+  } catch(e){}
   applyLang();
   try { if (typeof showHomeBtn === 'function') showHomeBtn(); } catch(e){}
 }
@@ -2691,6 +2802,8 @@ function openIntro(){
   var mn=document.getElementById('langMenu');
   if(tg) tg.style.display='none';
   if(mn) mn.style.display='none';
+  try { if (typeof pauseHomeMusic === 'function') pauseHomeMusic(); } catch(e){}
+  try { if (typeof hideMusicBtn === 'function') hideMusicBtn(); } catch(e){}
   m.style.display='flex';
   try{ v.pause(); v.currentTime=0; v.load(); v.currentTime=0; v.play(); }catch(e){}
 }
@@ -2701,6 +2814,8 @@ function closeIntro(){
   try{ v.pause(); }catch(e){}
   m.style.display='none';
   if(tg) tg.style.display='flex';
+  try { if (typeof resumeHomeMusic === 'function') resumeHomeMusic(); } catch(e){}
+  try { if (typeof showMusicBtn === 'function') showMusicBtn(); } catch(e){}
 }
 </script>
 <a href="https://amaniyaseen811-svg.github.io/cursed-castle/" style="display:block;margin:12px auto;padding:18px;background:linear-gradient(135deg,#EF4444,#DC2626);color:white;border-radius:16px;text-align:center;text-decoration:none;max-width:400px;font-family:Tajawal,sans-serif"><div style="font-size:30px">⚔️🏰</div><div style="font-size:20px;font-weight:900" data-i18n="castleTitle">القصر الملعون - تحدي جماعي</div><div style="font-size:13px;opacity:.85" data-i18n="castleSub">تنافس مع أصدقائك!</div></a>
@@ -2733,6 +2848,9 @@ function closeIntro(){
 var _pendingGame = null;
 function playGameIntro(file, introFile){
   _pendingGame = file;
+  // إيقاف موسيقى الشاشة الرئيسية قبل فيديو اللعبة
+  try { if (typeof stopHomeMusic === 'function') stopHomeMusic(); } catch(e){}
+  try { if (typeof hideMusicBtn === 'function') hideMusicBtn(); } catch(e){}
   var box = document.getElementById('gameIntro');
   var v   = document.getElementById('gameIntroVideo');
   // بدّل مصدر الفيديو حسب اللعبة
