@@ -1043,11 +1043,11 @@
 #introSkipBtn {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
   z-index: 100000;
-  background: rgba(0,0,0,0.6); color: #fff;
-  border: 2px solid rgba(255,255,255,0.7); border-radius: 30px;
-  padding: 10px 26px; font-size: 17px; font-weight: bold;
+  background: rgba(255,215,0,0.92); color: #1a1200;
+  border: 2px solid #fff; border-radius: 30px;
+  padding: 12px 30px; font-size: 18px; font-weight: 900;
   font-family: inherit; cursor: pointer;
-  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
 #introSkipBtn:active { transform: translateX(-50%) scale(0.95); }
 #rulesOverlay {
@@ -1157,6 +1157,18 @@
   background: rgba(0,0,0,0.62); border: 2px solid rgba(90,176,255,0.6);
   color: #5ab0ff; font-size: 19px; backdrop-filter: blur(4px);
 }
+.mode-desc { margin-top: 7px; }
+.mode-desc span {
+  display: inline-block; margin: 0 0 4px 5px; padding: 2px 8px;
+  background: rgba(255,255,255,0.09); border-radius: 9px;
+  font-size: 10.5px; font-weight: 800; color: #b8cbe8;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.mode-desc p {
+  margin: 3px 0 0; font-size: 11.5px; line-height: 1.6;
+  color: #93a9c8; font-weight: 500;
+}
+.mode-card-compact { align-items: flex-start; text-align: right; }
 #verBadge {
   position: fixed; bottom: 4px; right: 6px; z-index: 8400;
   font-size: 10px; color: rgba(255,255,255,0.35);
@@ -1222,7 +1234,7 @@
 <div id="introVideoOverlay">
   <video id="introVideo" playsinline preload="metadata" src="mole_motiv.mp4"></video>
   <div id="introLoader">جاري التحميل…</div>
-  <button id="introSkipBtn">تخطّي ⏭️</button>
+  <button id="introSkipBtn">تخطّي الفيديو ⏭️</button>
   <button id="introTapHint">🔊 اضغط للتشغيل بالصوت</button>
 </div>
 <div class="stadium-bg"></div>
@@ -1259,7 +1271,7 @@
 
 <button id="castFab" title="شاشة العرض">📺</button>
 <button id="rulesFab" title="القواعد">📜</button>
-<div id="verBadge">v19</div>
+<div id="verBadge">v21</div>
 
 <div id="raceTimer">
   <svg viewBox="0 0 100 100" id="raceTimerSvg">
@@ -1336,6 +1348,10 @@
       <div class="team-info">
         <div class="team-name">لاعب واحد</div>
         <div class="team-tagline">العب لوحدك ضد الأسئلة</div>
+        <div class="mode-desc">
+          <span>📱 جهاز واحد</span><span>🌐 بدون إنترنت</span><span>❤️ محاولتين</span>
+          <p>تدرّبي على حالك بأي وقت. ١١ سؤال من الحارس للمهاجم، وبتقدري تراجعي الشرح بالنهاية. مثالية للمراجعة قبل الامتحان.</p>
+        </div>
       </div>
     </button>
 
@@ -1344,6 +1360,10 @@
       <div class="team-info">
         <div class="team-name">ضد صديق (1 ضد 1)</div>
         <div class="team-tagline">SKY ضد GIANTS - جهازين</div>
+        <div class="mode-desc">
+          <span>📱 جهازين</span><span>🌐 إنترنت</span><span>👥 لاعبتين</span>
+          <p>مبارزة سريعة بين صاحبتين. وحدة بتنشئ غرفة وبتعطي الكود للتانية. الاثنتين بتجاوبوا بنفس الوقت، وأسرع إجابة صحيحة بتسجّل الهدف.</p>
+        </div>
       </div>
     </button>
 
@@ -1352,6 +1372,10 @@
       <div class="team-info">
         <div class="team-name">وضع الصف - Classroom</div>
         <div class="team-tagline">معلمة + طلاب مع لوحة نتائج</div>
+        <div class="mode-desc">
+          <span>👩‍🏫 معلمة + طالبات</span><span>🌐 إنترنت</span><span>🏆 ترتيب فردي</span>
+          <p>كل طالبة بتلعب لحالها والمعلمة بتشوف لوحة نتائج مباشرة بترتيبهم. مناسبة لتقييم الصف كله بنفس الوقت.</p>
+        </div>
       </div>
     </button>
 
@@ -1360,6 +1384,10 @@
       <div class="team-info">
         <div class="team-name">وضع الفرق بالتسلسل</div>
         <div class="team-tagline">فرق يتناوبون على الإجابة</div>
+        <div class="mode-desc">
+          <span>👩‍🏫 معلمة + فرق</span><span>🌐 إنترنت</span><span>📺 شاشة عرض</span>
+          <p>٢ لـ ٤ فرق بتتسابق. بكل سؤال وحدة من كل فريق بيجي دورها، والدور بيلف على الكل. فيها شاشة عرض للبروجكتر تبيّن الأهداف مباشرة.</p>
+        </div>
       </div>
     </button>
 
@@ -1572,6 +1600,7 @@
       <div class="team-info">
         <div class="team-name">أنا المعلمة - أنشئي غرفة</div>
         <div class="team-tagline">حدّدي عدد الفرق والأعضاء</div>
+        <div class="mode-desc"><p>بتنشئي الغرفة وبياخد كود، بتوزّعي الطالبات على الفرق وبترتّبي الأدوار، وبعدين بتبدأي المباراة.</p></div>
       </div>
     </button>
 
@@ -1580,6 +1609,7 @@
       <div class="team-info">
         <div class="team-name">أنا طالبة - انضمّي</div>
         <div class="team-tagline">ادخلي بكود المعلمة</div>
+        <div class="mode-desc"><p>اكتبي الكود اللي أعطتك إياه المعلمة واسمك، وانتظري لما توزّعك على فريق وتبدأ المباراة.</p></div>
       </div>
     </button>
 
@@ -1588,6 +1618,7 @@
       <div class="team-info">
         <div class="team-name">شاشة العرض (بروجكتر)</div>
         <div class="team-tagline">اعرضي النتائج على شاشة الصف</div>
+        <div class="mode-desc"><p>متفرّجة بس — بتعرض الأهداف والترتيب مباشرة على البروجكتر بدون ما تاخد مكان لاعبة.</p></div>
       </div>
     </button>
 
@@ -5166,6 +5197,16 @@ function initIntroVideo() {
   var loader  = document.getElementById('introLoader');
   var finished = false;
   var watchdog = null;
+
+  // Show the intro once a day, not on every single load
+  try {
+    var today = new Date().toDateString();
+    if (localStorage.getItem('mole_intro_seen') === today) {
+      overlay.classList.add('hidden');
+      return;
+    }
+    localStorage.setItem('mole_intro_seen', today);
+  } catch(e) {}
   function closeIntro() {
     if (finished) return;
     finished = true;
@@ -5176,14 +5217,14 @@ function initIntroVideo() {
 
   // Safety net: if the video is missing, blocked or too slow, skip it
   // instead of leaving the player stuck on a black screen.
-  watchdog = setTimeout(closeIntro, 7000);
+  watchdog = setTimeout(closeIntro, 5000);
   video.addEventListener('playing', function() {
     if (loader) loader.style.display = 'none';
     if (watchdog) { clearTimeout(watchdog); watchdog = null; }
   });
   video.addEventListener('error', closeIntro);
   video.addEventListener('stalled', function() {
-    if (!watchdog && !finished) watchdog = setTimeout(closeIntro, 7000);
+    if (!watchdog && !finished) watchdog = setTimeout(closeIntro, 5000);
   });
 
   // Try to play WITH sound first
