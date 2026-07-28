@@ -2852,6 +2852,7 @@ function closeIntro(){
 
 <!-- ===== فيديو تحفيزي قبل اللعبة ===== -->
 <div id="gameIntro" style="display:none;position:fixed;inset:0;z-index:2147483600;background:#000;align-items:center;justify-content:center;flex-direction:column">
+<div id="introLoading" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2147483610;color:#ffd700;font-family:inherit;font-size:16px;font-weight:900;text-align:center">⏳ جاري تحميل الفيديو…<br><span style="font-size:12px;color:#9fb6da;font-weight:700">اضغطي «تخطي» للدخول مباشرة</span></div>
   <video id="gameIntroVideo" playsinline preload="none" crossorigin="anonymous"
          style="height:94vh;max-height:94vh;width:auto;max-width:96vw;background:#000;object-fit:contain">
     <source src="motiv.mp4" type="video/mp4">
@@ -2877,17 +2878,16 @@ function closeIntro(){
 var _pendingGame = null;
 function playGameIntro(file, introFile){
   _pendingGame = file;
-  // إيقاف موسيقى الشاشة الرئيسية قبل فيديو اللعبة
   try { if (typeof stopHomeMusic === 'function') stopHomeMusic(); } catch(e){}
   try { if (typeof hideMusicBtn === 'function') hideMusicBtn(); } catch(e){}
   var box = document.getElementById('gameIntro');
   var v   = document.getElementById('gameIntroVideo');
-  // بدّل مصدر الفيديو حسب اللعبة
+  if (!box || !v) { window.location.href = file; return; }
+
   var want = introFile || 'motiv.mp4';
   var srcEl = v.querySelector('source');
   if (srcEl && srcEl.getAttribute('src') !== want) {
     srcEl.setAttribute('src', want);
-    // ترجمات motiv فقط؛ أخفِها لغيره
     var isMotiv = (want === 'motiv.mp4');
     for (var k=0; k<v.children.length; k++){
       var ch = v.children[k];
@@ -2904,8 +2904,41 @@ function playGameIntro(file, introFile){
   }
   box.style.display='flex';
   var _ic=document.getElementById('pauseIntroIcon'); if(_ic) _ic.textContent='⏸';
-  try{ v.currentTime=0; v.play(); }catch(e){}
-  v.onended = function(){ skipGameIntro(); };
+
+  // ===== حماية: لا تترك المستخدم أمام شاشة سوداء =====
+  var _ld = document.getElementById('introLoading');
+  if (_ld) _ld.style.display = 'block';
+  if (window._introGuard) { clearTimeout(window._introGuard); }
+  var _started = false;
+  function _goNow(){
+    if (window._introGuard) { clearTimeout(window._introGuard); window._introGuard = null; }
+    skipGameIntro();
+  }
+  window._introGuard = setTimeout(function(){
+    if (!_started) _goNow();          // الفيديو ما اشتغل خلال 6 ثوانٍ -> ادخل اللعبة
+  }, 6000);
+
+  v.onplaying = function(){
+    _started = true;
+    if (_ld) _ld.style.display = 'none';
+    if (window._introGuard) { clearTimeout(window._introGuard); window._introGuard = null; }
+  };
+  v.onerror = function(){ _goNow(); };
+
+  try { v.currentTime = 0; } catch(e){}
+  var pr = null;
+  try { v.muted = false; pr = v.play(); } catch(e){}
+  if (pr && pr.catch) {
+    pr.catch(function(){
+      // المتصفح رفض التشغيل بصوت -> جرّب صامتاً
+      try {
+        v.muted = true;
+        var p2 = v.play();
+        if (p2 && p2.catch) p2.catch(function(){ _goNow(); });
+      } catch(e){ _goNow(); }
+    });
+  }
+  v.onended = function(){ _goNow(); };
 }
 function toggleIntroPause(){
   var v = document.getElementById('gameIntroVideo');
@@ -2915,6 +2948,8 @@ function toggleIntroPause(){
   else { v.pause(); if(ic) ic.textContent='▶'; }
 }
 function skipGameIntro(){
+  if (window._introGuard) { clearTimeout(window._introGuard); window._introGuard = null; }
+  var _l = document.getElementById('introLoading'); if (_l) _l.style.display='none';
   var box = document.getElementById('gameIntro');
   var v   = document.getElementById('gameIntroVideo');
   try{ v.pause(); }catch(e){}
