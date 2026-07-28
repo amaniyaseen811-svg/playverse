@@ -1050,6 +1050,12 @@
   backdrop-filter: blur(4px);
 }
 #introSkipBtn:active { transform: translateX(-50%) scale(0.95); }
+#introLoader {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  z-index: 100000; color: #fff; font-size: 17px; font-weight: bold;
+  font-family: inherit; opacity: 0.85;
+  animation: hintPulse 1.3s ease-in-out infinite;
+}
 #introTapHint {
   position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
   z-index: 100000;
@@ -1066,7 +1072,8 @@
 <body>
 <!-- ========== INTRO MOTIVATIONAL VIDEO ========== -->
 <div id="introVideoOverlay">
-  <video id="introVideo" playsinline preload="auto" src="mole_motiv.mp4"></video>
+  <video id="introVideo" playsinline preload="metadata" src="mole_motiv.mp4"></video>
+  <div id="introLoader">جاري التحميل…</div>
   <button id="introSkipBtn">تخطّي ⏭️</button>
   <button id="introTapHint">🔊 اضغط للتشغيل بالصوت</button>
 </div>
@@ -4564,13 +4571,28 @@ function initIntroVideo() {
   var tapHint = document.getElementById('introTapHint');
   if (!overlay || !video) return;
 
+  var loader  = document.getElementById('introLoader');
   var finished = false;
+  var watchdog = null;
   function closeIntro() {
     if (finished) return;
     finished = true;
+    if (watchdog) { clearTimeout(watchdog); watchdog = null; }
     try { video.pause(); } catch(e){}
     overlay.classList.add('hidden');
   }
+
+  // Safety net: if the video is missing, blocked or too slow, skip it
+  // instead of leaving the player stuck on a black screen.
+  watchdog = setTimeout(closeIntro, 7000);
+  video.addEventListener('playing', function() {
+    if (loader) loader.style.display = 'none';
+    if (watchdog) { clearTimeout(watchdog); watchdog = null; }
+  });
+  video.addEventListener('error', closeIntro);
+  video.addEventListener('stalled', function() {
+    if (!watchdog && !finished) watchdog = setTimeout(closeIntro, 7000);
+  });
 
   // Try to play WITH sound first
   video.muted = false;
@@ -4579,7 +4601,8 @@ function initIntroVideo() {
   if (p && p.catch) {
     p.catch(function() {
       // Autoplay with sound blocked -> show tap hint, play muted meanwhile
-      tapHint.style.display = 'block';
+      if (loader) loader.style.display = 'none';
+      if (tapHint) tapHint.style.display = 'block';
       video.muted = true;
       video.play().catch(function(){});
     });
@@ -4598,7 +4621,9 @@ function initIntroVideo() {
   video.addEventListener('ended', closeIntro);
 }
 
-window.addEventListener('load', function() {
+function bootMoleGame() {
+  if (window.__moleBooted) return;
+  window.__moleBooted = true;
   applyBgImages();
   bindEvents();
   renderAll();
@@ -4615,7 +4640,14 @@ window.addEventListener('load', function() {
     // Silent - Solo mode works fine without Firebase
   }
   tryInitWithRetry(6); // up to ~3 seconds of retries
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootMoleGame);
+} else {
+  bootMoleGame();
+}
+window.addEventListener('load', bootMoleGame); // final fallback
 </script>
 </body>
 </html>
