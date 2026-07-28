@@ -1075,6 +1075,24 @@
 .rule-ico { font-size: 21px; line-height: 1.3; flex-shrink: 0; }
 .rule-txt { font-size: 14px; line-height: 1.65; color: #e8f0ff; }
 .rule-txt b { color: #ffd700; }
+.lobby-warn {
+  margin: 8px 0 4px; padding: 9px 12px;
+  background: rgba(255,82,82,0.14); border-radius: 11px;
+  border: 1.5px solid rgba(255,82,82,0.45);
+  color: #ffb3b3; font-size: 12.5px; line-height: 1.55;
+  font-weight: 700; text-align: center;
+}
+.rules-sep {
+  margin: 16px 0 10px; padding: 7px 12px;
+  background: rgba(255,82,82,0.16); border-radius: 11px;
+  border: 1.5px solid rgba(255,82,82,0.45);
+  color: #ff8a8a; font-size: 15px; font-weight: 900; text-align: center;
+}
+.rule-row.bad {
+  border-right-color: rgba(255,82,82,0.75);
+  background: rgba(255,82,82,0.07);
+}
+.rule-row.bad .rule-txt b { color: #ff8a8a; }
 #rulesCloseBtn {
   width: 100%; margin-top: 12px; padding: 13px;
   background: linear-gradient(135deg, #4ada8a, #2bb56a);
@@ -1082,6 +1100,68 @@
   font-size: 17px; font-weight: 900; font-family: inherit;
 }
 #rulesCloseBtn:active { transform: scale(0.97); }
+/* ===== Big display ===== */
+#castOverlay {
+  position: fixed; inset: 0; z-index: 95000; display: none;
+  background: radial-gradient(ellipse at 50% 0%, #16305a 0%, #071021 65%, #04080f 100%);
+  padding: 18px 16px; overflow-y: auto;
+  flex-direction: column; align-items: center;
+}
+#castOverlay.show { display: flex; }
+#castHead { text-align: center; margin-bottom: 10px; }
+#castTitle {
+  font-size: clamp(20px, 4.2vw, 40px); font-weight: 900; color: #ffd700;
+  text-shadow: 0 3px 14px rgba(255,215,0,0.35);
+}
+#castMeta { font-size: clamp(12px, 2vw, 19px); color: #9fb6da; margin-top: 4px; font-weight: 700; }
+#castGoal {
+  min-height: 34px; margin: 6px 0 10px; text-align: center;
+  font-size: clamp(16px, 3.4vw, 32px); font-weight: 900; color: #4ada8a;
+  opacity: 0; transition: opacity 0.25s;
+}
+#castGoal.show { opacity: 1; animation: castPop 0.6s ease; }
+@keyframes castPop { 0%{transform:scale(0.7);} 55%{transform:scale(1.15);} 100%{transform:scale(1);} }
+#castRows { width: 100%; max-width: 900px; }
+.cast-row {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 16px; padding: 10px 14px; margin-bottom: 10px;
+}
+.cast-emoji { font-size: clamp(24px, 4.5vw, 44px); flex-shrink: 0; }
+.cast-mid { flex: 1; min-width: 0; }
+.cast-name {
+  font-size: clamp(14px, 2.6vw, 26px); font-weight: 900; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cast-bar { height: 12px; border-radius: 7px; background: rgba(0,0,0,0.4); margin-top: 7px; overflow: hidden; }
+.cast-bar > i { display: block; height: 100%; border-radius: 7px; transition: width 0.7s cubic-bezier(0.4,0,0.2,1); }
+.cast-score {
+  font-size: clamp(26px, 6vw, 60px); font-weight: 900; color: #ffd700;
+  min-width: 1.6em; text-align: center; flex-shrink: 0;
+}
+.cast-row.lead { border-color: rgba(255,215,0,0.7); background: rgba(255,215,0,0.09); }
+.cast-row.bump { animation: castPop 0.6s ease; }
+#castClock {
+  margin-top: 6px; font-size: clamp(22px, 4.5vw, 44px);
+  font-weight: 900; color: #fff; letter-spacing: 2px;
+}
+#castClock.urgent { color: #ff5252; }
+#castClose {
+  margin-top: 16px; padding: 10px 22px; border-radius: 26px;
+  background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3);
+  color: #fff; font-size: 15px; font-weight: 800; font-family: inherit;
+}
+#castFab {
+  position: fixed; bottom: 14px; left: 64px; z-index: 8500; display: none;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(0,0,0,0.62); border: 2px solid rgba(90,176,255,0.6);
+  color: #5ab0ff; font-size: 19px; backdrop-filter: blur(4px);
+}
+#verBadge {
+  position: fixed; bottom: 4px; right: 6px; z-index: 8400;
+  font-size: 10px; color: rgba(255,255,255,0.35);
+  font-family: inherit; pointer-events: none;
+}
 #rulesFab {
   position: fixed; bottom: 14px; left: 14px; z-index: 8500; display: none;
   width: 42px; height: 42px; border-radius: 50%;
@@ -1165,7 +1245,21 @@
   </div>
 </div>
 
+<!-- ========== BIG DISPLAY / SCOREBOARD SCREEN ========== -->
+<div id="castOverlay">
+  <div id="castHead">
+    <div id="castTitle">🏆 بطولة المول الكيميائي</div>
+    <div id="castMeta"><span id="castRoom"></span> · <span id="castQ"></span></div>
+  </div>
+  <div id="castGoal"></div>
+  <div id="castRows"></div>
+  <div id="castClock"></div>
+  <button id="castClose">✕ إغلاق شاشة العرض</button>
+</div>
+
+<button id="castFab" title="شاشة العرض">📺</button>
 <button id="rulesFab" title="القواعد">📜</button>
+<div id="verBadge">v19</div>
 
 <div id="raceTimer">
   <svg viewBox="0 0 100 100" id="raceTimerSvg">
@@ -1486,6 +1580,14 @@
       <div class="team-info">
         <div class="team-name">أنا طالبة - انضمّي</div>
         <div class="team-tagline">ادخلي بكود المعلمة</div>
+      </div>
+    </button>
+
+    <button class="team-card giants mode-card-compact" id="tmWatchBtn" style="border-color:#5ab0ff;">
+      <div class="team-logo" style="background:linear-gradient(135deg,#5ab0ff,#1d4ed8)">📺</div>
+      <div class="team-info">
+        <div class="team-name">شاشة العرض (بروجكتر)</div>
+        <div class="team-tagline">اعرضي النتائج على شاشة الصف</div>
       </div>
     </button>
 
@@ -2514,7 +2616,10 @@ function bindEvents() {
   });
   $('btnLobbyLeave').addEventListener('click', function() {
     sfxClick();
-    if (confirm('هل تريدين الخروج من الغرفة؟')) {
+    const msg = state.mp.isHost
+      ? '⚠️ إنتي صاحبة الغرفة!\n\nلو خرجتي رح تنمسح الغرفة والكود رح يبطل عند كل اللاعبات.\n\nمتأكدة؟'
+      : 'هل تريدين الخروج من الغرفة؟';
+    if (confirm(msg)) {
       mpLeaveRoom();
       showScreen('mpMenu');
     }
@@ -2644,7 +2749,12 @@ function bindEvents() {
   }
   $('btnHome').addEventListener('click', function() {
     ensureAudio(); sfxClick();
-    if (confirm('هل تريد الخروج إلى الرئيسية؟ سيتم فقدان تقدمك الحالي.')) {
+    const online = (state.mode === 'versus' || state.mode === 'teams' || state.mode === 'classroom');
+    const owner = state.mp.isHost || state.tm.isTeacher;
+    const homeMsg = (online && owner)
+      ? '⚠️ إنتي صاحبة الغرفة!\n\nالخروج رح يمسح الغرفة وينهي المباراة عند كل اللاعبات.\n\nمتأكدة؟'
+      : 'هل تريد الخروج إلى الرئيسية؟ سيتم فقدان تقدمك الحالي.';
+    if (confirm(homeMsg)) {
       stopBgMusic();
       if (state.mode === 'versus') mpLeaveRoom();
       if (state.mode === 'classroom') crLeaveRoom();
@@ -2704,6 +2814,37 @@ function bindEvents() {
       stopBgMusic();
     }
   });
+
+  const tmWatchBtn = $('tmWatchBtn');
+  if (tmWatchBtn) tmWatchBtn.addEventListener('click', async function() {
+    sfxClick();
+    const code = normalizeDigits(prompt('أدخلي كود الغرفة (6 أرقام):') || '');
+    if (code.length !== 6) { showCelebration2('error', 2000, 'كود غير صحيح', 'الكود 6 أرقام'); return; }
+    const db = await waitForDb(8000);
+    if (!db) { showCelebration2('error', 3000, 'لا يوجد اتصال', 'تأكدي من الإنترنت'); return; }
+    try {
+      const snap = await db.collection(TM_COLLECTION).doc(code).get();
+      if (!snap.exists) { await explainBadCode(code); return; }
+    } catch(e) { showCelebration2('error', 3000, 'خطأ', 'تعذّر الوصول للغرفة'); return; }
+
+    state.mode = 'teams';
+    state.tm.roomCode = code;
+    state.tm.isTeacher = false;
+    state.tm.myId = null;          // viewer: never a player
+    state._castPrev = {};
+    if (state.tm.unsubscribe) { try { state.tm.unsubscribe(); } catch(e){} }
+    state.tm.unsubscribe = db.collection(TM_COLLECTION).doc(code).onSnapshot(function(sn) {
+      if (!sn.exists) { closeCast(); showCelebration2('error', 2500, 'الغرفة أُغلقت', ''); return; }
+      state.tm.roomData = sn.data();
+      renderCast(state.tm.roomData);
+    });
+    openCast();
+  });
+
+  const castCloseBtn = $('castClose');
+  if (castCloseBtn) castCloseBtn.addEventListener('click', function(){ sfxClick(); closeCast(); });
+  const castFabBtn = $('castFab');
+  if (castFabBtn) castFabBtn.addEventListener('click', function(){ sfxClick(); openCast(); });
 
   const rulesCloseBtn = $('rulesCloseBtn');
   if (rulesCloseBtn) rulesCloseBtn.addEventListener('click', function(){ sfxClick(); hideRules(); });
@@ -2891,6 +3032,44 @@ async function mpCreateRoom(name) {
   }
 }
 
+// Looks the code up in every mode so we can tell the player exactly what's wrong
+async function diagnoseCode(code) {
+  const db = state.mp.db;
+  if (!db) return { kind: 'nodb' };
+  const places = [
+    { col: MP_COLLECTION, label: 'صديق ضد صديق 🕊️💪' },
+    { col: TM_COLLECTION, label: 'فريق ضد فريق 👥' },
+    { col: CR_COLLECTION, label: 'صف كامل 🎓' }
+  ];
+  for (let i = 0; i < places.length; i++) {
+    try {
+      const sn = await db.collection(places[i].col).doc(code).get();
+      if (sn.exists) return { kind: 'wrongmode', label: places[i].label };
+    } catch(e) {
+      if (e && (e.code === 'permission-denied' || /permission/i.test(e.message || ''))) {
+        return { kind: 'denied' };
+      }
+    }
+  }
+  return { kind: 'missing' };
+}
+
+async function explainBadCode(code) {
+  const d = await diagnoseCode(code);
+  if (d.kind === 'wrongmode') {
+    showCelebration2('error', 4000, 'نمط خاطئ',
+      'هذا الكود لنمط: ' + d.label + ' — ارجعي واختاري نفس النمط');
+  } else if (d.kind === 'denied') {
+    showCelebration2('error', 4000, 'صلاحيات مغلقة',
+      'قاعدة البيانات ترفض القراءة — راجعي إعدادات Firebase');
+  } else if (d.kind === 'nodb') {
+    showCelebration2('error', 3500, 'لا يوجد اتصال', 'تأكدي من الإنترنت');
+  } else {
+    showCelebration2('error', 4000, 'الغرفة غير موجودة',
+      'تأكدي أن صاحبة الغرفة ما خرجت منها، والكود: ' + code);
+  }
+}
+
 async function mpJoinRoom(code, name) {
   const db = await waitForDb(8000);
   const fb = window.firebase;
@@ -2902,7 +3081,7 @@ async function mpJoinRoom(code, name) {
     const ref = db.collection(MP_COLLECTION).doc(code);
     const snap = await ref.get();
     if (!snap.exists) {
-      showCelebration2('error', 2500, 'كود خاطئ', 'لا توجد غرفة بهذا الكود');
+      await explainBadCode(code);
       return;
     }
     const data = snap.data();
@@ -3080,6 +3259,8 @@ function mpEnterGame() {
   if (mpWrapInit) mpWrapInit.innerHTML = '';
   showRules('versus', true);
   const fab0 = $('rulesFab'); if (fab0) fab0.style.display = 'block';
+  const cfab0 = $('castFab');
+  if (cfab0) cfab0.style.display = state.mp.isHost ? 'block' : 'none';
   setTimeout(function() {
     startQuestionTimer(state.mp.isHost, function() {
       const d = state.mp.roomData;
@@ -3156,20 +3337,19 @@ async function mpResolveQuestion(data) {
       winner = null; // both wrong
     }
     shouldResolve = true;
+  } else if (cq.skyAnswer && cq.skyAnswer.correct) {
+    // SPEED RULE: first correct answer scores immediately
+    winner = 'sky';
+    shouldResolve = true;
+  } else if (cq.giantsAnswer && cq.giantsAnswer.correct) {
+    winner = 'giants';
+    shouldResolve = true;
   } else if (arguments.length > 1 && arguments[1] === true) {
-    // Countdown ran out: goal goes to whoever answered correctly (if anyone)
-    if (cq.skyAnswer && cq.skyAnswer.correct && cq.giantsAnswer && cq.giantsAnswer.correct) {
-      winner = (cq.skyAnswer.ts <= cq.giantsAnswer.ts) ? 'sky' : 'giants';
-    } else if (cq.skyAnswer && cq.skyAnswer.correct) {
-      winner = 'sky';
-    } else if (cq.giantsAnswer && cq.giantsAnswer.correct) {
-      winner = 'giants';
-    } else {
-      winner = null;
-    }
+    // Countdown ran out with nobody correct
+    winner = null;
     shouldResolve = true;
   }
-  // Otherwise wait for the other player or for the countdown
+  // A single wrong answer does NOT end the round - the opponent keeps racing
   
   if (!shouldResolve) return;
   stopQuestionTimer();
@@ -3229,6 +3409,7 @@ function mpRenderGameState(data) {
   // Score update
   mpRenderScoreboard(data);
   mpRenderFieldBalls(data);
+  renderCast(data);
   
   // Reset my "answered" if both reset (new question)
   if (data.currentQuestion && !data.currentQuestion.resolved) {
@@ -3319,6 +3500,7 @@ function mpShowResult(data) {
   stopQuestionTimer();
   hideRules();
   const fabR = $('rulesFab'); if (fabR) fabR.style.display = 'none';
+  const cfabR = $('castFab'); if (cfabR) cfabR.style.display = 'none';
   // Determine winner
   const skyScore = data.scores.sky || 0;
   const giantsScore = data.scores.giants || 0;
@@ -3360,6 +3542,7 @@ async function mpLeaveRoom() {
   if (state.mp.unsubscribe) { try { state.mp.unsubscribe(); } catch(e){} state.mp.unsubscribe = null; }
   const db = state.mp.db;
   const code = state.mp.roomCode;
+  const wasHost = state.mp.isHost;   // only the host may delete the room
   state.mp.roomCode = null;
   state.mp.myTeam = null;
   state.mp.isHost = false;
@@ -3367,9 +3550,15 @@ async function mpLeaveRoom() {
   state.mp._prevRoomData = null;
   state.mp._countdownShown = false;
   if (db && code) {
-    // Best effort: try to delete room
     try {
-      await db.collection(MP_COLLECTION).doc(code).delete();
+      if (wasHost) {
+        await db.collection(MP_COLLECTION).doc(code).delete();
+      } else {
+        // guest just frees the slot
+        await db.collection(MP_COLLECTION).doc(code).update({
+          'giants.joined': false, 'giants.name': '', 'giants.ready': false
+        });
+      }
     } catch(e) {
       // Ignore - might already be deleted
     }
@@ -3449,7 +3638,7 @@ async function crJoinRoom(code, name) {
   try {
     const ref = db.collection(CR_COLLECTION).doc(code);
     const snap = await ref.get();
-    if (!snap.exists) { showCelebration2('error', 2500, 'كود خاطئ', 'لا توجد غرفة بهذا الكود'); return; }
+    if (!snap.exists) { await explainBadCode(code); return; }
     const data = snap.data();
     if (data.type !== 'classroom') { showCelebration2('error', 2500, 'كود خاطئ', 'هذا الكود لغرفة مختلفة'); return; }
     if (data.status === 'finished') { showCelebration2('error', 2500, 'انتهت', 'المباراة منتهية'); return; }
@@ -3937,7 +4126,7 @@ async function tmJoinRoom(code, name) {
   try {
     const ref = db.collection(TM_COLLECTION).doc(code);
     const snap = await ref.get();
-    if (!snap.exists) { showCelebration2('error', 3000, 'كود خاطئ', 'تأكدي من الأرقام: ' + code); return; }
+    if (!snap.exists) { await explainBadCode(code); return; }
     const data = snap.data();
     if (data.type !== 'teams') { showCelebration2('error', 2500, 'خطأ', 'الكود لغرفة مختلفة'); return; }
     if (data.status === 'playing' || data.status === 'finished') { showCelebration2('error', 2500, 'المباراة بدأت', 'لا يمكن الدخول الآن'); return; }
@@ -4300,6 +4489,8 @@ function tmEnterGame() {
   if (tmWrapInit) tmWrapInit.innerHTML = '';
   showRules('teams', true);
   const fab0 = $('rulesFab'); if (fab0) fab0.style.display = 'block';
+  const cfab1 = $('castFab');
+  if (cfab1) cfab1.style.display = state.tm.isTeacher ? 'block' : 'none';
   setTimeout(function() {
     startQuestionTimer(state.tm.isTeacher, function() {
       const d = state.tm.roomData;
@@ -4412,6 +4603,7 @@ function tmRenderGameState(data) {
   // Score display
   tmRenderScoreboard(data);
   tmRenderFieldBalls(data);
+  renderCast(data);
   
   // Handle resolution
   if (data.currentQuestion && data.currentQuestion.resolved && state.tm._resolvedQ !== data.currentQuestionIndex) {
@@ -4619,13 +4811,103 @@ function tmRenderScoreboard(data) {
 // ===== Per-question countdown =====
 // Every question gives the players RACE_GRACE_MS to answer. When it runs out
 // the round closes and the goal goes to the fastest correct answer.
+// ===== Big display (projector) screen =====
+function castIsOpen() {
+  const ov = $('castOverlay');
+  return !!(ov && ov.classList.contains('show'));
+}
+
+function openCast() {
+  const ov = $('castOverlay');
+  if (!ov) return;
+  ov.classList.add('show');
+  try { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); } catch(e) {}
+  const d = (state.mode === 'teams') ? state.tm.roomData : state.mp.roomData;
+  if (d) renderCast(d);
+}
+
+function closeCast() {
+  const ov = $('castOverlay');
+  if (ov) ov.classList.remove('show');
+  try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch(e) {}
+}
+
+function castFlashGoal(text) {
+  const g = $('castGoal');
+  if (!g) return;
+  g.textContent = text;
+  g.classList.remove('show'); void g.offsetWidth; g.classList.add('show');
+  clearTimeout(state._castGoalT);
+  state._castGoalT = setTimeout(function(){ g.classList.remove('show'); }, 2600);
+}
+
+function renderCast(data) {
+  if (!castIsOpen() || !data) return;
+  const colors = ['#5ab0ff', '#ff8c42', '#4ada8a', '#a855f7'];
+  const emojis = ['🕊️', '💪', '🌿', '⭐'];
+  let sides = [];
+
+  if (state.mode === 'teams') {
+    const teams = data.teams || {};
+    sides = Object.keys(teams).map(function(tid, i) {
+      return { key: tid, name: (teams[tid] || {}).name || tid,
+               score: (teams[tid] || {}).score || 0,
+               color: colors[i % colors.length], emoji: emojis[i % emojis.length] };
+    });
+  } else {
+    const sc = data.scores || {};
+    sides = [
+      { key: 'sky',    name: (data.sky && data.sky.name) || 'SKY',
+        score: sc.sky || 0,    color: colors[0], emoji: emojis[0] },
+      { key: 'giants', name: (data.giants && data.giants.name) || 'GIANTS',
+        score: sc.giants || 0, color: colors[1], emoji: emojis[1] }
+    ];
+  }
+
+  const roomEl = $('castRoom');
+  if (roomEl) roomEl.textContent = 'كود: ' + ((state.mode === 'teams' ? state.tm.roomCode : state.mp.roomCode) || '—');
+  const qEl = $('castQ');
+  if (qEl) qEl.textContent = 'السؤال ' + ((data.currentQuestionIndex || 0) + 1) + ' من ' + QUESTIONS.length;
+
+  const best = Math.max.apply(null, sides.map(function(x){ return x.score; }).concat([0]));
+  if (!state._castPrev) state._castPrev = {};
+
+  const rows = $('castRows');
+  if (rows) {
+    rows.innerHTML = sides.map(function(sd) {
+      const pct = Math.round((sd.score / QUESTIONS.length) * 100);
+      const lead = (sd.score === best && best > 0) ? ' lead' : '';
+      return '<div class="cast-row' + lead + '" id="castRow_' +
+             String(sd.key).replace(/[^a-zA-Z0-9_-]/g,'') + '">' +
+        '<div class="cast-emoji">' + sd.emoji + '</div>' +
+        '<div class="cast-mid">' +
+          '<div class="cast-name">' + escapeHtml(sd.name) + '</div>' +
+          '<div class="cast-bar"><i style="width:' + pct + '%;background:' + sd.color + '"></i></div>' +
+        '</div>' +
+        '<div class="cast-score">' + sd.score + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // announce a fresh goal
+  for (let i = 0; i < sides.length; i++) {
+    const prev = state._castPrev[sides[i].key];
+    if (prev !== undefined && sides[i].score > prev) {
+      castFlashGoal('⚽ هدف! ' + sides[i].emoji + ' ' + sides[i].name);
+      const rowEl = document.getElementById('castRow_' + String(sides[i].key).replace(/[^a-zA-Z0-9_-]/g,''));
+      if (rowEl) rowEl.classList.add('bump');
+    }
+    state._castPrev[sides[i].key] = sides[i].score;
+  }
+}
+
 // ===== Rules card =====
 const RULES = {
   common: [
     ['🎯', 'كل سؤال إله <b>٤ إجابات</b> حوالين الملعب: فوق، تحت، يمين، يسار. اضغطي على الإجابة اللي بتشوفيها صح.'],
     ['⏱️', 'عندك <b>١٢ ثانية</b> لكل سؤال. الحلقة فوق الشاشة بتفضى مع الوقت، وبآخر ٣ ثواني بتصير حمرا.'],
-    ['⚡', 'الهدف بروح <b>لأسرع إجابة صحيحة</b> — يعني السرعة والدقة الاثنين بيفرقوا.'],
-    ['❌', 'الإجابة الغلط ما بتخصم نقاط، بس بتضيّع الفرصة. وإذا ما حدا جاوب صح، السؤال بيمرّ بلا هدف.'],
+    ['⚡', '<b>أول إجابة صحيحة بتاخد الهدف فوراً</b> وبينتقل السؤال — السرعة هي كل شي!'],
+    ['❌', 'الإجابة الغلط ما بتخصم، بس <b>بتحرقلك فرصتك بهالسؤال</b> والباقيات بيكمّلوا السباق.'],
     ['⚽', 'الكرة بتتقدّم على الملعب مع كل سؤال، وكل هدف بيدفعها أكتر. اللي كرته أقرب للمرمى هو المتقدّم.'],
     ['🏆', 'المباراة <b>١١ سؤال</b> — من الحارس للمهاجم. الأكتر أهداف بالنهاية بيفوز.']
   ],
@@ -4639,6 +4921,18 @@ const RULES = {
     ['🔁', 'الدور بيلف على البنات بالترتيب، فكل وحدة بيجي دورها.'],
     ['🤝', 'الفرق كلها بتتسابق بنفس الوقت — بس كل فريق من خلال اللاعبة اللي دورها.']
   ]
+  ,
+  forbidden: [
+    ['🚪', '<b>ممنوع صاحبة الغرفة تخرج</b> من شاشة الغرفة أو تضغط «الرئيسية» — الغرفة بتنمسح والكود بيبطل عند الكل.'],
+    ['🔄', '<b>ممنوع تعملي تحديث (Refresh)</b> للصفحة أثناء المباراة — بتطلعي من الغرفة وما بتقدري ترجعي.'],
+    ['⬅️', '<b>ممنوع زر الرجوع</b> بالمتصفح أثناء اللعب — بيقطع الاتصال بالغرفة.'],
+    ['📱', '<b>ممنوع تسكّري المتصفح</b> أو تفتحي تطبيق تاني وقت طويل — الشاشة بتنام والاتصال بينقطع.'],
+    ['🗂️', '<b>ممنوع تفتحي اللعبة بأكتر من تبويب</b> على نفس الجهاز — بتتلخبط الغرفة.'],
+    ['⏰', '<b>ممنوع الدخول بعد ما تبدأ المباراة</b> — الكود بيتقفل. اللي تأخرت لازم غرفة جديدة.'],
+    ['🙋', '<b>ممنوع تضغطي إجابة مش دورك</b> (بنمط الفرق) — انتظري لما ييجي دورك.'],
+    ['✍️', '<b>ممنوع اسمين متشابهين</b> بنفس الغرفة — كل وحدة باسم مختلف.'],
+    ['📶', '<b>ممنوع تطفي النت</b> أو تشتغلي على وضع الطيران أثناء المباراة.']
+  ]
 };
 
 function showRules(mode, autoOpened) {
@@ -4650,10 +4944,19 @@ function showRules(mode, autoOpened) {
   else if (mode === 'teams') rows = RULES.teams.concat(RULES.common);
   else rows = RULES.common;
 
-  body.innerHTML = rows.map(function(r) {
-    return '<div class="rule-row"><div class="rule-ico">' + r[0] +
-           '</div><div class="rule-txt">' + r[1] + '</div></div>';
-  }).join('');
+  function render(list, cls) {
+    return list.map(function(r) {
+      return '<div class="rule-row ' + (cls || '') + '"><div class="rule-ico">' + r[0] +
+             '</div><div class="rule-txt">' + r[1] + '</div></div>';
+    }).join('');
+  }
+
+  const isOnline = (mode === 'versus' || mode === 'teams' || mode === 'classroom');
+  body.innerHTML =
+    render(rows, '') +
+    (isOnline
+      ? '<div class="rules-sep">🚫 ممنوع أثناء المباراة</div>' + render(RULES.forbidden, 'bad')
+      : '');
   ov.classList.add('show');
 }
 
@@ -4694,6 +4997,8 @@ function startQuestionTimer(isAuthority, onExpire) {
       el.classList.toggle('urgent', secs <= 3 && secs > 0);
       el.classList.toggle('warn', secs > 3 && secs <= 6);
     }
+    const ck = $('castClock');
+    if (ck) { ck.textContent = '⏱️ ' + secs; ck.classList.toggle('urgent', secs <= 3); }
 
     // one tick per second over the last 3 seconds
     if (secs !== lastSec) {
@@ -4732,14 +5037,7 @@ async function tmResolveQuestion(data, force) {
   
   const allAnswered = (answeredTeams.length >= teamIds.length);
   
-  // The round closes when every team has answered, or when the
-  // per-question countdown runs out (force = true).
-  if (!allAnswered && !force) return;
-  
-  tmClearGrace();
-  stopQuestionTimer();
-  
-  // Goal goes to the fastest correct answer
+  // Goal goes to the FASTEST correct answer
   let winnerTid = null;
   let winnerTs = Infinity;
   for (const tid of answeredTeams) {
@@ -4748,6 +5046,16 @@ async function tmResolveQuestion(data, force) {
       winnerTs = answers[tid].ts;
     }
   }
+  
+  // SPEED RULE: the first correct answer ends the round immediately.
+  // A wrong answer does NOT end it - that team simply lost its shot and the
+  // others keep racing until someone is right, everyone has answered,
+  // or the countdown runs out.
+  const shouldResolve = (winnerTid !== null) || allAnswered || force;
+  if (!shouldResolve) return;
+  
+  tmClearGrace();
+  stopQuestionTimer();
   
   const db = state.mp.db;
   const ref = db.collection(TM_COLLECTION).doc(state.tm.roomCode);
@@ -4784,6 +5092,7 @@ function tmShowResult(data) {
   stopQuestionTimer();
   hideRules();
   const fabR2 = $('rulesFab'); if (fabR2) fabR2.style.display = 'none';
+  const cfabR2 = $('castFab'); if (cfabR2) cfabR2.style.display = 'none';
   const teams = data.teams || {};
   const teamIds = Object.keys(teams).sort(function(a,b){ return (teams[b].score||0) - (teams[a].score||0); });
   const winnerTid = teamIds[0];
@@ -4923,6 +5232,36 @@ function bootMoleGame() {
     // Silent - Solo mode works fine without Firebase
   }
   tryInitWithRetry(6); // up to ~3 seconds of retries
+  addLobbyWarnings();
+}
+
+// Stop accidental refresh / tab close from killing the room
+window.addEventListener('beforeunload', function(e) {
+  const online = (state.mode === 'versus' || state.mode === 'teams' || state.mode === 'classroom');
+  const inRoom = !!(state.mp.roomCode || state.tm.roomCode || state.cr && state.cr.roomCode);
+  if (online && inRoom) {
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  }
+});
+
+// Warning strip inside every lobby screen
+function addLobbyWarnings() {
+  const specs = [
+    ['screen-mp-lobby',      '⚠️ لا تخرجي من هذه الشاشة ولا تعملي تحديث — الغرفة بتنمسح والكود بيبطل!'],
+    ['screen-teams-lobby',   '⚠️ لا تخرجي من هذه الشاشة ولا تعملي تحديث — الغرفة بتنمسح والكود بيبطل!'],
+    ['screen-classroom-lobby','⚠️ لا تخرجي من هذه الشاشة ولا تعملي تحديث — الغرفة بتنمسح والكود بيبطل!']
+  ];
+  for (let i = 0; i < specs.length; i++) {
+    const host = document.getElementById(specs[i][0]);
+    if (!host || host.querySelector('.lobby-warn')) continue;
+    const d = document.createElement('div');
+    d.className = 'lobby-warn';
+    d.textContent = specs[i][1];
+    if (host.firstElementChild) host.insertBefore(d, host.firstElementChild.nextSibling);
+    else host.appendChild(d);
+  }
 }
 
 if (document.readyState === 'loading') {
