@@ -1271,7 +1271,7 @@
 
 <button id="castFab" title="شاشة العرض">📺</button>
 <button id="rulesFab" title="القواعد">📜</button>
-<div id="verBadge">v21</div>
+<div id="verBadge">v22</div>
 
 <div id="raceTimer">
   <svg viewBox="0 0 100 100" id="raceTimerSvg">
@@ -4728,8 +4728,12 @@ function renderRaceBalls(sides, qIdx, store) {
     const sd = sides[i];
     const safe = String(sd.key).replace(/[^a-zA-Z0-9_-]/g, '');
     seen[safe] = true;
-    const pos = tmFieldPointAt((qIdx || 0) * 0.5 + (sd.score || 0) * 0.5);
+    let pos = tmFieldPointAt((qIdx || 0) * 0.5 + (sd.score || 0) * 0.5);
     if (!pos) continue;
+    // Each team attacks its OWN goal: even teams left->right, odd teams
+    // right->left (mirrored), so the balls never sit on top of each other.
+    const mirrored = (i % 2 === 1);
+    pos = mirrored ? { x: 100 - pos.x, y: 100 - pos.y } : { x: pos.x, y: pos.y };
 
     const domId = 'tmBall_' + safe;
     let el = document.getElementById(domId);
@@ -4748,8 +4752,17 @@ function renderRaceBalls(sides, qIdx, store) {
       setTimeout(function(){ el.classList.remove('rolling'); }, 750);
     }
     el.style.left = newLeft;
-    const spread = (i - (sides.length - 1) / 2) * 9;
+    // teams on the same side get separated a little; opposite sides don't need it
+    const sameSide = sides.filter(function(_, k){ return (k % 2) === (i % 2); }).length;
+    const myIdxOnSide = Math.floor(i / 2);
+    const spread = sameSide > 1 ? (myIdxOnSide - (sameSide - 1) / 2) * 11 : 0;
     el.style.top = Math.max(6, Math.min(94, pos.y + spread)).toFixed(2) + '%';
+    // flip the badge to the outside so it never covers the other ball
+    const tagEl = el.querySelector('.tm-ball-tag');
+    if (tagEl) {
+      tagEl.style.top = mirrored ? 'auto' : '-17px';
+      tagEl.style.bottom = mirrored ? '-17px' : 'auto';
+    }
 
     const tag = el.querySelector('.tm-ball-tag');
     if (tag) {
@@ -4939,7 +4952,7 @@ const RULES = {
     ['⏱️', 'عندك <b>١٢ ثانية</b> لكل سؤال. الحلقة فوق الشاشة بتفضى مع الوقت، وبآخر ٣ ثواني بتصير حمرا.'],
     ['⚡', '<b>أول إجابة صحيحة بتاخد الهدف فوراً</b> وبينتقل السؤال — السرعة هي كل شي!'],
     ['❌', 'الإجابة الغلط ما بتخصم، بس <b>بتحرقلك فرصتك بهالسؤال</b> والباقيات بيكمّلوا السباق.'],
-    ['⚽', 'الكرة بتتقدّم على الملعب مع كل سؤال، وكل هدف بيدفعها أكتر. اللي كرته أقرب للمرمى هو المتقدّم.'],
+    ['⚽', '<b>كل فريق إله كرته وجهته</b>: فريق بيهاجم لليمين والتاني لليسار. الكرة بتتقدّم مع كل سؤال، والهدف بيدفعها أكتر.'],
     ['🏆', 'المباراة <b>١١ سؤال</b> — من الحارس للمهاجم. الأكتر أهداف بالنهاية بيفوز.']
   ],
   versus: [
