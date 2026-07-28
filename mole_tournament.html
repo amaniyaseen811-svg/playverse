@@ -957,6 +957,14 @@
   .celebrate-title.green { color: #4ada8a; }
   .celebrate-title.red   { color: #ff6b6b; }
   .celebrate-title.gold  { color: #ffd700; }
+  .celeb-explain {
+    display: none; margin: 12px auto 0; max-width: 400px;
+    background: rgba(0,0,0,0.55); border: 1.5px solid rgba(255,215,0,0.45);
+    border-radius: 13px; padding: 11px 14px;
+    font-size: 13.5px; line-height: 1.75; color: #ffeaa0;
+    font-weight: 700; text-align: center; white-space: pre-line;
+  }
+  .celeb-explain.show { display: block; }
   .celebrate-sub {
     font-family: 'Cairo', serif;
     font-size: clamp(20px, 5vw, 30px);
@@ -1189,6 +1197,53 @@
   color: #93a9c8; font-weight: 500;
 }
 .mode-card-compact { align-items: flex-start; text-align: right; }
+.round-card {
+  width: 100%; max-width: 360px; margin: 0 auto 11px; padding: 14px 15px;
+  background: rgba(255,255,255,0.055); border: 2px solid rgba(255,255,255,0.13);
+  border-radius: 17px; display: flex; gap: 13px; align-items: center;
+  text-align: right; transition: transform 0.15s, border-color 0.15s;
+}
+.round-card:active { transform: scale(0.97); }
+.round-card.done { border-color: rgba(74,218,138,0.6); background: rgba(74,218,138,0.09); }
+.round-ico {
+  width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 25px;
+  background: linear-gradient(135deg, rgba(255,215,0,0.28), rgba(255,140,66,0.22));
+}
+.round-name { font-size: 15.5px; font-weight: 900; color: #fff; }
+.round-sub { font-size: 11.5px; color: #93a9c8; margin-top: 3px; line-height: 1.55; }
+.round-meta { font-size: 10.5px; color: #ffd700; margin-top: 5px; font-weight: 800; }
+.scr-title { font-size: 22px; font-weight: 900; color: #ffd700; text-align: center; margin: 8px 0 2px; }
+.scr-sub { font-size: 12.5px; color: #93a9c8; text-align: center; margin-bottom: 14px; }
+.study-head {
+  position: sticky; top: 0; z-index: 20; padding: 10px 4px 8px;
+  background: linear-gradient(to bottom, rgba(7,16,33,0.98), rgba(7,16,33,0.86));
+  text-align: center;
+}
+.study-title { font-size: 19px; font-weight: 900; color: #ffd700; }
+#studyClock {
+  margin-top: 5px; font-size: 17px; font-weight: 900; color: #4ada8a;
+  letter-spacing: 1px;
+}
+#studyClock.low { color: #ff5252; animation: raceTick 1s ease-in-out infinite; }
+.sec-h {
+  margin: 14px 0 8px; padding: 8px 12px; border-radius: 11px;
+  background: rgba(255,215,0,0.13); border: 1.5px solid rgba(255,215,0,0.4);
+  color: #ffd700; font-size: 15.5px; font-weight: 900;
+}
+.def-card, .law-card, .ex-card {
+  background: rgba(255,255,255,0.055); border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 13px; padding: 11px 13px; margin-bottom: 9px;
+  font-size: 13.5px; line-height: 1.85; color: #dce8fa;
+}
+.def-card b, .ex-card b { color: #ffd700; }
+.law-card {
+  text-align: center; font-size: 17px; font-weight: 900;
+  color: #7fe3ff; border-color: rgba(127,227,255,0.35);
+  background: rgba(127,227,255,0.08); direction: ltr;
+}
+.law-card small { display: block; direction: rtl; font-size: 12px; color: #9fb6da; margin-top: 5px; font-weight: 700; }
+.ex-card { white-space: pre-line; }
 #verBadge {
   position: fixed; bottom: 4px; right: 6px; z-index: 8400;
   font-size: 10px; color: rgba(255,255,255,0.35);
@@ -1311,7 +1366,7 @@
 <button id="castFab" title="شاشة العرض">📺</button>
 <button id="rulesFab" title="القواعد">📜</button>
 <div id="scrollHint"></div>
-<div id="verBadge">v25</div>
+<div id="verBadge">v34</div>
 
 <div id="raceTimer">
   <svg viewBox="0 0 100 100" id="raceTimerSvg">
@@ -1332,6 +1387,7 @@
     <div class="celebrate-emoji" id="celebEmoji">⚽</div>
     <div class="celebrate-title" id="celebTitle">GOAL!</div>
     <div class="celebrate-sub" id="celebSub"></div>
+    <div class="celeb-explain" id="celebExplain"></div>
   </div>
 </div>
 
@@ -1379,6 +1435,23 @@
   </section>
 
   <!-- ========== MODE SELECT ========== -->
+  <section class="screen" id="screen-round">
+    <div class="scr-title">اختاري الجولة</div>
+    <div class="scr-sub">كل جولة ١٢ سؤال بين المفهوم والتطبيق</div>
+    <div id="roundList"></div>
+    <button class="btn-secondary" id="btnRoundBack" style="margin-top:10px;">← الرئيسية</button>
+  </section>
+
+  <section class="screen" id="screen-study">
+    <div class="study-head">
+      <div class="study-title" id="studyTitleTxt">📘 راجعي الدرس</div>
+      <div id="studyClock">⏳ 30:00</div>
+    </div>
+    <div id="studyBody"></div>
+    <button class="btn-primary" id="btnStudyGo" style="margin-top:14px;">✅ جاهزة — يلا نلعب</button>
+    <button class="btn-secondary" id="btnStudyBack" style="margin-top:8px;">← رجوع</button>
+  </section>
+
   <section class="screen" id="screen-mode">
     <h2 class="teams-title" style="margin-top:16px;">🎯 اختر طريقة اللعب</h2>
     <p class="teams-subtitle">4 أنماط للعب حسب حاجتك</p>
@@ -1390,7 +1463,7 @@
         <div class="team-tagline">العب لوحدك ضد الأسئلة</div>
         <div class="mode-desc">
           <span>📱 جهاز واحد</span><span>🌐 بدون إنترنت</span><span>❤️ محاولتين</span>
-          <p>تدرّبي على حالك بأي وقت. ١١ سؤال من الحارس للمهاجم، وبتقدري تراجعي الشرح بالنهاية. مثالية للمراجعة قبل الامتحان.</p>
+          <p>تدرّبي على حالك بأي وقت. ٥٥ سؤال من الحارس للمهاجم، وبتقدري تراجعي الشرح بالنهاية. مثالية للمراجعة قبل الامتحان.</p>
         </div>
       </div>
     </button>
@@ -1431,7 +1504,8 @@
       </div>
     </button>
 
-    <button class="btn-secondary" id="btnModeBack" style="margin-top:8px;">← رجوع</button>
+    <button class="btn-secondary" id="btnBackToStudy" style="margin-top:8px;">📘 رجوع لملخص الدرس</button>
+    <button class="btn-secondary" id="btnModeBack" style="margin-top:8px;">← الرئيسية</button>
   </section>
 
   <!-- ========== MULTIPLAYER MENU ========== -->
@@ -1851,7 +1925,7 @@
     <div class="result-medal" id="resultMedal">🏆</div>
     <div class="result-rank" id="resultRank">بطل ذهبي!</div>
     <div class="result-score-card">
-      <div class="result-score"><span id="resultScore">0</span><small>/11</small></div>
+      <div class="result-score"><span id="resultScore">0</span><small id="resultOutOf">/33</small></div>
       <div class="result-msg" id="resultMsg">أداء رائع!</div>
     </div>
     <div class="result-actions">
@@ -1920,132 +1994,444 @@ const IMG = {
 
 
 // ============ Game Data ============
-const QUESTIONS = [
+const ROUNDS = [
   {
-    id: 1, role: 'GK', num: '1.GK', position: 'حارس', topic: 'تعريف المول',
-    text: 'ما هو تعريف المول في الكيمياء؟',
-    answers: {
-      up:    { text: 'كتلة 1 غرام من أي مادة', correct: false },
-      right: { text: 'الكمية التي تحتوي على عدد أفوجادرو من الجسيمات', correct: true },
-      down:  { text: 'حجم 1 لتر من الغاز', correct: false },
-      left:  { text: 'كتلة الذرة الواحدة', correct: false }
+    id: 1, emoji: '⚗️', title: 'الجولة الأولى — أساسيات المول',
+    sub: 'مفهوم المول وعدد أفوجادرو وعدّ الجسيمات',
+    questions: [
+    {
+      id: 1, role: 'GK', num: '1.GK', position: 'حارس', kind: 'مفهوم', topic: 'لماذا نحتاج المول؟',
+      text: 'لماذا اخترع الكيميائيون وحدة المول أصلاً؟',
+      answers: {
+        up:    { text: 'لأن الذرات صغيرة جداً ولا يمكن عدّها واحدة واحدة', correct: true },
+        right: { text: 'لأن الكيمياء تحتاج وحدات كثيرة', correct: false },
+        down:  { text: 'لقياس درجة حرارة التفاعل', correct: false },
+        left:  { text: 'لتحديد لون المادة', correct: false }
+      },
+      explain: 'الذرة أصغر من أن تُعدّ أو تُوزن وحدها، فنحتاج وحدة تجمع عدداً هائلاً منها دفعة واحدة'
     },
-    explain: 'المول = الكمية التي تحتوي على 6.022 × 10²³ جسيم'
+    {
+      id: 2, role: 'DEF', num: '2.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'المول وحدة عدّ',
+      text: 'المول يشبه في فكرته أي وحدة من الحياة اليومية؟',
+      answers: {
+        up:    { text: 'المتر لقياس الطول', correct: false },
+        right: { text: 'طبق البيض (30 بيضة)', correct: true },
+        down:  { text: 'الساعة لقياس الوقت', correct: false },
+        left:  { text: 'الميزان لقياس الكتلة', correct: false }
+      },
+      explain: 'المول وحدة عدّ مثل طبق البيض تماماً — بس بدل 30 بيضة فيه 6.022×10²³ جسيم'
+    },
+    {
+      id: 3, role: 'DEF', num: '3.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'تعريف المول',
+      text: 'ما هو تعريف المول في الكيمياء؟',
+      answers: {
+        up:    { text: 'كتلة 1 غرام من أي مادة', correct: false },
+        right: { text: 'الكمية التي تحتوي على عدد أفوجادرو من الجسيمات', correct: true },
+        down:  { text: 'حجم 1 لتر من الغاز', correct: false },
+        left:  { text: 'كتلة الذرة الواحدة', correct: false }
+      },
+      explain: 'المول = الكمية التي تحتوي على 6.022 × 10²³ جسيم'
+    },
+    {
+      id: 4, role: 'DEF', num: '4.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'وحدات القياس',
+      text: 'ما هي وحدة قياس كمية المادة في النظام الدولي؟',
+      answers: {
+        up:    { text: 'الغرام (g)', correct: false },
+        right: { text: 'اللتر (L)', correct: false },
+        down:  { text: 'المول (mol)', correct: true },
+        left:  { text: 'الكلفن (K)', correct: false }
+      },
+      explain: 'المول (mol) هو الوحدة الأساسية لكمية المادة في النظام الدولي'
+    },
+    {
+      id: 5, role: 'DEF', num: '5.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'قيمة عدد أفوجادرو',
+      text: 'ما هي قيمة عدد أفوجادرو؟',
+      answers: {
+        up:    { text: '6.022 × 10²³', correct: true },
+        right: { text: '3.14 × 10²³', correct: false },
+        down:  { text: '6.022 × 10¹²', correct: false },
+        left:  { text: '9.8 × 10²³', correct: false }
+      },
+      explain: 'Nₐ = 6.022 × 10²³ جسيم/مول'
+    },
+    {
+      id: 6, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'عدد أفوجادرو',
+      text: 'من هو العالم الذي سُمّي عدد أفوجادرو على اسمه؟',
+      answers: {
+        up:    { text: 'إسحاق نيوتن', correct: false },
+        left:  { text: 'ألبرت أينشتاين', correct: false },
+        down:  { text: 'أميديو أفوجادرو', correct: true },
+        right: { text: 'ديميتري مندليف', correct: false }
+      },
+      explain: 'العالم الإيطالي أميديو أفوجادرو (1776-1856)'
+    },
+    {
+      id: 7, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'رمز عدد أفوجادرو',
+      text: 'ما هو الرمز المستخدم لعدد أفوجادرو؟',
+      answers: {
+        up:    { text: 'Nₐ', correct: true },
+        right: { text: 'Mᵣ', correct: false },
+        down:  { text: 'Vₘ', correct: false },
+        left:  { text: 'Kₑ', correct: false }
+      },
+      explain: 'يُرمز لعدد أفوجادرو بالرمز Nₐ'
+    },
+    {
+      id: 8, role: 'MID', num: '7.MID', position: 'وسط', kind: 'مفهوم', topic: 'ثبات عدد الجسيمات',
+      text: 'أيهما يحتوي على عدد جسيمات أكبر: 1 مول حديد أم 1 مول هيدروجين؟',
+      answers: {
+        up:    { text: 'الحديد لأنه أثقل', correct: false },
+        right: { text: 'الهيدروجين لأنه أخف', correct: false },
+        down:  { text: 'متساويان تماماً', correct: true },
+        left:  { text: 'لا يمكن المقارنة', correct: false }
+      },
+      explain: 'أي مول من أي مادة فيه نفس العدد: 6.022×10²³ جسيم — الاختلاف في الكتلة فقط'
+    },
+    {
+      id: 9, role: 'MID', num: '8.MID', position: 'وسط', kind: 'تطبيق', topic: 'عدد الجسيمات',
+      text: 'كم جزيء يوجد في 1 مول من غاز ثاني أكسيد الكربون CO₂؟',
+      answers: {
+        up:    { text: '12.044 × 10²³ جزيء', correct: false },
+        right: { text: '6.022 × 10²³ جزيء', correct: true },
+        down:  { text: '3.011 × 10²³ جزيء', correct: false },
+        left:  { text: '44 جزيء', correct: false }
+      },
+      explain: 'أي مول من أي مادة يحتوي دائماً على 6.022 × 10²³ جسيم'
+    },
+    {
+      id: 10, role: 'FWD', num: '9.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'عدد الذرات في المول',
+      text: 'كم عدد الذرات في 2 مول من الكربون؟',
+      answers: {
+        right: { text: '6.022 × 10²³ ذرة', correct: false },
+        up:    { text: '12.044 × 10²³ ذرة', correct: true },
+        left:  { text: '3.011 × 10²³ ذرة', correct: false },
+        down:  { text: '18.066 × 10²³ ذرة', correct: false }
+      },
+      explain: '2 × 6.022 × 10²³ = 12.044 × 10²³ ذرة'
+    },
+    {
+      id: 11, role: 'FWD', num: '10.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'من الجسيمات للمولات',
+      text: 'كم مول يمثّل 3.011 × 10²³ ذرة من الصوديوم؟',
+      answers: {
+        up:    { text: '0.5 مول', correct: true },
+        right: { text: '1 مول', correct: false },
+        down:  { text: '2 مول', correct: false },
+        left:  { text: '3 مول', correct: false }
+      },
+      explain: 'n = العدد ÷ Nₐ = 3.011×10²³ ÷ 6.022×10²³ = 0.5 مول'
+    },
+    {
+      id: 12, role: 'FWD', num: '11.FWD', position: 'مهاجم', kind: 'مفهوم', topic: 'المول جسر',
+      text: 'المول يُسمّى «الجسر» في الكيمياء. بين ماذا يربط؟',
+      answers: {
+        up:    { text: 'بين الصلب والسائل', correct: false },
+        right: { text: 'بين ما نستطيع وزنه (الغرامات) وما لا نستطيع عدّه (الذرات)', correct: true },
+        down:  { text: 'بين الحرارة والضغط', correct: false },
+        left:  { text: 'بين الحمض والقاعدة', correct: false }
+      },
+      explain: 'المول يحوّل الكتلة التي نقيسها بالميزان إلى عدد جسيمات لا يمكن عدّه مباشرة'
+    }
+    ]
   },
   {
-    id: 2, role: 'DEF', num: '2.DEF', position: 'مدافع', topic: 'عدد أفوجادرو',
-    text: 'من هو العالم الذي سُمّي عدد أفوجادرو على اسمه؟',
-    answers: {
-      up:    { text: 'إسحاق نيوتن', correct: false },
-      left:  { text: 'ألبرت أينشتاين', correct: false },
-      down:  { text: 'أميديو أفوجادرو', correct: true },
-      right: { text: 'ديميتري مندليف', correct: false }
+    id: 2, emoji: '🎈', title: 'الجولة الثانية — الحجم المولي',
+    sub: '22.4 لتر/مول والظروف القياسية والتحويلات',
+    questions: [
+    {
+      id: 1, role: 'GK', num: '1.GK', position: 'حارس', kind: 'مفهوم', topic: 'الظروف القياسية',
+      text: 'ماذا نقصد بالظروف القياسية STP؟',
+      answers: {
+        up:    { text: '25°س وضغط 2 جوي', correct: false },
+        right: { text: '0°س (273K) وضغط 1 جوي', correct: true },
+        down:  { text: '100°س وضغط 1 جوي', correct: false },
+        left:  { text: 'درجة حرارة الغرفة فقط', correct: false }
+      },
+      explain: 'STP = درجة حرارة صفر مئوية (273 كلفن) وضغط جوي واحد'
     },
-    explain: 'العالم الإيطالي أميديو أفوجادرو (1776-1856)'
+    {
+      id: 2, role: 'DEF', num: '2.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'الحجم المولي',
+      text: 'ما هو الحجم المولي للغازات عند الظروف القياسية (STP)؟',
+      answers: {
+        left:  { text: '11.2 لتر/مول', correct: false },
+        down:  { text: '22.4 لتر/مول', correct: true },
+        right: { text: '44.8 لتر/مول', correct: false },
+        up:    { text: '5.6 لتر/مول', correct: false }
+      },
+      explain: 'الحجم المولي عند STP = 22.4 لتر/مول'
+    },
+    {
+      id: 3, role: 'DEF', num: '3.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'لماذا الحجم المولي ثابت؟',
+      text: 'لماذا يكون الحجم المولي ثابتاً للغازات ومختلفاً للسوائل والصلبة؟',
+      answers: {
+        up:    { text: 'لأن الغازات أخف وزناً', correct: false },
+        right: { text: 'لأن المسافات بين جزيئات الغاز هائلة فحجم الجزيء نفسه مهمل', correct: true },
+        down:  { text: 'لأن الغازات شفافة', correct: false },
+        left:  { text: 'لأن الغازات لا كتلة لها', correct: false }
+      },
+      explain: 'في الغاز الحجم تحدده المسافات بين الجزيئات لا حجم الجزيئات، لذا لا يهم نوع الغاز'
+    },
+    {
+      id: 4, role: 'DEF', num: '4.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'تساوي حجوم الغازات',
+      text: '1 مول H₂ و 1 مول O₂ عند STP — أيهما حجمه أكبر؟',
+      answers: {
+        up:    { text: 'الهيدروجين لأنه أخف', correct: false },
+        right: { text: 'الأكسجين لأنه أثقل', correct: false },
+        down:  { text: 'متساويان = 22.4 لتر لكل منهما', correct: true },
+        left:  { text: 'يعتمد على الوعاء', correct: false }
+      },
+      explain: 'الحجم المولي لا يعتمد على نوع الغاز — كل مول غاز عند STP يشغل 22.4 لتر'
+    },
+    {
+      id: 5, role: 'DEF', num: '5.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'قانون أفوجادرو',
+      text: 'حجمان متساويان من غازين مختلفين عند نفس الضغط ودرجة الحرارة يحتويان على:',
+      answers: {
+        up:    { text: 'نفس الكتلة', correct: false },
+        right: { text: 'نفس عدد الجزيئات', correct: true },
+        down:  { text: 'نفس عدد الذرات', correct: false },
+        left:  { text: 'نفس الكثافة', correct: false }
+      },
+      explain: 'قانون أفوجادرو: الحجوم المتساوية للغازات في نفس الظروف تحوي نفس عدد الجزيئات'
+    },
+    {
+      id: 6, role: 'MID', num: '6.MID', position: 'وسط', kind: 'مفهوم', topic: 'أثر الحرارة',
+      text: 'ماذا يحدث للحجم المولي للغاز إذا ارتفعت درجة الحرارة (بثبوت الضغط)؟',
+      answers: {
+        up:    { text: 'يزداد', correct: true },
+        right: { text: 'ينقص', correct: false },
+        down:  { text: 'يبقى 22.4 لتر دائماً', correct: false },
+        left:  { text: 'يصبح صفراً', correct: false }
+      },
+      explain: 'الحرارة تزيد حركة الجزيئات فتتباعد ⇒ يزداد الحجم. قيمة 22.4 لتر خاصة بـ STP فقط'
+    },
+    {
+      id: 7, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'حساب الحجم',
+      text: 'ما حجم 0.5 مول من غاز عند الظروف القياسية STP؟',
+      answers: {
+        up:    { text: '5.6 لتر', correct: false },
+        right: { text: '11.2 لتر', correct: true },
+        down:  { text: '22.4 لتر', correct: false },
+        left:  { text: '44.8 لتر', correct: false }
+      },
+      explain: 'V = n × 22.4 = 0.5 × 22.4 = 11.2 لتر'
+    },
+    {
+      id: 8, role: 'MID', num: '7.MID', position: 'وسط', kind: 'تطبيق', topic: 'حساب الحجم',
+      text: 'ما حجم 3 مول من غاز عند الظروف القياسية STP؟',
+      answers: {
+        up:    { text: '22.4 لتر', correct: false },
+        right: { text: '44.8 لتر', correct: false },
+        down:  { text: '67.2 لتر', correct: true },
+        left:  { text: '7.5 لتر', correct: false }
+      },
+      explain: 'V = n × 22.4 = 3 × 22.4 = 67.2 لتر'
+    },
+    {
+      id: 9, role: 'MID', num: '8.MID', position: 'وسط', kind: 'تطبيق', topic: 'من الحجم للمولات',
+      text: 'كم مول يوجد في 11.2 لتر من غاز عند STP؟',
+      answers: {
+        up:    { text: '0.5 مول', correct: true },
+        right: { text: '1 مول', correct: false },
+        down:  { text: '2 مول', correct: false },
+        left:  { text: '11.2 مول', correct: false }
+      },
+      explain: 'n = V ÷ 22.4 = 11.2 ÷ 22.4 = 0.5 مول'
+    },
+    {
+      id: 10, role: 'FWD', num: '9.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'من الحجم للجسيمات',
+      text: 'كم جزيء يوجد في 44.8 لتر من غاز عند STP؟',
+      answers: {
+        up:    { text: '6.022 × 10²³ جزيء', correct: false },
+        right: { text: '12.044 × 10²³ جزيء', correct: true },
+        down:  { text: '3.011 × 10²³ جزيء', correct: false },
+        left:  { text: '24.088 × 10²³ جزيء', correct: false }
+      },
+      explain: 'n = 44.8÷22.4 = 2 مول ⇒ 2 × 6.022×10²³ = 12.044×10²³ جزيء'
+    },
+    {
+      id: 11, role: 'FWD', num: '10.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'من الكتلة للحجم',
+      text: 'ما حجم 8 غرام من غاز الأكسجين O₂ عند STP؟ (M = 32 g/mol)',
+      answers: {
+        up:    { text: '2.8 لتر', correct: false },
+        right: { text: '5.6 لتر', correct: true },
+        down:  { text: '11.2 لتر', correct: false },
+        left:  { text: '22.4 لتر', correct: false }
+      },
+      explain: 'n = 8÷32 = 0.25 مول ⇒ V = 0.25 × 22.4 = 5.6 لتر'
+    },
+    {
+      id: 12, role: 'FWD', num: '11.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'من الحجم للكتلة',
+      text: 'ما كتلة 5.6 لتر من غاز النيتروجين N₂ عند STP؟ (M = 28 g/mol)',
+      answers: {
+        up:    { text: '7 غرام', correct: true },
+        right: { text: '14 غرام', correct: false },
+        down:  { text: '28 غرام', correct: false },
+        left:  { text: '2.8 غرام', correct: false }
+      },
+      explain: 'n = 5.6÷22.4 = 0.25 مول ⇒ m = 0.25 × 28 = 7 غرام'
+    }
+    ]
   },
   {
-    id: 3, role: 'DEF', num: '4.DEF', position: 'مدافع', topic: 'الكتلة المولية',
-    text: 'ما هي الكتلة المولية للماء H₂O؟',
-    answers: {
-      left:  { text: '10 g/mol', correct: false },
-      up:    { text: '16 g/mol', correct: false },
-      right: { text: '18 g/mol', correct: true },
-      down:  { text: '20 g/mol', correct: false }
+    id: 3, emoji: '⚖️', title: 'الجولة الثالثة — الكتلة المولية',
+    sub: 'حساب M للعناصر والمركّبات والتحويل للمولات',
+    questions: [
+    {
+      id: 1, role: 'GK', num: '1.GK', position: 'حارس', kind: 'مفهوم', topic: 'معنى الكتلة الذرية',
+      text: 'الكتلة الذرية للأكسجين تساوي 16. ماذا يعني ذلك؟',
+      answers: {
+        up:    { text: 'كتلة ذرة أكسجين واحدة 16 غرام', correct: false },
+        right: { text: 'كتلة 1 مول من ذرات الأكسجين = 16 غرام', correct: true },
+        down:  { text: 'في الأكسجين 16 مول', correct: false },
+        left:  { text: 'حجم مول الأكسجين 16 لتر', correct: false }
+      },
+      explain: 'الكتلة الذرية بالغرام = كتلة مول واحد من ذرات العنصر'
     },
-    explain: 'H₂O = (2×1) + 16 = 18 g/mol'
-  },
-  {
-    id: 4, role: 'DEF', num: '5.DEF', position: 'مدافع', topic: 'حساب عدد المولات',
-    text: 'كم مول في 54 غرام من الماء H₂O؟ (M = 18 g/mol)',
-    answers: {
-      up:    { text: '2 مول', correct: false },
-      left:  { text: '3 مول', correct: true },
-      down:  { text: '4 مول', correct: false },
-      right: { text: '5 مول', correct: false }
+    {
+      id: 2, role: 'DEF', num: '2.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'مصدر الكتلة المولية',
+      text: 'من أين نحصل على الكتلة المولية لأي عنصر؟',
+      answers: {
+        up:    { text: 'من الجدول الدوري (الكتلة الذرية بالغرام)', correct: true },
+        right: { text: 'بوزن المادة في المختبر', correct: false },
+        down:  { text: 'من عدد أفوجادرو', correct: false },
+        left:  { text: 'من درجة انصهار العنصر', correct: false }
+      },
+      explain: 'الكتلة الذرية في الجدول الدوري = كتلة مول واحد من ذرات العنصر بالغرام'
     },
-    explain: 'n = m ÷ M = 54 ÷ 18 = 3 مول'
-  },
-  {
-    id: 5, role: 'DEF', num: '3.DEF', position: 'مدافع', topic: 'عدد الذرات في المول',
-    text: 'كم عدد الذرات في 2 مول من الكربون؟',
-    answers: {
-      right: { text: '6.022 × 10²³ ذرة', correct: false },
-      up:    { text: '12.044 × 10²³ ذرة', correct: true },
-      left:  { text: '3.011 × 10²³ ذرة', correct: false },
-      down:  { text: '18.066 × 10²³ ذرة', correct: false }
+    {
+      id: 3, role: 'DEF', num: '3.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'سبب اختلاف الكتل',
+      text: 'لماذا تختلف كتلة المول من مادة لأخرى رغم تساوي عدد الجسيمات؟',
+      answers: {
+        up:    { text: 'لأن عدد أفوجادرو يتغير', correct: false },
+        right: { text: 'لأن كتلة الذرة نفسها تختلف من عنصر لآخر', correct: true },
+        down:  { text: 'لأن الحجم يختلف', correct: false },
+        left:  { text: 'لأن الحرارة تؤثر على الكتلة', correct: false }
+      },
+      explain: 'العدد ثابت دائماً، لكن كل ذرة لها كتلتها الخاصة ⇒ تختلف كتلة المول'
     },
-    explain: '2 × 6.022 × 10²³ = 12.044 × 10²³ ذرة'
-  },
-  {
-    id: 6, role: 'MID', num: '8.MID', position: 'وسط', topic: 'المول في المعادلات',
-    text: 'في المعادلة 2H₂ + O₂ → 2H₂O، كم مول O₂ يحتاج لـ 4 مول H₂؟',
-    answers: {
-      down:  { text: '1 مول', correct: false },
-      right: { text: '2 مول', correct: true },
-      up:    { text: '3 مول', correct: false },
-      left:  { text: '4 مول', correct: false }
+    {
+      id: 4, role: 'DEF', num: '4.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'مقارنة كتل المولات',
+      text: 'أيهما أثقل: 1 مول من الحديد Fe (56) أم 1 مول من الألمنيوم Al (27)؟',
+      answers: {
+        up:    { text: 'الألمنيوم', correct: false },
+        right: { text: 'الحديد', correct: true },
+        down:  { text: 'متساويان لأن كليهما مول واحد', correct: false },
+        left:  { text: 'يعتمد على الحجم', correct: false }
+      },
+      explain: 'العدد نفسه لكن ذرة الحديد أثقل ⇒ 56 غرام مقابل 27 غرام'
     },
-    explain: 'النسبة 2:1، إذن 4 مول H₂ تحتاج 2 مول O₂'
-  },
-  {
-    id: 7, role: 'MID', num: '10.MID', position: 'وسط', topic: 'الحجم المولي',
-    text: 'ما هو الحجم المولي للغازات عند الظروف القياسية (STP)؟',
-    answers: {
-      left:  { text: '11.2 لتر/مول', correct: false },
-      down:  { text: '22.4 لتر/مول', correct: true },
-      right: { text: '44.8 لتر/مول', correct: false },
-      up:    { text: '5.6 لتر/مول', correct: false }
+    {
+      id: 5, role: 'DEF', num: '5.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما هي الكتلة المولية للماء H₂O؟ (H=1, O=16)',
+      answers: {
+        left:  { text: '10 g/mol', correct: false },
+        up:    { text: '16 g/mol', correct: false },
+        right: { text: '18 g/mol', correct: true },
+        down:  { text: '20 g/mol', correct: false }
+      },
+      explain: 'H₂O = (2×1) + 16 = 18 g/mol'
     },
-    explain: 'الحجم المولي عند STP = 22.4 لتر/مول'
-  },
-  {
-    id: 8, role: 'MID', num: '6.MID', position: 'وسط', topic: 'التركيز المولي',
-    text: 'ما هو التركيز المولي لمحلول يحتوي على 0.5 مول في 2 لتر؟',
-    answers: {
-      up:    { text: '0.25 M', correct: true },
-      left:  { text: '0.5 M', correct: false },
-      down:  { text: '1 M', correct: false },
-      right: { text: '2 M', correct: false }
+    {
+      id: 6, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما هي الكتلة المولية لغاز الأكسجين O₂؟ (O = 16)',
+      answers: {
+        up:    { text: '16 g/mol', correct: false },
+        right: { text: '32 g/mol', correct: true },
+        down:  { text: '8 g/mol', correct: false },
+        left:  { text: '48 g/mol', correct: false }
+      },
+      explain: 'O₂ = 2 × 16 = 32 g/mol'
     },
-    explain: 'M = n ÷ V = 0.5 ÷ 2 = 0.25 M'
-  },
-  {
-    id: 9, role: 'FWD', num: '9.FWD', position: 'مهاجم', topic: 'النسبة المئوية',
-    text: 'ما هي نسبة الأكسجين في الماء H₂O؟ (M = 18 g/mol)',
-    answers: {
-      down:  { text: '11.1%', correct: false },
-      left:  { text: '88.9%', correct: true },
-      up:    { text: '50%', correct: false },
-      right: { text: '66.7%', correct: false }
+    {
+      id: 7, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما هي الكتلة المولية لثاني أكسيد الكربون CO₂؟ (C=12, O=16)',
+      answers: {
+        up:    { text: '28 g/mol', correct: false },
+        right: { text: '44 g/mol', correct: true },
+        down:  { text: '32 g/mol', correct: false },
+        left:  { text: '56 g/mol', correct: false }
+      },
+      explain: 'CO₂ = 12 + (2×16) = 44 g/mol'
     },
-    explain: '%O = (16 ÷ 18) × 100 = 88.9%'
-  },
-  {
-    id: 10, role: 'FWD', num: '7.FWD', position: 'مهاجم', topic: 'الصيغة الجزيئية',
-    text: 'مركب يحتوي على 75% كربون و 25% هيدروجين. ما هي الصيغة التجريبية؟',
-    answers: {
-      right: { text: 'CH', correct: false },
-      up:    { text: 'CH₂', correct: false },
-      down:  { text: 'CH₃', correct: true },
-      left:  { text: 'CH₄', correct: false }
+    {
+      id: 8, role: 'MID', num: '7.MID', position: 'وسط', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما هي الكتلة المولية لملح الطعام NaCl؟ (Na=23, Cl=35.5)',
+      answers: {
+        up:    { text: '48.5 g/mol', correct: false },
+        right: { text: '35.5 g/mol', correct: false },
+        down:  { text: '58.5 g/mol', correct: true },
+        left:  { text: '70 g/mol', correct: false }
+      },
+      explain: 'NaCl = 23 + 35.5 = 58.5 g/mol'
     },
-    explain: 'n(C)=75÷12=6.25, n(H)=25÷1=25, النسبة ≈ 1:4 ⇒ CH₃'
-  },
-  {
-    id: 11, role: 'FWD', num: '11.FWD', position: 'مهاجم', topic: 'مسألة شاملة (النهائي)',
-    text: 'كم عدد الجزيئات في 9 غرام من الماء H₂O؟ (M=18, Nₐ=6.022×10²³)',
-    answers: {
-      right: { text: '3.011 × 10²³ جزيء', correct: true },
-      up:    { text: '6.022 × 10²³ جزيء', correct: false },
-      left:  { text: '9.033 × 10²³ جزيء', correct: false },
-      down:  { text: '12.044 × 10²³ جزيء', correct: false }
+    {
+      id: 9, role: 'MID', num: '8.MID', position: 'وسط', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما هي الكتلة المولية لكربونات الكالسيوم CaCO₃؟ (Ca=40, C=12, O=16)',
+      answers: {
+        up:    { text: '68 g/mol', correct: false },
+        right: { text: '100 g/mol', correct: true },
+        down:  { text: '116 g/mol', correct: false },
+        left:  { text: '52 g/mol', correct: false }
+      },
+      explain: 'CaCO₃ = 40 + 12 + (3×16) = 100 g/mol'
     },
-    explain: 'n = 9÷18 = 0.5 مول ⇒ الجزيئات = 0.5 × 6.022×10²³ = 3.011×10²³'
+    {
+      id: 10, role: 'FWD', num: '9.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما هي الكتلة المولية لحمض الكبريتيك H₂SO₄؟ (H=1, S=32, O=16)',
+      answers: {
+        up:    { text: '50 g/mol', correct: false },
+        right: { text: '98 g/mol', correct: true },
+        down:  { text: '82 g/mol', correct: false },
+        left:  { text: '114 g/mol', correct: false }
+      },
+      explain: 'H₂SO₄ = (2×1) + 32 + (4×16) = 98 g/mol'
+    },
+    {
+      id: 11, role: 'FWD', num: '10.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'إيجاد الكتلة المولية',
+      text: 'كتلة 2 مول من عنصر تساوي 46 غرام. ما كتلته المولية؟',
+      answers: {
+        up:    { text: '23 g/mol', correct: true },
+        right: { text: '46 g/mol', correct: false },
+        down:  { text: '92 g/mol', correct: false },
+        left:  { text: '2 g/mol', correct: false }
+      },
+      explain: 'M = m ÷ n = 46 ÷ 2 = 23 g/mol (وهو الصوديوم Na)'
+    },
+    {
+      id: 12, role: 'FWD', num: '11.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'حساب عدد المولات',
+      text: 'كم مول في 54 غرام من الماء H₂O؟ (M = 18 g/mol)',
+      answers: {
+        up:    { text: '2 مول', correct: false },
+        left:  { text: '3 مول', correct: true },
+        down:  { text: '4 مول', correct: false },
+        right: { text: '5 مول', correct: false }
+      },
+      explain: 'n = m ÷ M = 54 ÷ 18 = 3 مول'
+    }
+    ]
   }
 ];
 
+// QUESTIONS always points at the round currently being played
+let QUESTIONS = ROUNDS[0].questions;
+
+function setRound(idx) {
+  const k = Math.max(0, Math.min(ROUNDS.length - 1, idx | 0));
+  state.roundIndex = k;
+  QUESTIONS = ROUNDS[k].questions;
+  return k;
+}
+
+
 // Player positions on field (% of field width and height)
 // RTL: we keep visual flow from right (start) to left (goal) - but in our field, we'll place them visually progressing toward right goal
+// 33 questions are played across the same 11 players: 3 questions each
+function qPos(idx) {
+  const last = PLAYER_POSITIONS.length - 1;
+  const n = QUESTIONS.length;
+  if (n <= 1) return 0;
+  return Math.max(0, Math.min(last, Math.round((idx || 0) * last / (n - 1))));
+}
+
 const PLAYER_POSITIONS = [
   { x: 14, y: 50 },  // 1. GK - far right (starting goal)
   { x: 25, y: 28 },  // 2. DEF
@@ -2076,6 +2462,7 @@ const LESSONS = [
 
 // ============ State ============
 const state = {
+  roundIndex: 0,
   mode: 'solo',          // 'solo' | 'versus' | 'classroom' | 'teams'
   team: 'sky',
   questionIndex: 0,
@@ -2140,6 +2527,8 @@ function generatePlayerId() {
 const $ = (id) => document.getElementById(id);
 const screens = {
   home:            $('screen-home'),
+  round:           $('screen-round'),
+  study:           $('screen-study'),
   mode:            $('screen-mode'),
   mpMenu:          $('screen-mp-menu'),
   mpCreate:        $('screen-mp-create'),
@@ -2281,7 +2670,7 @@ function renderField() {
   if (singleBall) singleBall.style.display = isRace ? 'none' : '';
   if (tmWrap)     tmWrap.style.display     = isRace ? '' : 'none';
 
-  const pos = PLAYER_POSITIONS[state.questionIndex];
+  const pos = PLAYER_POSITIONS[qPos(state.questionIndex)];
   const marker = $('playerMarker');
   if (!pos || !marker) return;
   marker.style.left = pos.x + '%';
@@ -2324,8 +2713,8 @@ function renderAll() { renderHUD(); renderField(); renderQuestion(); }
 function animatePass(fromIdx, toIdx) {
   if (fromIdx == null || toIdx == null) return;
   if (fromIdx === toIdx) return;
-  const fromPos = PLAYER_POSITIONS[fromIdx];
-  const toPos = PLAYER_POSITIONS[toIdx];
+  const fromPos = PLAYER_POSITIONS[qPos(fromIdx)];
+  const toPos = PLAYER_POSITIONS[qPos(toIdx)];
   if (!fromPos || !toPos) return;
 
   const line  = $('passLine');
@@ -2433,6 +2822,23 @@ function showCelebration(kind, durationMs, onDone) {
 }
 
 // Generic info/error popup (lightweight, no image)
+// Show the concept + worked solution for a question
+function showExplain(qIndex) {
+  const box = $('celebExplain');
+  if (!box) return;
+  const q = QUESTIONS[qIndex];
+  if (!q) { box.classList.remove('show'); return; }
+  let correct = '';
+  for (const d in q.answers) if (q.answers[d].correct) correct = q.answers[d].text;
+  box.textContent = '📘 ' + q.topic + '\n✅ الإجابة: ' + correct + '\n💡 ' + (q.explain || '');
+  box.classList.add('show');
+}
+
+function clearExplain() {
+  const box = $('celebExplain');
+  if (box) { box.classList.remove('show'); box.textContent = ''; }
+}
+
 function showCelebration2(kind, durationMs, title, subtitle) {
   const overlay = $('celebOverlay');
   const img = $('celebImg');
@@ -2458,8 +2864,10 @@ function showCelebration2(kind, durationMs, title, subtitle) {
   }
   titleEl.textContent = title || '';
   sub.textContent = subtitle || '';
+  if (!state._keepExplain) clearExplain();
   
   overlay.classList.add('show');
+  state._keepExplain = false;
   setTimeout(function() { overlay.classList.remove('show'); }, durationMs);
 }
 
@@ -2506,6 +2914,8 @@ function handleCorrect() {
   const kind = isFinal ? 'final-goal' : 'correct';
   const duration = isFinal ? 1800 : 1200;
   
+  showExplain(state.questionIndex);
+  state._keepExplain = true;
   showCelebration(kind, duration, function() {
     const nextIndex = state.questionIndex + 1;
     state.lives = 2;
@@ -2593,7 +3003,8 @@ function bindEvents() {
   // Home
   $('btnStart').addEventListener('click', function() {
     ensureAudio(); sfxClick();
-    showScreen('mode');
+    renderRounds();
+    showScreen('round');
   });
   $('btnHowTo').addEventListener('click', function() {
     ensureAudio(); sfxClick();
@@ -2648,7 +3059,7 @@ function bindEvents() {
     showScreen('tmMenu');
   });
   
-  $('btnModeBack').addEventListener('click', function() { sfxClick(); showScreen('home'); });
+  $('btnModeBack').addEventListener('click', function() { sfxClick(); renderRounds(); showScreen('round'); });
 
   // MP Menu
   $('mpCreateBtn').addEventListener('click', function() { sfxClick(); $('mpCreateName').value=''; showScreen('mpCreate'); setTimeout(()=>$('mpCreateName').focus(), 200); });
@@ -2910,6 +3321,7 @@ function bindEvents() {
 
     state.mode = 'teams';
     state.tm.roomCode = code;
+    if (typeof data.round === 'number') setRound(data.round);
     state.tm.isTeacher = false;
     state.tm.myId = null;          // viewer: never a player
     state._castPrev = {};
@@ -2926,6 +3338,23 @@ function bindEvents() {
   if (castCloseBtn) castCloseBtn.addEventListener('click', function(){ sfxClick(); closeCast(); });
   const castFabBtn = $('castFab');
   if (castFabBtn) castFabBtn.addEventListener('click', function(){ sfxClick(); openCast(); });
+
+  const btnRoundBack = $('btnRoundBack');
+  if (btnRoundBack) btnRoundBack.addEventListener('click', function(){ sfxClick(); showScreen('home'); });
+
+  const btnBackToStudy = $('btnBackToStudy');
+  if (btnBackToStudy) btnBackToStudy.addEventListener('click', function(){
+    sfxClick(); renderStudy(); showScreen('study');
+  });
+
+  const btnStudyGo = $('btnStudyGo');
+  if (btnStudyGo) btnStudyGo.addEventListener('click', function(){
+    sfxClick(); stopStudyTimer(); showScreen('mode');
+  });
+  const btnStudyBack = $('btnStudyBack');
+  if (btnStudyBack) btnStudyBack.addEventListener('click', function(){
+    sfxClick(); stopStudyTimer(); renderRounds(); showScreen('round');
+  });
 
   const rulesCloseBtn = $('rulesCloseBtn');
   if (rulesCloseBtn) rulesCloseBtn.addEventListener('click', function(){ sfxClick(); hideRules(); });
@@ -3088,6 +3517,7 @@ async function mpCreateRoom(name) {
     hostTeam: 'sky',   // host always plays SKY
     sky:    { name: name, joined: true,  ready: false, lastSeen: fb.firestore.FieldValue.serverTimestamp() },
     giants: { name: '', joined: false, ready: false, lastSeen: null },
+    round: state.roundIndex,
     currentQuestionIndex: 0,
     scores: { sky: 0, giants: 0 },
     currentQuestion: {
@@ -3101,6 +3531,7 @@ async function mpCreateRoom(name) {
   try {
     await db.collection(MP_COLLECTION).doc(code).set(roomData);
     state.mp.roomCode = code;
+    if (typeof data.round === 'number') setRound(data.round);
     state.mp.myTeam = 'sky';
     state.mp.myName = name;
     state.mp.isHost = true;
@@ -3376,7 +3807,6 @@ async function chooseAnswerMP(dir) {
   const ans = q.answers[dir];
   if (!ans) return;
   
-  state.mp.answered = true;
   state.locked = true;
   
   // Visual feedback immediately
@@ -3384,11 +3814,31 @@ async function chooseAnswerMP(dir) {
   if (btn) btn.classList.add(ans.correct ? 'correct' : 'wrong');
   if (ans.correct) sfxCorrect(); else sfxWrong();
   
-  // Write to Firestore
   const db = state.mp.db;
   const fb = window.firebase;
   const ref = db.collection(MP_COLLECTION).doc(state.mp.roomCode);
   const me = state.mp.myTeam;
+  
+  if (!ans.correct) {
+    state.mp.attempts = (state.mp.attempts || 0) + 1;
+    const left = ATTEMPTS_PER_QUESTION - state.mp.attempts;
+    if (left > 0) {
+      // second chance - nothing is submitted yet
+      state.mp._feedback = true;
+      showCelebration2('info', 1300, '❌ غلط',
+        'باقي إلك ' + left + ' محاولة — جرّبي غيرها!');
+      setTimeout(function() {
+        const btns = document.querySelectorAll('.ans-btn');
+        for (let i = 0; i < btns.length; i++) btns[i].classList.remove('correct', 'wrong');
+        state.mp._feedback = false;
+        state.locked = false;
+      }, 1000);
+      return;
+    }
+    showCelebration2('error', 1500, '❌ خلصت محاولاتك', 'بهذا السؤال');
+  }
+  
+  state.mp.answered = true;
   const update = {};
   update['currentQuestion.' + me + 'Answer'] = {
     dir: dir, correct: ans.correct, ts: Date.now()
@@ -3433,6 +3883,11 @@ async function mpResolveQuestion(data) {
   // A single wrong answer does NOT end the round - the opponent keeps racing
   
   if (!shouldResolve) return;
+  // ACCURACY FIX: snapshots keep arriving while the resolve write is in flight,
+  // so without this guard the goal could be counted more than once.
+  if (state.mp._resolvingQ === data.currentQuestionIndex) return;
+  state.mp._resolvingQ = data.currentQuestionIndex;
+  
   stopQuestionTimer();
   if (state.mp._graceTimer) { clearTimeout(state.mp._graceTimer); state.mp._graceTimer = null; }
   state.mp._graceQ = null;
@@ -3470,6 +3925,7 @@ async function mpAdvanceQuestion(data) {
 }
 
 function mpRenderGameState(data) {
+  if (data && typeof data.round === 'number' && data.round !== state.roundIndex) setRound(data.round);
   if (!data) return;
   
   // Question sync - if index changed, animate the pass
@@ -3481,6 +3937,9 @@ function mpRenderGameState(data) {
     state.locked = false;
     if (state.mp._graceTimer) { clearTimeout(state.mp._graceTimer); state.mp._graceTimer = null; }
     state.mp._graceQ = null;
+    state.mp._resolvingQ = null;
+    state.mp.attempts = 0;
+    state.mp._feedback = false;
     startQuestionTimer(state.mp.isHost, function() {
       const d = state.mp.roomData;
       if (d && d.currentQuestion && !d.currentQuestion.resolved) mpResolveQuestion(d, true);
@@ -3495,7 +3954,7 @@ function mpRenderGameState(data) {
   // Reset my "answered" if both reset (new question)
   if (data.currentQuestion && !data.currentQuestion.resolved) {
     const me = state.mp.myTeam;
-    if (!data.currentQuestion[me + 'Answer']) {
+    if (!data.currentQuestion[me + 'Answer'] && !state.mp._feedback) {
       state.mp.answered = false;
       state.locked = false;
     }
@@ -3528,10 +3987,13 @@ function mpRenderGameState(data) {
     
     if (kind === 'opponent-goal') {
       showCelebration2('error', duration, '😔 الخصم سجّل', 'الدور القادم لك!');
+      showExplain(state.questionIndex);
       setTimeout(function(){
         if (state.mp.isHost) mpAdvanceQuestion(data);
       }, duration);
     } else {
+      showExplain(state.questionIndex);
+      state._keepExplain = true;
       showCelebration(kind, duration, function() {
         if (state.mp.isHost) mpAdvanceQuestion(data);
       });
@@ -3600,13 +4062,19 @@ function mpShowResult(data) {
     medal = '🤝'; rank = 'تعادل!';
     msg = 'النتيجة ' + myScore + ' - ' + oppScore + '. مباراة قوية من الجانبين!';
   }
+  const unclaimed = QUESTIONS.length - skyScore - giantsScore;
+  if (unclaimed > 0) msg += '\n(' + unclaimed + ' سؤال ما سجّل فيهم حدا)';
+  const mEl = $('resultMsg');
+  if (mEl) mEl.style.whiteSpace = 'pre-line';
   
   $('resultMedal').textContent = medal;
   $('resultRank').textContent = rank;
   $('resultScore').textContent = myScore;
   $('resultMsg').textContent = msg;
   
-  // Update the /11 to show opponent's score
+  const outOfMp = $('resultOutOf');
+  if (outOfMp) outOfMp.textContent = '/' + QUESTIONS.length;
+  // show the opponent's score next to mine
   const scoreCard = document.querySelector('.result-score');
   if (scoreCard) {
     scoreCard.innerHTML = myScore + '<small> - ' + oppScore + '</small>';
@@ -3689,6 +4157,7 @@ async function crCreateRoom(name, maxStudents, lbVisible) {
       leaderboardVisible: lbVisible // 'all' or 'teacher'
     },
     students: {},
+    round: state.roundIndex,
     currentQuestionIndex: 0,
     currentQuestion: {
       answers: {},
@@ -3700,6 +4169,7 @@ async function crCreateRoom(name, maxStudents, lbVisible) {
   try {
     await db.collection(CR_COLLECTION).doc(code).set(roomData);
     state.cr.roomCode = code;
+    if (typeof data.round === 'number') setRound(data.round);
     state.cr.myId = teacherId;
     state.cr.myName = name;
     state.cr.isTeacher = true;
@@ -3926,6 +4396,7 @@ async function chooseAnswerClassroom(dir) {
 }
 
 function crRenderGameState(data) {
+  if (data && typeof data.round === 'number' && data.round !== state.roundIndex) setRound(data.round);
   if (!data) return;
   
   // Sync question
@@ -4176,6 +4647,7 @@ async function tmCreateRoom(name, numTeams, playersPerTeam) {
     settings: { numTeams: numTeams, playersPerTeam: playersPerTeam },
     teams: teams,
     students: {}, // { studentId: { name, teamId (null=unassigned) } }
+    round: state.roundIndex,
     currentQuestionIndex: 0,
     currentQuestion: {
       answers: {}, // { teamId: { studentId, dir, correct, ts } }
@@ -4609,13 +5081,14 @@ function tmGetCurrentTurnStudent(team, questionIndex) {
   return order[questionIndex % order.length];
 }
 
+const ATTEMPTS_PER_QUESTION = 2;
+
 async function chooseAnswerTeams(dir) {
   if (state.tm.answered || state.locked) return;
   if (state.tm.isTeacher) return;
   const data = state.tm.roomData;
   if (!data || !data.currentQuestion || data.currentQuestion.resolved) return;
   
-  // Check if it's my turn
   const myStudent = (data.students || {})[state.tm.myId];
   if (!myStudent || !myStudent.teamId) return;
   if (myStudent.redCard) {
@@ -4633,30 +5106,59 @@ async function chooseAnswerTeams(dir) {
   const ans = q.answers[dir];
   if (!ans) return;
   
-  state.tm.answered = true;
   state.locked = true;
-  
   const btn = document.querySelector('.ans-btn[data-dir="' + dir + '"]');
   if (btn) btn.classList.add(ans.correct ? 'correct' : 'wrong');
   if (ans.correct) sfxCorrect(); else sfxWrong();
   
   const db = state.mp.db;
   const ref = db.collection(TM_COLLECTION).doc(state.tm.roomCode);
-  const update = {};
-  update['currentQuestion.answers.' + myStudent.teamId] = {
-    studentId: state.tm.myId,
-    dir: dir,
-    correct: ans.correct,
-    ts: Date.now()
-  };
-  if (!ans.correct) {
-    update['students.' + state.tm.myId + '.wrongs'] =
-      window.firebase.firestore.FieldValue.increment(1);
+  
+  if (ans.correct) {
+    state.tm.answered = true;
+    const update = {};
+    update['currentQuestion.answers.' + myStudent.teamId] = {
+      studentId: state.tm.myId, dir: dir, correct: true, ts: Date.now()
+    };
+    try { await ref.update(update); } catch(e) {}
+    return;
   }
-  try { await ref.update(update); } catch(e) {}
+  
+  // --- wrong answer ---
+  state.tm.attempts = (state.tm.attempts || 0) + 1;
+  const used = state.tm.attempts;
+  const left = ATTEMPTS_PER_QUESTION - used;
+  
+  const wrongUpdate = {};
+  wrongUpdate['students.' + state.tm.myId + '.wrongs'] =
+    window.firebase.firestore.FieldValue.increment(1);
+  
+  if (left > 0) {
+    // second chance: don't submit yet, just let her try again
+    state.tm._feedback = true;
+    try { await ref.update(wrongUpdate); } catch(e) {}
+    showCelebration2('info', 1300, '❌ غلط',
+      'باقي إلك ' + left + ' محاولة — جرّبي غيرها!');
+    setTimeout(function() {
+      const btns = document.querySelectorAll('.ans-btn');
+      for (let i = 0; i < btns.length; i++) btns[i].classList.remove('correct', 'wrong');
+      state.tm._feedback = false;
+      state.locked = false;
+    }, 1000);
+    return;
+  }
+  
+  // attempts exhausted -> the team loses this question
+  state.tm.answered = true;
+  wrongUpdate['currentQuestion.answers.' + myStudent.teamId] = {
+    studentId: state.tm.myId, dir: dir, correct: false, ts: Date.now()
+  };
+  try { await ref.update(wrongUpdate); } catch(e) {}
+  showCelebration2('error', 1500, '❌ خلصت محاولاتك', 'بهذا السؤال');
 }
 
 function tmRenderGameState(data) {
+  if (data && typeof data.round === 'number' && data.round !== state.roundIndex) setRound(data.round);
   if (!data) return;
   
   if (state.questionIndex !== data.currentQuestionIndex) {
@@ -4666,6 +5168,9 @@ function tmRenderGameState(data) {
     state.locked = false;
     state.tm._resolvedQ = null;
     if (state.tm.isTeacher) tmClearGrace();
+    state.tm._resolvingQ = null;
+    state.tm.attempts = 0;
+    state.tm._feedback = false;
     startQuestionTimer(state.tm.isTeacher, function() {
       const d = state.tm.roomData;
       if (d && d.currentQuestion && !d.currentQuestion.resolved) tmResolveQuestion(d, true);
@@ -4677,8 +5182,10 @@ function tmRenderGameState(data) {
     const myStudent = (data.students || {})[state.tm.myId];
     if (myStudent && myStudent.teamId) {
       if (!answers[myStudent.teamId] || answers[myStudent.teamId].studentId !== state.tm.myId) {
-        state.tm.answered = false;
-        state.locked = false;   // FIX: allow this student to answer again
+        if (!state.tm._feedback) {          // don't unlock mid "try again" animation
+          state.tm.answered = false;
+          state.locked = false;
+        }
       }
     }
   }
@@ -4714,6 +5221,8 @@ function tmRenderGameState(data) {
     if (iAmWinner) {
       kind = isFinal ? 'final-goal' : 'correct';
       duration = isFinal ? 1800 : 1300;
+      showExplain(state.questionIndex);
+      state._keepExplain = true;
       showCelebration(kind, duration, function(){
         if (state.tm.isTeacher) tmAdvanceQuestion(data);
       });
@@ -4867,7 +5376,10 @@ function renderRaceBalls(sides, qIdx, store) {
     const sd = sides[i];
     const safe = String(sd.key).replace(/[^a-zA-Z0-9_-]/g, '');
     seen[safe] = true;
-    let pos = tmFieldPointAt((qIdx || 0) * 0.5 + (sd.score || 0) * 0.5);
+    const maxI = PLAYER_POSITIONS.length - 1;
+    const qFrac = QUESTIONS.length > 1 ? (qIdx || 0) / (QUESTIONS.length - 1) : 0;
+    const sFrac = Math.min(1, (sd.score || 0) / QUESTIONS.length);
+    let pos = tmFieldPointAt(maxI * (0.5 * qFrac + 0.5 * sFrac));
     if (!pos) continue;
     // Each team attacks its OWN goal: even teams left->right, odd teams
     // right->left (mirrored), so the balls never sit on top of each other.
@@ -5084,15 +5596,160 @@ function renderCast(data) {
   }
 }
 
+// ===== Round picker =====
+function roundDoneKey(i) { return 'mole_round_done_' + i; }
+
+function renderRounds() {
+  const box = $('roundList');
+  if (!box) return;
+  box.innerHTML = ROUNDS.map(function(r, i) {
+    let done = false;
+    try { done = localStorage.getItem(roundDoneKey(i)) === '1'; } catch(e) {}
+    return '<button class="round-card' + (done ? ' done' : '') + '" data-round="' + i + '">' +
+      '<div class="round-ico">' + r.emoji + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="round-name">' + r.title + (done ? ' ✅' : '') + '</div>' +
+        '<div class="round-sub">' + r.sub + '</div>' +
+        '<div class="round-meta">' + r.questions.length + ' سؤال · ⏳ 30 دقيقة</div>' +
+      '</div></button>';
+  }).join('');
+  const cards = box.querySelectorAll('.round-card');
+  for (let i = 0; i < cards.length; i++) {
+    cards[i].addEventListener('click', function() {
+      sfxClick();
+      setRound(parseInt(this.getAttribute('data-round'), 10));
+      renderStudy();
+      startStudyTimer();
+      showScreen('study');
+    });
+  }
+}
+
+function markRoundDone() {
+  try { localStorage.setItem(roundDoneKey(state.roundIndex), '1'); } catch(e) {}
+}
+
+// ===== Study / lesson page =====
+const STUDY_MINUTES = 30;
+
+const LAWS_CORE = [
+ ['h','القوانين الأساسية'],
+ ['l','n = m ÷ M|عدد المولات = الكتلة ÷ الكتلة المولية'],
+ ['l','n = N ÷ Nₐ|عدد المولات = عدد الجسيمات ÷ عدد أفوجادرو'],
+ ['l','n = V ÷ 22.4|عدد المولات = حجم الغاز ÷ الحجم المولي (STP)']
+];
+
+const STUDY_ROUNDS = [
+ // ===== الجولة 1 =====
+ [
+  ['h','١. ما هو المول؟'],
+  ['d','<b>المول (mol)</b> وحدة عدّ في الكيمياء — الكمية التي تحتوي على <b>6.022 × 10²³</b> جسيم (ذرة أو جزيء أو أيون).<br><br>تماماً كما أن <b>طبق البيض = 30 بيضة</b> مهما كان حجمها أو لونها، فالمول = 6.022×10²³ جسيم مهما كانت المادة.'],
+  ['d','<b>أمثلة من حياتنا على وحدات العدّ:</b><br>طبق البيض = 30 بيضة · ربطة الخبز = 8 أرغفة · الشدة = 52 ورقة<br><br>كلها تجمع عدداً <b>ثابتاً</b> من الأشياء في اسم واحد — والمول نفس الفكرة تماماً، بس برقم ضخم.'],
+  ['d','<b>لماذا نحتاجه؟</b> الذرة أصغر من أن تُعدّ أو تُوزن وحدها. لو أردنا عدّ ذرات ملعقة ماء لاحتجنا ملايين السنين! فاخترعنا وحدة تجمع عدداً هائلاً دفعة واحدة.'],
+  ['h','٢. عدد أفوجادرو'],
+  ['d','<b>Nₐ = 6.022 × 10²³</b><br>سُمّي على اسم العالم الإيطالي <b>أميديو أفوجادرو</b>. وهو <b>ثابت لا يتغير</b> مهما كانت المادة: مول الحديد ومول الهيدروجين فيهما نفس العدد بالضبط.'],
+  ['h','٣. المول هو الجسر 🌉'],
+  ['d','الكتلة (g) ⇄ <b>المول</b> ⇄ عدد الجسيمات<br><br>لا يمكن الانتقال من الغرامات إلى عدد الذرات مباشرة — <b>لازم تمرّي بالمول أولاً</b>.'],
+  ['h','٤. أمثلة محلولة'],
+  ['e','<b>مثال 1 — من المولات إلى الذرات</b>\nكم ذرة في 2 مول كربون؟\n\nالحل:\nN = n × Nₐ\nN = 2 × 6.022×10²³ = <b>12.044 × 10²³ ذرة</b>'],
+  ['e','<b>مثال 2 — من الذرات إلى المولات</b>\nكم مول يمثّل 3.011 × 10²³ ذرة؟\n\nالحل:\nn = N ÷ Nₐ\nn = 3.011×10²³ ÷ 6.022×10²³ = <b>0.5 مول</b>'],
+  ['h','⚠️ أخطاء شائعة'],
+  ['d','❌ الظن أن المول الأثقل فيه جسيمات أكثر — العدد <b>ثابت دائماً</b>.<br><br>❌ نسيان عدد الذرات داخل الجزيء: مول CO₂ فيه <b>مولان</b> من ذرات الأكسجين.']
+ ],
+ // ===== الجولة 2 =====
+ [
+  ['h','١. الظروف القياسية STP'],
+  ['d','<b>STP</b> = درجة حرارة <b>0°س (273 كلفن)</b> وضغط <b>1 جوي</b>.<br><br>كل الأرقام في هذه الجولة صحيحة <b>عند STP فقط</b>.'],
+  ['h','٢. الحجم المولي'],
+  ['d','<b>الحجم المولي (Vₘ) = 22.4 لتر/مول</b><br><br>مول واحد من <b>أي</b> غاز عند STP يشغل 22.4 لتر — هيدروجين أو أكسجين أو ثاني أكسيد الكربون، كلهم سواء!'],
+  ['d','<b>لماذا لا يهم نوع الغاز؟</b><br>لأن المسافات بين جزيئات الغاز <b>هائلة جداً</b> مقارنة بحجم الجزيء نفسه، فالحجم تحدده المسافات لا الجزيئات. ولهذا لا ينطبق هذا على السوائل والمواد الصلبة.'],
+  ['d','<b>قانون أفوجادرو:</b> حجمان متساويان من غازين مختلفين، في نفس الضغط ودرجة الحرارة، يحتويان على <b>نفس عدد الجزيئات</b>.'],
+  ['h','٣. القوانين'],
+  ['l','V = n × 22.4|حجم الغاز = عدد المولات × 22.4 لتر'],
+  ['l','n = V ÷ 22.4|عدد المولات = الحجم ÷ 22.4'],
+  ['h','٤. أمثلة محلولة'],
+  ['e','<b>مثال 1 — من المولات إلى الحجم</b>\nما حجم 3 مول من غاز عند STP؟\n\nالحل:\nV = 3 × 22.4 = <b>67.2 لتر</b>'],
+  ['e','<b>مثال 2 — من الكتلة إلى الحجم</b>\nما حجم 8 غرام من O₂ عند STP؟ (M = 32)\n\nالحل (خطوتان):\n① n = 8 ÷ 32 = 0.25 مول\n② V = 0.25 × 22.4 = <b>5.6 لتر</b>'],
+  ['e','<b>مثال 3 — من الحجم إلى الكتلة</b>\nما كتلة 5.6 لتر من N₂ عند STP؟ (M = 28)\n\nالحل:\n① n = 5.6 ÷ 22.4 = 0.25 مول\n② m = 0.25 × 28 = <b>7 غرام</b>'],
+  ['h','⚠️ أخطاء شائعة'],
+  ['d','❌ استخدام 22.4 لتر للسوائل أو المواد الصلبة — <b>للغازات عند STP فقط</b>.<br><br>❌ الظن أن الغاز الأثقل يشغل حجماً أكبر — <b>خطأ</b>، الحجم واحد.<br><br>❌ نسيان أن رفع الحرارة <b>يزيد</b> الحجم فلا تبقى 22.4.']
+ ],
+ // ===== الجولة 3 =====
+ [
+  ['h','١. ما هي الكتلة المولية؟'],
+  ['d','<b>الكتلة المولية (M)</b> = كتلة مول واحد من المادة بالغرام، ووحدتها <b>g/mol</b>.<br><br>نأخذها من <b>الجدول الدوري</b>: الكتلة الذرية للعنصر مكتوبة بالغرام.'],
+  ['d','<b>معنى «الكتلة الذرية للأكسجين = 16»:</b><br>ليس أن ذرة واحدة كتلتها 16 غرام! بل أن <b>مولاً واحداً</b> من ذرات الأكسجين (6.022×10²³ ذرة) كتلته 16 غرام.'],
+  ['d','<b>لماذا تختلف من مادة لأخرى؟</b><br>لأن كل ذرة لها كتلتها الخاصة. العدد ثابت (6.022×10²³) لكن الذرات نفسها مختلفة الثقل ⇒ مول الحديد 56 غرام ومول الألمنيوم 27 غرام.'],
+  ['h','٢. حساب M للمركّبات'],
+  ['d','نجمع كتل <b>كل</b> الذرات في الصيغة، مع الانتباه للأرقام السفلية:<br><br>H₂O = (2×1) + 16 = <b>18</b><br>CO₂ = 12 + (2×16) = <b>44</b><br>CaCO₃ = 40 + 12 + (3×16) = <b>100</b><br>H₂SO₄ = (2×1) + 32 + (4×16) = <b>98</b>'],
+  ['h','٣. القوانين'],
+  ['l','n = m ÷ M|عدد المولات = الكتلة ÷ الكتلة المولية'],
+  ['l','m = n × M|الكتلة = عدد المولات × الكتلة المولية'],
+  ['l','M = m ÷ n|الكتلة المولية = الكتلة ÷ عدد المولات'],
+  ['h','٤. أمثلة محلولة'],
+  ['e','<b>مثال 1 — كتلة مولية لمركّب</b>\nاحسبي M لـ H₂SO₄ (H=1, S=32, O=16)\n\nالحل:\nH: 2 × 1 = 2\nS: 1 × 32 = 32\nO: 4 × 16 = 64\nالمجموع = <b>98 g/mol</b>'],
+  ['e','<b>مثال 2 — من الكتلة إلى المولات</b>\nكم مول في 54 غرام ماء؟ (M = 18)\n\nالحل:\nn = 54 ÷ 18 = <b>3 مول</b>'],
+  ['e','<b>مثال 3 — إيجاد M</b>\nكتلة 2 مول من عنصر = 46 غرام. ما M؟\n\nالحل:\nM = 46 ÷ 2 = <b>23 g/mol</b> (الصوديوم)'],
+  ['h','⚠️ أخطاء شائعة'],
+  ['d','❌ الخلط بين الذرة والجزيء: كتلة <b>O</b> الذرية = 16، لكن غاز <b>O₂</b> كتلته المولية = 32.<br><br>❌ نسيان ضرب الرقم السفلي: في H₂SO₄ الأكسجين <b>أربع</b> ذرات لا واحدة.<br><br>❌ قلب القانون: <b>n = m ÷ M</b> وليس M ÷ m.']
+ ]
+];
+
+const STUDY = STUDY_ROUNDS[0];
+
+
+function renderStudy() {
+  const box = $('studyBody');
+  if (!box) return;
+  const rows = STUDY_ROUNDS[state.roundIndex] || STUDY_ROUNDS[0];
+  const t = $('studyTitleTxt');
+  if (t) t.textContent = '📘 ' + ROUNDS[state.roundIndex].title;
+  box.innerHTML = rows.map(function(row) {
+    if (row[0] === 'h') return '<div class="sec-h">' + row[1] + '</div>';
+    if (row[0] === 'l') {
+      const parts = row[1].split('|');
+      return '<div class="law-card">' + parts[0] + '<small>' + (parts[1] || '') + '</small></div>';
+    }
+    if (row[0] === 'e') return '<div class="ex-card">' + row[1] + '</div>';
+    return '<div class="def-card">' + row[1] + '</div>';
+  }).join('');
+}
+
+function startStudyTimer() {
+  stopStudyTimer();
+  const el = $('studyClock');
+  const endsAt = Date.now() + STUDY_MINUTES * 60000;
+  function tick() {
+    const left = Math.max(0, endsAt - Date.now());
+    const mm = Math.floor(left / 60000);
+    const ss = Math.floor((left % 60000) / 1000);
+    if (el) {
+      el.textContent = '⏳ ' + mm + ':' + (ss < 10 ? '0' : '') + ss;
+      el.classList.toggle('low', left <= 5 * 60000);
+    }
+    if (left <= 0) {
+      stopStudyTimer();
+      if (el) el.textContent = '⏰ انتهى وقت المراجعة';
+      showCelebration2('info', 2500, '⏰ انتهى وقت المراجعة', 'يلا نبدأ اللعب!');
+    }
+  }
+  tick();
+  state._studyTimer = setInterval(tick, 500);
+}
+
+function stopStudyTimer() {
+  if (state._studyTimer) { clearInterval(state._studyTimer); state._studyTimer = null; }
+}
+
 // ===== Rules card =====
 const RULES = {
   common: [
     ['🎯', 'كل سؤال إله <b>٤ إجابات</b> حوالين الملعب: فوق، تحت، يمين، يسار. اضغطي على الإجابة اللي بتشوفيها صح.'],
     ['⏱️', 'عندك <b>١٢ ثانية</b> لكل سؤال. الحلقة فوق الشاشة بتفضى مع الوقت، وبآخر ٣ ثواني بتصير حمرا.'],
     ['⚡', '<b>أول إجابة صحيحة بتاخد الهدف فوراً</b> وبينتقل السؤال — السرعة هي كل شي!'],
-    ['❌', 'الإجابة الغلط ما بتخصم، بس <b>بتحرقلك فرصتك بهالسؤال</b> والباقيات بيكمّلوا السباق.'],
+    ['🔄', '<b>عندك محاولتين بكل سؤال!</b> أول غلطة بتقدري تجرّبي إجابة تانية، والتانية بتحرق فرصتك بهالسؤال.'],
     ['⚽', '<b>كل فريق إله كرته وجهته</b>: فريق بيهاجم لليمين والتاني لليسار. الكرة بتتقدّم مع كل سؤال، والهدف بيدفعها أكتر.'],
-    ['🏆', 'المباراة <b>١١ سؤال</b> — من الحارس للمهاجم. الأكتر أهداف بالنهاية بيفوز.']
+    ['🏆', 'المباراة <b>٥٥ سؤال</b> — ٥ أسئلة لكل لاعب، من الحارس للمهاجم. الأكتر أهداف بيفوز.']
   ],
   versus: [
     ['👥', 'لاعبتين بس: <b>🕊️ SKY</b> ضد <b>💪 GIANTS</b>. كل وحدة على جهازها.'],
@@ -5103,7 +5760,7 @@ const RULES = {
     ['🙋', '<b>وحدة بس من كل فريق بتجاوب بكل سؤال</b> — اللي دورها. الباقيات بيشجّعوا.'],
     ['🔁', 'الدور بيلف على البنات بالترتيب، فكل وحدة بيجي دورها.'],
     ['🤝', 'الفرق كلها بتتسابق بنفس الوقت — بس كل فريق من خلال اللاعبة اللي دورها.'],
-    ['🟥', '<b>٤ إجابات غلط = كرت أحمر</b> وخروج من الملعب! اللاعبة بتنشال من الأدوار وبتضل متفرجة. بيجيك <b>🟨 إنذار</b> عند الغلطة التالتة.']
+    ['🟥', '<b>٤ محاولات غلط = كرت أحمر</b> (يعني سؤالين كاملين) وبتخرجي من الملعب! بيجيك <b>🟨 إنذار</b> عند الغلطة التالتة.']
   ]
   ,
   forbidden: [
@@ -5204,6 +5861,7 @@ function startQuestionTimer(isAuthority, onExpire) {
 
 // How long the players get to answer each question.
 const RACE_GRACE_MS = 12000;
+const EXPLAIN_MS = 3200;   // how long the concept + solution stays on screen
 
 function tmClearGrace() {
   if (state.tm._graceTimer) { clearTimeout(state.tm._graceTimer); state.tm._graceTimer = null; }
@@ -5240,6 +5898,9 @@ async function tmResolveQuestion(data, force) {
   // or the countdown runs out.
   const shouldResolve = (winnerTid !== null) || allAnswered || force;
   if (!shouldResolve) return;
+  // ACCURACY FIX: guard against resolving the same question twice
+  if (state.tm._resolvingQ === data.currentQuestionIndex) return;
+  state.tm._resolvingQ = data.currentQuestionIndex;
   
   tmClearGrace();
   stopQuestionTimer();
@@ -5280,31 +5941,65 @@ function tmShowResult(data) {
   hideRules();
   const fabR2 = $('rulesFab'); if (fabR2) fabR2.style.display = 'none';
   const cfabR2 = $('castFab'); if (cfabR2) cfabR2.style.display = 'none';
+
   const teams = data.teams || {};
-  const teamIds = Object.keys(teams).sort(function(a,b){ return (teams[b].score||0) - (teams[a].score||0); });
-  const winnerTid = teamIds[0];
-  const winnerTeam = teams[winnerTid];
+  const emojis = ['🕊️', '💪', '🌿', '⭐'];
+  const order = Object.keys(teams);
+  const ranked = order
+    .map(function(tid, i) {
+      return { tid: tid, name: teams[tid].name || tid,
+               score: teams[tid].score || 0, emoji: emojis[i % emojis.length] };
+    })
+    .sort(function(a, b) { return b.score - a.score; });
+
+  const top = ranked.length ? ranked[0].score : 0;
+  const champs = ranked.filter(function(t){ return t.score === top; });
+  const isDraw = champs.length > 1;
+
   const myStudent = (data.students || {})[state.tm.myId];
-  const iAmWinner = myStudent && myStudent.teamId === winnerTid;
-  
-  let medal, rank, msg;
-  if (state.tm.isTeacher) {
-    medal = '🏆'; rank = 'انتهت المباراة!';
-    msg = 'الفائز: ' + (winnerTeam ? winnerTeam.name : '—') + ' بـ ' + (winnerTeam ? winnerTeam.score : 0) + ' هدف';
-  } else if (iAmWinner) {
-    medal = '🏆'; rank = 'فريقك فاز! 🎉';
-    msg = winnerTeam.name + ' - ' + winnerTeam.score + ' هدف';
+  const myTid = myStudent ? myStudent.teamId : null;
+  const myEntry = ranked.filter(function(t){ return t.tid === myTid; })[0];
+  const iAmChamp = !!(myTid && champs.filter(function(t){ return t.tid === myTid; }).length);
+
+  // full standings, so nobody has to trust a single number
+  const table = ranked.map(function(t, i) {
+    const mine = (t.tid === myTid) ? ' ← فريقك' : '';
+    const pos = isDraw && t.score === top ? '🏆' : ['🥇','🥈','🥉','4️⃣'][i] || (i+1);
+    return pos + ' ' + t.emoji + ' ' + t.name + ' — ' + t.score + mine;
+  }).join('\n');
+
+  let medal, rank, headline;
+  if (isDraw) {
+    medal = '🤝';
+    rank = 'تعادل!';
+    headline = champs.map(function(t){ return t.name; }).join(' و ') + ' — ' + top + ' هدف لكل منهما';
+  } else if (state.tm.isTeacher) {
+    medal = '🏆';
+    rank = 'انتهت المباراة!';
+    headline = 'الفائز: ' + ranked[0].name + ' بـ ' + top + ' هدف';
+  } else if (iAmChamp) {
+    medal = '🏆';
+    rank = 'فريقك فاز! 🎉';
+    headline = ranked[0].name + ' — ' + top + ' هدف';
   } else {
-    medal = '🥈'; rank = 'حظ أوفر';
-    const myTeam = teams[myStudent.teamId];
-    msg = 'فريقك: ' + (myTeam ? myTeam.score : 0) + ' | الفائز: ' + winnerTeam.name;
+    medal = '🥈';
+    rank = 'حظ أوفر';
+    headline = 'الفائز: ' + ranked[0].name + ' بـ ' + top + ' هدف';
   }
-  
+
+  // the big number is always the viewer's OWN team (teacher sees the winner)
+  const bigScore = state.tm.isTeacher ? top : (myEntry ? myEntry.score : 0);
+
   $('resultMedal').textContent = medal;
   $('resultRank').textContent = rank;
-  $('resultScore').textContent = winnerTeam ? winnerTeam.score : '—';
-  $('resultMsg').textContent = msg;
-  
+  $('resultScore').textContent = bigScore;
+  $('resultMsg').textContent = headline + '\n\n' + table;
+  const msgEl = $('resultMsg');
+  if (msgEl) { msgEl.style.whiteSpace = 'pre-line'; msgEl.style.lineHeight = '1.9'; }
+
+  const outOf = $('resultOutOf');
+  if (outOf) outOf.textContent = '/' + QUESTIONS.length;
+  markRoundDone();
   showScreen('result');
   hideTurnBanner();
   setTimeout(function(){ ensureAudio(); sfxWhistle(); }, 300);
