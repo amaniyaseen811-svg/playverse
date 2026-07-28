@@ -2541,6 +2541,11 @@ function startAnimCovers(){
           el.removeAttribute('loop');
           el.addEventListener('ended', function(){ fails = 0; swap(); });
           el.addEventListener('playing', hidePoster);
+          el.addEventListener('loadeddata', function(){
+            if (el === front && el.paused){
+              var p = el.play(); if (p && p.catch) p.catch(function(){});
+            }
+          });
           el.addEventListener('error', function(){
             fails++;
             if (fails > list.length * 2){ showPoster(); return; }
@@ -2550,15 +2555,18 @@ function startAnimCovers(){
           });
         }
         arm(v); arm(vb);
-        var _started = false;
+        var _loaded = false;
         v._start = function(){
-          if (_started) return; _started = true;
-          preload(front, list[0]);
-          preload(back,  list[1 % list.length]);
-          var pr = front.play(); if (pr && pr.catch) pr.catch(function(){});
-          setTimeout(function(){ var p2=front.play(); if(p2&&p2.catch)p2.catch(function(){}); }, 400);
+          if (!_loaded){
+            _loaded = true;
+            preload(front, list[0]);
+            preload(back,  list[1 % list.length]);
+          }
+          if (front.paused){
+            var pr = front.play(); if (pr && pr.catch) pr.catch(function(){});
+          }
         };
-        v._kick = function(){ if(v._start) v._start(); };
+        v._kick = function(){ v._start(); };
       } else {
         /* ---- ملف واحد: تنقّل بين مشاهد داخله ---- */
         var playScene = function(){
