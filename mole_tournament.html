@@ -1050,6 +1050,74 @@
   backdrop-filter: blur(4px);
 }
 #introSkipBtn:active { transform: translateX(-50%) scale(0.95); }
+#rulesOverlay {
+  position: fixed; inset: 0; z-index: 99000; display: none;
+  background: rgba(4,10,20,0.88); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 16px;
+}
+#rulesOverlay.show { display: flex; }
+#rulesCard {
+  width: 100%; max-width: 460px; max-height: 86vh; overflow-y: auto;
+  background: linear-gradient(160deg, #12203a 0%, #0b1424 100%);
+  border: 2px solid rgba(255,215,0,0.45); border-radius: 20px;
+  padding: 20px 18px 18px; box-shadow: 0 18px 50px rgba(0,0,0,0.6);
+}
+#rulesTitle {
+  font-size: 22px; font-weight: 900; color: #ffd700;
+  text-align: center; margin-bottom: 14px;
+}
+.rule-row {
+  display: flex; gap: 11px; align-items: flex-start;
+  padding: 10px 11px; margin-bottom: 8px;
+  background: rgba(255,255,255,0.05); border-radius: 12px;
+  border-right: 3px solid rgba(255,215,0,0.5);
+}
+.rule-ico { font-size: 21px; line-height: 1.3; flex-shrink: 0; }
+.rule-txt { font-size: 14px; line-height: 1.65; color: #e8f0ff; }
+.rule-txt b { color: #ffd700; }
+#rulesCloseBtn {
+  width: 100%; margin-top: 12px; padding: 13px;
+  background: linear-gradient(135deg, #4ada8a, #2bb56a);
+  color: #06210f; border-radius: 14px;
+  font-size: 17px; font-weight: 900; font-family: inherit;
+}
+#rulesCloseBtn:active { transform: scale(0.97); }
+#rulesFab {
+  position: fixed; bottom: 14px; left: 14px; z-index: 8500; display: none;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(0,0,0,0.62); border: 2px solid rgba(255,215,0,0.55);
+  color: #ffd700; font-size: 19px; backdrop-filter: blur(4px);
+}
+#raceTimer {
+  position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
+  z-index: 9000; display: none;
+  width: 62px; height: 62px;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.6));
+}
+#raceTimerSvg { width: 100%; height: 100%; transform: rotate(-90deg); }
+#raceTimer .rt-track {
+  fill: rgba(0,0,0,0.6); stroke: rgba(255,255,255,0.16); stroke-width: 8;
+}
+#raceTimer .rt-fill {
+  fill: none; stroke: #4ada8a; stroke-width: 8; stroke-linecap: round;
+  stroke-dasharray: 270.2; stroke-dashoffset: 0;
+  transition: stroke 0.4s linear;
+}
+#raceTimerNum {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 900; font-family: inherit;
+  color: #fff; letter-spacing: 0;
+}
+#raceTimer.warn  .rt-fill { stroke: #ffd700; }
+#raceTimer.warn  #raceTimerNum { color: #ffd700; }
+#raceTimer.urgent .rt-fill { stroke: #ff5252; }
+#raceTimer.urgent #raceTimerNum { color: #ff5252; }
+#raceTimer.urgent { animation: raceTick 1s ease-in-out infinite; }
+@keyframes raceTick {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50%      { transform: translateX(-50%) scale(1.14); }
+}
 #introLoader {
   position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
   z-index: 100000; color: #fff; font-size: 17px; font-weight: bold;
@@ -1088,6 +1156,24 @@
 </div>
 
 <!-- Team turn banner -->
+<!-- ========== RULES CARD ========== -->
+<div id="rulesOverlay">
+  <div id="rulesCard">
+    <div id="rulesTitle">📜 قواعد المباراة</div>
+    <div id="rulesBody"></div>
+    <button id="rulesCloseBtn">فهمت، يلا نبدأ ⚽</button>
+  </div>
+</div>
+
+<button id="rulesFab" title="القواعد">📜</button>
+
+<div id="raceTimer">
+  <svg viewBox="0 0 100 100" id="raceTimerSvg">
+    <circle class="rt-track" cx="50" cy="50" r="43"></circle>
+    <circle class="rt-fill"  cx="50" cy="50" r="43" id="raceTimerArc"></circle>
+  </svg>
+  <div id="raceTimerNum">12</div>
+</div>
 <div class="team-turn-banner" id="tmTurnBanner">
   <div class="team-turn-label">الدور الحالي:</div>
   <div class="team-turn-name" id="tmTurnName">—</div>
@@ -1233,7 +1319,7 @@
 
     <div class="mp-form">
       <label class="mp-label">كود الغرفة (6 أرقام)</label>
-      <input type="tel" class="mp-input mp-code-input" id="mpJoinCode" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+      <input type="tel" dir="ltr" style="text-align:center" class="mp-input mp-code-input" id="mpJoinCode" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
       
       <label class="mp-label" style="margin-top:14px;">اسمك</label>
       <input type="text" class="mp-input" id="mpJoinName" placeholder="اكتبي اسمك" maxlength="20" autocomplete="off">
@@ -1343,7 +1429,7 @@
 
     <div class="mp-form" style="border-color:rgba(168,85,247,0.5);">
       <label class="mp-label">كود الصف (6 أرقام)</label>
-      <input type="tel" class="mp-input mp-code-input" id="crJoinCode" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+      <input type="tel" dir="ltr" style="text-align:center" class="mp-input mp-code-input" id="crJoinCode" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
 
       <label class="mp-label" style="margin-top:14px;">اسمك</label>
       <input type="text" class="mp-input" id="crJoinName" placeholder="اكتبي اسمك" maxlength="20" autocomplete="off">
@@ -1440,7 +1526,7 @@
 
     <div class="mp-form" style="border-color:rgba(236,72,153,0.5);">
       <label class="mp-label">كود الغرفة (6 أرقام)</label>
-      <input type="tel" class="mp-input mp-code-input" id="tmJoinCode" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+      <input type="tel" dir="ltr" style="text-align:center" class="mp-input mp-code-input" id="tmJoinCode" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
 
       <label class="mp-label" style="margin-top:14px;">اسمك</label>
       <input type="text" class="mp-input" id="tmJoinName" placeholder="اكتبي اسمك" maxlength="20" autocomplete="off">
@@ -2399,7 +2485,7 @@ function bindEvents() {
   $('mpJoinBack').addEventListener('click', function() { sfxClick(); showScreen('mpMenu'); });
   $('mpJoinGo').addEventListener('click', function() {
     sfxClick();
-    const code = ($('mpJoinCode').value || '').replace(/\D/g, '');
+    const code = normalizeDigits($('mpJoinCode').value);
     const name = ($('mpJoinName').value || '').trim();
     if (code.length !== 6) { showCelebration2('error', 1500, 'كود غير صحيح', 'الكود يجب أن يكون 6 أرقام'); return; }
     if (name.length < 2) { showCelebration2('error', 1500, 'اسم قصير', 'اكتبي اسماً مكون من حرفين على الأقل'); return; }
@@ -2452,7 +2538,7 @@ function bindEvents() {
   $('crJoinBack').addEventListener('click', function() { sfxClick(); showScreen('crMenu'); });
   $('crJoinGo').addEventListener('click', function() {
     sfxClick();
-    const code = ($('crJoinCode').value || '').replace(/\D/g, '');
+    const code = normalizeDigits($('crJoinCode').value);
     const name = ($('crJoinName').value || '').trim();
     if (code.length !== 6) { showCelebration2('error', 1500, 'كود غير صحيح', 'الكود 6 أرقام'); return; }
     if (name.length < 2) { showCelebration2('error', 1500, 'اسم قصير', 'اكتبي اسماً صحيحاً'); return; }
@@ -2507,7 +2593,7 @@ function bindEvents() {
   $('tmJoinBack').addEventListener('click', function() { sfxClick(); showScreen('tmMenu'); });
   $('tmJoinGo').addEventListener('click', function() {
     sfxClick();
-    const code = ($('tmJoinCode').value || '').replace(/\D/g, '');
+    const code = normalizeDigits($('tmJoinCode').value);
     const name = ($('tmJoinName').value || '').trim();
     if (code.length !== 6) { showCelebration2('error', 1500, 'كود غير صحيح', 'الكود 6 أرقام'); return; }
     if (name.length < 2) { showCelebration2('error', 1500, 'اسم قصير', 'اكتبي اسماً صحيحاً'); return; }
@@ -2619,15 +2705,25 @@ function bindEvents() {
     }
   });
 
+  const rulesCloseBtn = $('rulesCloseBtn');
+  if (rulesCloseBtn) rulesCloseBtn.addEventListener('click', function(){ sfxClick(); hideRules(); });
+  const rulesFab = $('rulesFab');
+  if (rulesFab) rulesFab.addEventListener('click', function(){
+    sfxClick();
+    showRules(state.mode, false);
+  });
+  const rulesOv = $('rulesOverlay');
+  if (rulesOv) rulesOv.addEventListener('click', function(e){ if (e.target === rulesOv) hideRules(); });
+
   // Auto-format code inputs
   $('mpJoinCode').addEventListener('input', function() {
-    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+    this.value = normalizeDigits(this.value).slice(0, 6);
   });
   $('crJoinCode').addEventListener('input', function() {
-    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+    this.value = normalizeDigits(this.value).slice(0, 6);
   });
   $('tmJoinCode').addEventListener('input', function() {
-    this.value = this.value.replace(/\D/g, '').slice(0, 6);
+    this.value = normalizeDigits(this.value).slice(0, 6);
   });
 
   // Keyboard arrows (for desktop)
@@ -2713,6 +2809,26 @@ function firebaseTryInit() {
   }
 }
 
+// Arabic keyboards produce ٠١٢٣٤٥٦٧٨٩ / ۰۱۲۳۴۵۶۷۸۹ which JS does NOT treat as
+// digits, so /\D/ used to delete them entirely. Convert them first.
+// Wait (briefly) for Firebase instead of failing instantly on slow connections
+async function waitForDb(maxMs) {
+  const deadline = Date.now() + (maxMs || 6000);
+  while (!state.mp.db && Date.now() < deadline) {
+    try { firebaseTryInit(); } catch(e) {}
+    if (state.mp.db) break;
+    await new Promise(function(r){ setTimeout(r, 300); });
+  }
+  return state.mp.db;
+}
+
+function normalizeDigits(str) {
+  return String(str == null ? '' : str)
+    .replace(/[\u0660-\u0669]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x0660 + 48); })
+    .replace(/[\u06F0-\u06F9]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0x06F0 + 48); })
+    .replace(/[^0-9]/g, '');
+}
+
 function mpGenerateCode() {
   // 6-digit numeric code
   let code = '';
@@ -2721,9 +2837,9 @@ function mpGenerateCode() {
 }
 
 async function mpCreateRoom(name) {
-  const db = state.mp.db;
+  const db = await waitForDb(8000);
   const fb = window.firebase;
-  if (!db) { showCelebration2('error', 2000, 'خطأ', 'Firebase غير مُهيّأ'); return; }
+  if (!db) { showCelebration2('error', 3000, 'لا يوجد اتصال', 'تأكدي من الإنترنت وحاولي مرة أخرى'); return; }
 
   showCelebration2('info', 600, '🔄 جاري الإنشاء...', 'لحظات قليلة');
   
@@ -2776,9 +2892,9 @@ async function mpCreateRoom(name) {
 }
 
 async function mpJoinRoom(code, name) {
-  const db = state.mp.db;
+  const db = await waitForDb(8000);
   const fb = window.firebase;
-  if (!db) { showCelebration2('error', 2000, 'خطأ', 'Firebase غير مُهيّأ'); return; }
+  if (!db) { showCelebration2('error', 3000, 'لا يوجد اتصال', 'تأكدي من الإنترنت وحاولي مرة أخرى'); return; }
 
   showCelebration2('info', 600, '🔄 جاري الدخول...', 'لحظات قليلة');
   
@@ -2962,6 +3078,14 @@ function mpEnterGame() {
   state.mp._prevScores = null;
   const mpWrapInit = $('tmBalls');
   if (mpWrapInit) mpWrapInit.innerHTML = '';
+  showRules('versus', true);
+  const fab0 = $('rulesFab'); if (fab0) fab0.style.display = 'block';
+  setTimeout(function() {
+    startQuestionTimer(state.mp.isHost, function() {
+      const d = state.mp.roomData;
+      if (d && d.currentQuestion && !d.currentQuestion.resolved) mpResolveQuestion(d, true);
+    });
+  }, 100);
   // Reset local state and switch to game screen
   state.questionIndex = (state.mp.roomData && state.mp.roomData.currentQuestionIndex) || 0;
   state.score = 0;
@@ -3032,18 +3156,25 @@ async function mpResolveQuestion(data) {
       winner = null; // both wrong
     }
     shouldResolve = true;
-  } else if (cq.skyAnswer && cq.skyAnswer.correct) {
-    // Sky correct, giants hasn't answered yet → instant goal
-    winner = 'sky';
-    shouldResolve = true;
-  } else if (cq.giantsAnswer && cq.giantsAnswer.correct) {
-    // Giants correct, sky hasn't answered yet → instant goal
-    winner = 'giants';
+  } else if (arguments.length > 1 && arguments[1] === true) {
+    // Countdown ran out: goal goes to whoever answered correctly (if anyone)
+    if (cq.skyAnswer && cq.skyAnswer.correct && cq.giantsAnswer && cq.giantsAnswer.correct) {
+      winner = (cq.skyAnswer.ts <= cq.giantsAnswer.ts) ? 'sky' : 'giants';
+    } else if (cq.skyAnswer && cq.skyAnswer.correct) {
+      winner = 'sky';
+    } else if (cq.giantsAnswer && cq.giantsAnswer.correct) {
+      winner = 'giants';
+    } else {
+      winner = null;
+    }
     shouldResolve = true;
   }
-  // If one wrong and other hasn't answered → wait for other
+  // Otherwise wait for the other player or for the countdown
   
   if (!shouldResolve) return;
+  stopQuestionTimer();
+  if (state.mp._graceTimer) { clearTimeout(state.mp._graceTimer); state.mp._graceTimer = null; }
+  state.mp._graceQ = null;
   
   const db = state.mp.db;
   const fb = window.firebase;
@@ -3087,6 +3218,12 @@ function mpRenderGameState(data) {
     state.mp.answered = false;
     state.mp.questionResolved = false;
     state.locked = false;
+    if (state.mp._graceTimer) { clearTimeout(state.mp._graceTimer); state.mp._graceTimer = null; }
+    state.mp._graceQ = null;
+    startQuestionTimer(state.mp.isHost, function() {
+      const d = state.mp.roomData;
+      if (d && d.currentQuestion && !d.currentQuestion.resolved) mpResolveQuestion(d, true);
+    });
   }
   
   // Score update
@@ -3179,6 +3316,9 @@ function escapeHtml(s) {
 }
 
 function mpShowResult(data) {
+  stopQuestionTimer();
+  hideRules();
+  const fabR = $('rulesFab'); if (fabR) fabR.style.display = 'none';
   // Determine winner
   const skyScore = data.scores.sky || 0;
   const giantsScore = data.scores.giants || 0;
@@ -3252,9 +3392,9 @@ function copyToClipboard(text) {
 
 // ============ CLASSROOM MODE ============
 async function crCreateRoom(name, maxStudents, lbVisible) {
-  const db = state.mp.db;
+  const db = await waitForDb(8000);
   const fb = window.firebase;
-  if (!db) { showCelebration2('error', 2000, 'خطأ', 'Firebase غير مُهيّأ'); return; }
+  if (!db) { showCelebration2('error', 3000, 'لا يوجد اتصال', 'تأكدي من الإنترنت وحاولي مرة أخرى'); return; }
   showCelebration2('info', 500, '🔄 جاري الإنشاء...', '');
   
   let code = null;
@@ -3301,9 +3441,9 @@ async function crCreateRoom(name, maxStudents, lbVisible) {
 }
 
 async function crJoinRoom(code, name) {
-  const db = state.mp.db;
+  const db = await waitForDb(8000);
   const fb = window.firebase;
-  if (!db) { showCelebration2('error', 2000, 'خطأ', 'Firebase غير مُهيّأ'); return; }
+  if (!db) { showCelebration2('error', 3000, 'لا يوجد اتصال', 'تأكدي من الإنترنت وحاولي مرة أخرى'); return; }
   showCelebration2('info', 500, '🔄 جاري الدخول...', '');
   
   try {
@@ -3728,9 +3868,10 @@ function hideLeaderboard() {
 
 // ============ TEAMS MODE ============
 async function tmCreateRoom(name, numTeams, playersPerTeam) {
-  const db = state.mp.db;
+  showCelebration2('info', 600, '🔄 جاري الاتصال...', '');
+  const db = await waitForDb(8000);
   const fb = window.firebase;
-  if (!db) { showCelebration2('error', 2000, 'خطأ', 'Firebase غير مُهيّأ'); return; }
+  if (!db) { showCelebration2('error', 3000, 'لا يوجد اتصال', 'تأكدي من الإنترنت وحاولي مرة أخرى'); return; }
   showCelebration2('info', 500, '🔄 جاري الإنشاء...', '');
   
   let code = null;
@@ -3787,15 +3928,16 @@ async function tmCreateRoom(name, numTeams, playersPerTeam) {
 }
 
 async function tmJoinRoom(code, name) {
-  const db = state.mp.db;
+  showCelebration2('info', 600, '🔄 جاري الاتصال...', '');
+  const db = await waitForDb(8000);
   const fb = window.firebase;
-  if (!db) { showCelebration2('error', 2000, 'خطأ', 'Firebase غير مُهيّأ'); return; }
+  if (!db) { showCelebration2('error', 3000, 'لا يوجد اتصال', 'تأكدي من الإنترنت وحاولي مرة أخرى'); return; }
   showCelebration2('info', 500, '🔄 جاري الدخول...', '');
   
   try {
     const ref = db.collection(TM_COLLECTION).doc(code);
     const snap = await ref.get();
-    if (!snap.exists) { showCelebration2('error', 2500, 'كود خاطئ', 'لا توجد غرفة'); return; }
+    if (!snap.exists) { showCelebration2('error', 3000, 'كود خاطئ', 'تأكدي من الأرقام: ' + code); return; }
     const data = snap.data();
     if (data.type !== 'teams') { showCelebration2('error', 2500, 'خطأ', 'الكود لغرفة مختلفة'); return; }
     if (data.status === 'playing' || data.status === 'finished') { showCelebration2('error', 2500, 'المباراة بدأت', 'لا يمكن الدخول الآن'); return; }
@@ -4156,6 +4298,14 @@ function tmEnterGame() {
   state.tm._prevScores = null;
   const tmWrapInit = $('tmBalls');
   if (tmWrapInit) tmWrapInit.innerHTML = '';
+  showRules('teams', true);
+  const fab0 = $('rulesFab'); if (fab0) fab0.style.display = 'block';
+  setTimeout(function() {
+    startQuestionTimer(state.tm.isTeacher, function() {
+      const d = state.tm.roomData;
+      if (d && d.currentQuestion && !d.currentQuestion.resolved) tmResolveQuestion(d, true);
+    });
+  }, 100);
   state.questionIndex = state.tm.roomData.currentQuestionIndex || 0;
   state.score = 0;
   state.locked = false;
@@ -4233,6 +4383,11 @@ function tmRenderGameState(data) {
     state.tm.answered = false;
     state.locked = false;
     state.tm._resolvedQ = null;
+    if (state.tm.isTeacher) tmClearGrace();
+    startQuestionTimer(state.tm.isTeacher, function() {
+      const d = state.tm.roomData;
+      if (d && d.currentQuestion && !d.currentQuestion.resolved) tmResolveQuestion(d, true);
+    });
   }
   
   if (data.currentQuestion && !data.currentQuestion.resolved) {
@@ -4461,7 +4616,112 @@ function tmRenderScoreboard(data) {
   hudEl.innerHTML = html;
 }
 
-async function tmResolveQuestion(data) {
+// ===== Per-question countdown =====
+// Every question gives the players RACE_GRACE_MS to answer. When it runs out
+// the round closes and the goal goes to the fastest correct answer.
+// ===== Rules card =====
+const RULES = {
+  common: [
+    ['🎯', 'كل سؤال إله <b>٤ إجابات</b> حوالين الملعب: فوق، تحت، يمين، يسار. اضغطي على الإجابة اللي بتشوفيها صح.'],
+    ['⏱️', 'عندك <b>١٢ ثانية</b> لكل سؤال. الحلقة فوق الشاشة بتفضى مع الوقت، وبآخر ٣ ثواني بتصير حمرا.'],
+    ['⚡', 'الهدف بروح <b>لأسرع إجابة صحيحة</b> — يعني السرعة والدقة الاثنين بيفرقوا.'],
+    ['❌', 'الإجابة الغلط ما بتخصم نقاط، بس بتضيّع الفرصة. وإذا ما حدا جاوب صح، السؤال بيمرّ بلا هدف.'],
+    ['⚽', 'الكرة بتتقدّم على الملعب مع كل سؤال، وكل هدف بيدفعها أكتر. اللي كرته أقرب للمرمى هو المتقدّم.'],
+    ['🏆', 'المباراة <b>١١ سؤال</b> — من الحارس للمهاجم. الأكتر أهداف بالنهاية بيفوز.']
+  ],
+  versus: [
+    ['👥', 'لاعبتين بس: <b>🕊️ SKY</b> ضد <b>💪 GIANTS</b>. كل وحدة على جهازها.'],
+    ['🖐️', '<b>الاثنتين بتقدروا تجاوبوا بنفس الوقت</b> — ما في أدوار، السباق مفتوح.']
+  ],
+  teams: [
+    ['👥', 'كل فريق إله <b>ترتيب دور</b> حدّدته المعلمة. الشريط فوق بيقول مين دورها هلأ.'],
+    ['🙋', '<b>وحدة بس من كل فريق بتجاوب بكل سؤال</b> — اللي دورها. الباقيات بيشجّعوا.'],
+    ['🔁', 'الدور بيلف على البنات بالترتيب، فكل وحدة بيجي دورها.'],
+    ['🤝', 'الفرق كلها بتتسابق بنفس الوقت — بس كل فريق من خلال اللاعبة اللي دورها.']
+  ]
+};
+
+function showRules(mode, autoOpened) {
+  const body = $('rulesBody');
+  const ov = $('rulesOverlay');
+  if (!body || !ov) return;
+  let rows = [];
+  if (mode === 'versus') rows = RULES.versus.concat(RULES.common);
+  else if (mode === 'teams') rows = RULES.teams.concat(RULES.common);
+  else rows = RULES.common;
+
+  body.innerHTML = rows.map(function(r) {
+    return '<div class="rule-row"><div class="rule-ico">' + r[0] +
+           '</div><div class="rule-txt">' + r[1] + '</div></div>';
+  }).join('');
+  ov.classList.add('show');
+}
+
+function hideRules() {
+  const ov = $('rulesOverlay');
+  if (ov) ov.classList.remove('show');
+}
+
+const RT_CIRC = 2 * Math.PI * 43; // circumference of the countdown ring
+
+function stopQuestionTimer() {
+  if (state._qTimer) { clearInterval(state._qTimer); state._qTimer = null; }
+  const el = $('raceTimer');
+  if (el) { el.style.display = 'none'; el.classList.remove('urgent', 'warn'); }
+}
+
+function sfxTick()     { tone(1200, 0.05, 'sine', 0.10); }
+function sfxTimeUp()   { tone(300, 0.35, 'sawtooth', 0.16); }
+
+function startQuestionTimer(isAuthority, onExpire) {
+  stopQuestionTimer();
+  const el  = $('raceTimer');
+  const arc = $('raceTimerArc');
+  const num = $('raceTimerNum');
+  const endsAt = Date.now() + RACE_GRACE_MS;
+  let fired = false;
+  let lastSec = -1;
+  if (el) { el.style.display = 'block'; el.classList.remove('urgent', 'warn'); }
+
+  function tick() {
+    const left = Math.max(0, endsAt - Date.now());
+    const secs = Math.ceil(left / 1000);
+    const frac = left / RACE_GRACE_MS;
+
+    if (arc) arc.style.strokeDashoffset = (RT_CIRC * (1 - frac)).toFixed(2);
+    if (num) num.textContent = secs;
+    if (el) {
+      el.classList.toggle('urgent', secs <= 3 && secs > 0);
+      el.classList.toggle('warn', secs > 3 && secs <= 6);
+    }
+
+    // one tick per second over the last 3 seconds
+    if (secs !== lastSec) {
+      if (secs <= 3 && secs > 0) sfxTick();
+      lastSec = secs;
+    }
+
+    if (left <= 0 && !fired) {
+      fired = true;
+      sfxTimeUp();
+      stopQuestionTimer();
+      if (isAuthority && onExpire) onExpire();
+    }
+  }
+  if (arc) { arc.style.strokeDasharray = RT_CIRC.toFixed(2); arc.style.strokeDashoffset = '0'; }
+  tick();
+  state._qTimer = setInterval(tick, 100);
+}
+
+// How long the players get to answer each question.
+const RACE_GRACE_MS = 12000;
+
+function tmClearGrace() {
+  if (state.tm._graceTimer) { clearTimeout(state.tm._graceTimer); state.tm._graceTimer = null; }
+  state.tm._graceQ = null;
+}
+
+async function tmResolveQuestion(data, force) {
   if (!state.tm.isTeacher) return;
   const cq = data.currentQuestion;
   if (!cq || cq.resolved) return;
@@ -4470,7 +4730,16 @@ async function tmResolveQuestion(data) {
   const teamIds = Object.keys(data.teams);
   const answeredTeams = Object.keys(answers);
   
-  // Wait for at least one team to answer correctly, OR all teams to answer
+  const allAnswered = (answeredTeams.length >= teamIds.length);
+  
+  // The round closes when every team has answered, or when the
+  // per-question countdown runs out (force = true).
+  if (!allAnswered && !force) return;
+  
+  tmClearGrace();
+  stopQuestionTimer();
+  
+  // Goal goes to the fastest correct answer
   let winnerTid = null;
   let winnerTs = Infinity;
   for (const tid of answeredTeams) {
@@ -4479,10 +4748,6 @@ async function tmResolveQuestion(data) {
       winnerTs = answers[tid].ts;
     }
   }
-  
-  const allAnswered = (answeredTeams.length >= teamIds.length);
-  const shouldResolve = winnerTid !== null || allAnswered;
-  if (!shouldResolve) return;
   
   const db = state.mp.db;
   const ref = db.collection(TM_COLLECTION).doc(state.tm.roomCode);
@@ -4516,6 +4781,9 @@ async function tmAdvanceQuestion(data) {
 }
 
 function tmShowResult(data) {
+  stopQuestionTimer();
+  hideRules();
+  const fabR2 = $('rulesFab'); if (fabR2) fabR2.style.display = 'none';
   const teams = data.teams || {};
   const teamIds = Object.keys(teams).sort(function(a,b){ return (teams[b].score||0) - (teams[a].score||0); });
   const winnerTid = teamIds[0];
