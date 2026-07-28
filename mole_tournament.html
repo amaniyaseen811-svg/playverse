@@ -1311,7 +1311,7 @@
 <button id="castFab" title="شاشة العرض">📺</button>
 <button id="rulesFab" title="القواعد">📜</button>
 <div id="scrollHint"></div>
-<div id="verBadge">v24</div>
+<div id="verBadge">v25</div>
 
 <div id="raceTimer">
   <svg viewBox="0 0 100 100" id="raceTimerSvg">
@@ -4566,6 +4566,8 @@ async function tmStartGame() {
 
 function tmEnterGame() {
   state.tm._prevScores = null;
+  state.tm._redSeen = {};
+  state.tm._warnedAt = null;
   const tmWrapInit = $('tmBalls');
   if (tmWrapInit) tmWrapInit.innerHTML = '';
   showRules('teams', true);
@@ -4616,6 +4618,10 @@ async function chooseAnswerTeams(dir) {
   // Check if it's my turn
   const myStudent = (data.students || {})[state.tm.myId];
   if (!myStudent || !myStudent.teamId) return;
+  if (myStudent.redCard) {
+    showCelebration2('error', 2000, '🟥 كرت أحمر', 'إنتي خارج الملعب — شجّعي فريقك');
+    return;
+  }
   const myTeam = data.teams[myStudent.teamId];
   const currentTurnSid = tmGetCurrentTurnStudent(myTeam, data.currentQuestionIndex);
   if (currentTurnSid !== state.tm.myId) {
@@ -4643,6 +4649,10 @@ async function chooseAnswerTeams(dir) {
     correct: ans.correct,
     ts: Date.now()
   };
+  if (!ans.correct) {
+    update['students.' + state.tm.myId + '.wrongs'] =
+      window.firebase.firestore.FieldValue.increment(1);
+  }
   try { await ref.update(update); } catch(e) {}
 }
 
@@ -4672,6 +4682,10 @@ function tmRenderGameState(data) {
       }
     }
   }
+  
+  tmEnforceRedCards(data);
+  tmAnnounceRedCards(data);
+  tmWarnBeforeCard(data);
   
   // Show team turn banner
   tmRenderTurnBanner(data);
@@ -4720,11 +4734,86 @@ function tmRenderGameState(data) {
   }
 }
 
+const RED_CARD_LIMIT = 4;   // wrong answers before a player is sent off
+
+// The teacher's device is the referee: it issues the cards.
+async function tmEnforceRedCards(data) {
+  if (!state.tm.isTeacher) return;
+  const students = data.students || {};
+  const db = state.mp.db;
+  if (!db) return;
+  const update = {};
+  let any = false;
+  for (const sid in students) {
+    const st = students[sid];
+    if (!st || st.redCard) continue;
+    if ((st.wrongs || 0) >= RED_CARD_LIMIT) {
+      update['students.' + sid + '.redCard'] = true;
+      if (st.teamId) {
+        update['teams.' + st.teamId + '.order'] =
+          window.firebase.firestore.FieldValue.arrayRemove(sid);
+      }
+      any = true;
+    }
+  }
+  if (!any) return;
+  try { await db.collection(TM_COLLECTION).doc(state.tm.roomCode).update(update); } catch(e) {}
+}
+
+// Everyone announces a new card once
+function tmAnnounceRedCards(data) {
+  const students = data.students || {};
+  if (!state.tm._redSeen) state.tm._redSeen = {};
+  for (const sid in students) {
+    const st = students[sid];
+    if (!st || !st.redCard) continue;
+    if (state.tm._redSeen[sid]) continue;
+    state.tm._redSeen[sid] = true;
+    const mine = (sid === state.tm.myId);
+    sfxWrong();
+    setTimeout(function(){ sfxWhistle(); }, 200);
+    showCelebration2('error', 3500, '🟥 كرت أحمر!',
+      mine ? 'خرجتي من الملعب بعد ' + RED_CARD_LIMIT + ' إجابات غلط'
+           : st.name + ' خرجت من الملعب (' + RED_CARD_LIMIT + ' إجابات غلط)');
+  }
+}
+
+// Warn a player who is one mistake away
+function tmWarnBeforeCard(data) {
+  const me = (data.students || {})[state.tm.myId];
+  if (!me || me.redCard) return;
+  const w = me.wrongs || 0;
+  if (w === RED_CARD_LIMIT - 1 && state.tm._warnedAt !== w) {
+    state.tm._warnedAt = w;
+    showCelebration2('info', 2500, '🟨 إنذار أخير',
+      'باقي إجابة غلط وحدة وبيطلعلك كرت أحمر!');
+  }
+}
+
 function tmRenderTurnBanner(data) {
   const teams = data.teams || {};
   const students = data.students || {};
   const banner = $('tmTurnBanner');
   const nameEl = $('tmTurnName');
+  
+  if (!state.tm.isTeacher) {
+    const meNow = students[state.tm.myId];
+    if (meNow && meNow.redCard) {
+      nameEl.textContent = '🟥 خرجتي من الملعب — شجّعي فريقك';
+      nameEl.classList.remove('your-turn');
+      banner.classList.add('show');
+      return;
+    }
+    if (meNow && meNow.teamId) {
+      const t0 = teams[meNow.teamId] || {};
+      if ((t0.order || []).length === 0) {
+        nameEl.textContent = '🟥 كل لاعبات فريقك خرجن!';
+        nameEl.classList.remove('your-turn');
+        banner.classList.add('show');
+        return;
+      }
+    }
+  }
   
   if (state.tm.isTeacher) {
     // Show all teams' current turn
@@ -5013,7 +5102,8 @@ const RULES = {
     ['👥', 'كل فريق إله <b>ترتيب دور</b> حدّدته المعلمة. الشريط فوق بيقول مين دورها هلأ.'],
     ['🙋', '<b>وحدة بس من كل فريق بتجاوب بكل سؤال</b> — اللي دورها. الباقيات بيشجّعوا.'],
     ['🔁', 'الدور بيلف على البنات بالترتيب، فكل وحدة بيجي دورها.'],
-    ['🤝', 'الفرق كلها بتتسابق بنفس الوقت — بس كل فريق من خلال اللاعبة اللي دورها.']
+    ['🤝', 'الفرق كلها بتتسابق بنفس الوقت — بس كل فريق من خلال اللاعبة اللي دورها.'],
+    ['🟥', '<b>٤ إجابات غلط = كرت أحمر</b> وخروج من الملعب! اللاعبة بتنشال من الأدوار وبتضل متفرجة. بيجيك <b>🟨 إنذار</b> عند الغلطة التالتة.']
   ]
   ,
   forbidden: [
@@ -5126,7 +5216,10 @@ async function tmResolveQuestion(data, force) {
   if (!cq || cq.resolved) return;
   
   const answers = cq.answers || {};
-  const teamIds = Object.keys(data.teams);
+  // only teams that still have players on the pitch can answer
+  const teamIds = Object.keys(data.teams).filter(function(tid) {
+    return ((data.teams[tid] || {}).order || []).length > 0;
+  });
   const answeredTeams = Object.keys(answers);
   
   const allAnswered = (answeredTeams.length >= teamIds.length);
