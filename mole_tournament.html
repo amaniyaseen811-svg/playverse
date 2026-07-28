@@ -1366,7 +1366,7 @@
 <button id="castFab" title="شاشة العرض">📺</button>
 <button id="rulesFab" title="القواعد">📜</button>
 <div id="scrollHint"></div>
-<div id="verBadge">v35</div>
+<div id="verBadge">v36</div>
 
 <div id="raceTimer">
   <svg viewBox="0 0 100 100" id="raceTimerSvg">
@@ -3320,11 +3320,12 @@ function bindEvents() {
     try {
       const snap = await db.collection(TM_COLLECTION).doc(code).get();
       if (!snap.exists) { await explainBadCode(code); return; }
+      const vd = snap.data();
+      if (vd && typeof vd.round === 'number') setRound(vd.round);
     } catch(e) { showCelebration2('error', 3000, 'خطأ', 'تعذّر الوصول للغرفة'); return; }
 
     state.mode = 'teams';
     state.tm.roomCode = code;
-    if (typeof data.round === 'number') setRound(data.round);
     state.tm.isTeacher = false;
     state.tm.myId = null;          // viewer: never a player
     state._castPrev = {};
@@ -3546,7 +3547,6 @@ async function mpCreateRoom(name) {
   try {
     await db.collection(MP_COLLECTION).doc(code).set(roomData);
     state.mp.roomCode = code;
-    if (typeof data.round === 'number') setRound(data.round);
     state.mp.myTeam = 'sky';
     state.mp.myName = name;
     state.mp.isHost = true;
@@ -4184,7 +4184,6 @@ async function crCreateRoom(name, maxStudents, lbVisible) {
   try {
     await db.collection(CR_COLLECTION).doc(code).set(roomData);
     state.cr.roomCode = code;
-    if (typeof data.round === 'number') setRound(data.round);
     state.cr.myId = teacherId;
     state.cr.myName = name;
     state.cr.isTeacher = true;
