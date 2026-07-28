@@ -2006,11 +2006,11 @@ function renderHUD() {
 }
 function renderField() {
   // Teams mode shows one ball PER TEAM (the race); other modes show the single ball
-  const isTeams = (state.mode === 'teams');
+  const isRace = (state.mode === 'teams' || state.mode === 'versus');
   const singleBall = $('ball');
   const tmWrap = $('tmBalls');
-  if (singleBall) singleBall.style.display = isTeams ? 'none' : '';
-  if (tmWrap)     tmWrap.style.display     = isTeams ? '' : 'none';
+  if (singleBall) singleBall.style.display = isRace ? 'none' : '';
+  if (tmWrap)     tmWrap.style.display     = isRace ? '' : 'none';
 
   const pos = PLAYER_POSITIONS[state.questionIndex];
   const marker = $('playerMarker');
@@ -2959,6 +2959,9 @@ async function mpStartGame() {
 }
 
 function mpEnterGame() {
+  state.mp._prevScores = null;
+  const mpWrapInit = $('tmBalls');
+  if (mpWrapInit) mpWrapInit.innerHTML = '';
   // Reset local state and switch to game screen
   state.questionIndex = (state.mp.roomData && state.mp.roomData.currentQuestionIndex) || 0;
   state.score = 0;
@@ -3088,6 +3091,7 @@ function mpRenderGameState(data) {
   
   // Score update
   mpRenderScoreboard(data);
+  mpRenderFieldBalls(data);
   
   // Reset my "answered" if both reset (new question)
   if (data.currentQuestion && !data.currentQuestion.resolved) {
@@ -4335,34 +4339,21 @@ function tmFieldPointAt(prog) {
   return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f };
 }
 
-function tmRenderFieldBalls(data) {
+// Shared engine: draws one ball per side. sides = [{key,score,color,emoji,mine}]
+function renderRaceBalls(sides, qIdx, store) {
   const wrap = $('tmBalls');
-  if (!wrap || !data) return;
-  const teams = data.teams || {};
-  const teamIds = Object.keys(teams);
-  if (teamIds.length === 0) { wrap.innerHTML = ''; return; }
-
-  const colors = ['#5ab0ff', '#ff8c42', '#4ada8a', '#a855f7'];
-  const emojis = ['🕊️', '💪', '🌿', '⭐'];
-  const maxIdx = PLAYER_POSITIONS.length - 1;
-  const myStudent = (data.students || {})[state.tm.myId];
-  const myTid = myStudent ? myStudent.teamId : null;
-
-  if (!state.tm._prevScores) state.tm._prevScores = {};
+  if (!wrap) return;
+  if (!sides || sides.length === 0) { wrap.innerHTML = ''; return; }
   const seen = {};
 
-  for (let i = 0; i < teamIds.length; i++) {
-    const tid = teamIds[i];
-    const t = teams[tid] || {};
-    const score = t.score || 0;
-    // Every question pushes the ball half a step forward; every goal adds
-    // another half step -> the ball always moves, and scorers pull ahead.
-    const qIdx = data.currentQuestionIndex || 0;
-    const pos = tmFieldPointAt(qIdx * 0.5 + score * 0.5);
+  for (let i = 0; i < sides.length; i++) {
+    const sd = sides[i];
+    const safe = String(sd.key).replace(/[^a-zA-Z0-9_-]/g, '');
+    seen[safe] = true;
+    const pos = tmFieldPointAt((qIdx || 0) * 0.5 + (sd.score || 0) * 0.5);
     if (!pos) continue;
-    seen[tid] = true;
 
-    const domId = 'tmBall_' + tid.replace(/[^a-zA-Z0-9_-]/g, '');
+    const domId = 'tmBall_' + safe;
     let el = document.getElementById(domId);
     if (!el) {
       el = document.createElement('div');
@@ -4371,46 +4362,70 @@ function tmRenderFieldBalls(data) {
       el.innerHTML = '<div class="tm-ball-tag"></div>';
       wrap.appendChild(el);
     }
-    const color = colors[i % colors.length];
-    el.style.borderColor = color;
+    el.style.borderColor = sd.color;
+
     const newLeft = pos.x.toFixed(2) + '%';
     if (el.style.left && el.style.left !== newLeft) {
       el.classList.remove('rolling'); void el.offsetWidth; el.classList.add('rolling');
       setTimeout(function(){ el.classList.remove('rolling'); }, 750);
     }
     el.style.left = newLeft;
-    // spread the balls vertically so teams sitting on the same spot stay readable
-    const spread = (i - (teamIds.length - 1) / 2) * 9;
+    const spread = (i - (sides.length - 1) / 2) * 9;
     el.style.top = Math.max(6, Math.min(94, pos.y + spread)).toFixed(2) + '%';
 
     const tag = el.querySelector('.tm-ball-tag');
     if (tag) {
-      tag.textContent = emojis[i % emojis.length] + ' ' + score;
-      tag.style.borderColor = color;
-      tag.style.color = (tid === myTid) ? '#ffd700' : '#fff';
+      tag.textContent = sd.emoji + ' ' + (sd.score || 0);
+      tag.style.borderColor = sd.color;
+      tag.style.color = sd.mine ? '#ffd700' : '#fff';
     }
+    if (sd.mine) el.classList.add('mine'); else el.classList.remove('mine');
 
-    if (tid === myTid) el.classList.add('mine'); else el.classList.remove('mine');
-
-    // celebrate a fresh goal
-    const prev = state.tm._prevScores[tid];
-    if (prev !== undefined && score > prev) {
-      el.classList.remove('scored');
-      void el.offsetWidth;
-      el.classList.add('scored');
+    const prev = store[sd.key];
+    if (prev !== undefined && (sd.score || 0) > prev) {
+      el.classList.remove('scored'); void el.offsetWidth; el.classList.add('scored');
       setTimeout(function(){ el.classList.remove('scored'); }, 800);
     }
-    state.tm._prevScores[tid] = score;
+    store[sd.key] = sd.score || 0;
   }
 
-  // remove balls for teams that no longer exist
   const kids = wrap.querySelectorAll('.tm-ball');
   for (let k = 0; k < kids.length; k++) {
-    const tid = kids[k].id.replace('tmBall_', '');
-    let stillThere = false;
-    for (const id in seen) { if (id.replace(/[^a-zA-Z0-9_-]/g, '') === tid) stillThere = true; }
-    if (!stillThere) kids[k].remove();
+    if (!seen[kids[k].id.replace('tmBall_', '')]) kids[k].remove();
   }
+}
+
+// ---- versus mode: one ball per player ----
+function mpRenderFieldBalls(data) {
+  if (!data || !data.scores) return;
+  if (!state.mp._prevScores) state.mp._prevScores = {};
+  const me = state.mp.myTeam;
+  renderRaceBalls([
+    { key: 'sky',    score: data.scores.sky    || 0, color: '#5ab0ff', emoji: '🕊️', mine: me === 'sky' },
+    { key: 'giants', score: data.scores.giants || 0, color: '#ff8c42', emoji: '💪', mine: me === 'giants' }
+  ], data.currentQuestionIndex || 0, state.mp._prevScores);
+}
+
+function tmRenderFieldBalls(data) {
+  if (!data) return;
+  const teams = data.teams || {};
+  const teamIds = Object.keys(teams);
+  const colors = ['#5ab0ff', '#ff8c42', '#4ada8a', '#a855f7'];
+  const emojis = ['🕊️', '💪', '🌿', '⭐'];
+  const myStudent = (data.students || {})[state.tm.myId];
+  const myTid = myStudent ? myStudent.teamId : null;
+  if (!state.tm._prevScores) state.tm._prevScores = {};
+
+  const sides = teamIds.map(function(tid, i) {
+    return {
+      key: tid,
+      score: (teams[tid] || {}).score || 0,
+      color: colors[i % colors.length],
+      emoji: emojis[i % emojis.length],
+      mine: tid === myTid
+    };
+  });
+  renderRaceBalls(sides, data.currentQuestionIndex || 0, state.tm._prevScores);
 }
 
 function tmRenderScoreboard(data) {
