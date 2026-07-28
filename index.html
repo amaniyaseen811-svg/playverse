@@ -2918,5 +2918,59 @@ function skipGameIntro(){
 </script>
 
 </body>
+
+<script>
+/* ===== منظّم تشغيل أغلفة الكروت: يمنع تشغيل أكثر من كرتين معًا ===== */
+(function(){
+  var MAX = 2;          /* أقصى عدد فيديوهات تشتغل بنفس الوقت */
+  var ticking = false;
+
+  function allVids(){
+    return [].slice.call(document.querySelectorAll('video.anim-cover'));
+  }
+  function pairOf(v){
+    var out=[v];
+    var sib = v.parentNode && v.parentNode.querySelector('.anim-cover-b');
+    if(sib) out.push(sib);
+    return out;
+  }
+  function halt(v){
+    pairOf(v).forEach(function(el){
+      try{ if(!el.paused) el.pause(); }catch(e){}
+    });
+  }
+  function apply(){
+    ticking = false;
+    if(document.hidden){ allVids().forEach(halt); return; }
+    var vp = window.innerHeight || 800;
+    var list = allVids().map(function(v){
+      var r = v.getBoundingClientRect();
+      return {
+        v: v,
+        seen: r.bottom > 0 && r.top < vp && r.width > 0 && r.height > 0,
+        d: Math.abs((r.top + r.bottom)/2 - vp/2)
+      };
+    });
+    list.sort(function(a,b){ return a.d - b.d; });
+    var live = 0;
+    list.forEach(function(it){
+      if(it.seen && live < MAX){ live++; }
+      else { halt(it.v); }
+    });
+  }
+  function schedule(){
+    if(ticking) return;
+    ticking = true;
+    (window.requestAnimationFrame || setTimeout)(apply, 0);
+  }
+
+  ['scroll','resize','orientationchange'].forEach(function(ev){
+    window.addEventListener(ev, schedule, {passive:true});
+  });
+  document.addEventListener('visibilitychange', schedule);
+  setInterval(apply, 700);
+  window.addEventListener('load', apply);
+})();
+</script>
 </html>
 
