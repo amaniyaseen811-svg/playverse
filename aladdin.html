@@ -218,7 +218,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:white;direction
   <span>الرئيسية</span>
 </a>
 
-<audio id="bgm" src="aladdin_bg.mp3" loop preload="metadata"></audio>
+<video id="bgm" src="aladdin_bg.mp3" loop playsinline preload="metadata" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px" aria-hidden="true"></video>
 <button id="musBtn" class="mus-btn" onclick="toggleMusic()" title="تشغيل / كتم الموسيقى">
   <span id="musIcon">🎵</span>
   <span id="musTxt">الموسيقى</span>
@@ -467,6 +467,14 @@ function warmBgm(){
 }
 if(document.readyState==='complete'){ setTimeout(warmBgm,1200); }
 else { window.addEventListener('load', function(){ setTimeout(warmBgm,1200); }); }
+
+/* لو رجعت الطالبة للتطبيق بعد ما خرجت منه، أعِد تشغيل الموسيقى */
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState==='visible' && musOn){
+    var a=document.getElementById('bgm');
+    if(a && a.paused){ var p=a.play(); if(p&&p.catch){p.catch(function(){});} }
+  }
+});
 
 function startMusic(){
   const a=document.getElementById('bgm');

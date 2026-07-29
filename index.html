@@ -1656,6 +1656,31 @@ function setLang(l){
   if (document.readyState === 'loading')
     document.addEventListener('DOMContentLoaded', init);
   else init();
+
+  /* ===== الرجوع من لعبة => اذهب مباشرة لشاشة الألعاب =====
+     لا نُظهر شاشة اللوجو ولا شاشة اللغة مرة ثانية،
+     لأن اللغة محفوظة أصلاً في pv_lang. */
+  function _skipGateIfReturning(){
+    try{
+      var ref = document.referrer || '';
+      var isGame = /\/(aladdin|babgino|castle|island|lock|lumo|maya|mole_tournament|smurfs)\.html/i.test(ref);
+      var asked  = /(?:[?&])home=1\b/.test(location.search || '');
+      if (!isGame && !asked) return;
+      var saved = null;
+      try { saved = localStorage.getItem('pv_lang'); } catch(e){}
+      if (!saved) return;                       // ما في لغة محفوظة => المسار العادي
+      var g = document.getElementById('logoGate');
+      var pk = document.getElementById('langPicker');
+      if (g)  { g.style.display = 'none'; g.style.opacity = '0'; }
+      if (pk) { pk.style.display = 'none'; }
+      try { if (typeof stopPickerMusic === 'function') stopPickerMusic(); } catch(e){}
+      if (typeof setLang === 'function') setLang(saved);
+      else { var sp=document.getElementById('splashScreen'); if(sp) sp.style.visibility=''; }
+    }catch(e){}
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(_skipGateIfReturning, 60); });
+  else setTimeout(_skipGateIfReturning, 60);
 })();
 </script>
 
