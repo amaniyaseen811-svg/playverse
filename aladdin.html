@@ -218,7 +218,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:white;direction
   <span>الرئيسية</span>
 </a>
 
-<audio id="bgm" src="aladdin_bg.mp3" loop preload="none"></audio>
+<audio id="bgm" src="aladdin_bg.mp3" loop preload="metadata"></audio>
 <button id="musBtn" class="mus-btn" onclick="toggleMusic()" title="تشغيل / كتم الموسيقى">
   <span id="musIcon">🎵</span>
   <span id="musTxt">الموسيقى</span>
@@ -456,6 +456,18 @@ function paintMusBtn(){
   ic.textContent=musOn?'🎵':'🔇';
   tx.textContent=musOn?'الموسيقى':'مكتومة';
 }
+/* تحميل مسبق هادئ للموسيقى: يبدأ بعد ما تستقر الصفحة،
+   فلا يزاحم الفيديو، ولا يترك الصوت يبدأ من الصفر عند الضغط */
+var _bgmWarmed=false;
+function warmBgm(){
+  if(_bgmWarmed) return; _bgmWarmed=true;
+  var a=document.getElementById('bgm');
+  if(!a) return;
+  try{ a.preload='auto'; a.load(); }catch(e){}
+}
+if(document.readyState==='complete'){ setTimeout(warmBgm,1200); }
+else { window.addEventListener('load', function(){ setTimeout(warmBgm,1200); }); }
+
 function startMusic(){
   const a=document.getElementById('bgm');
   if(!a||musStarted||!musOn)return;
@@ -768,6 +780,8 @@ function _hideChrome(on){
 }
 function startIntro(){
   var ov=document.getElementById('introOv'),v=vEl();
+  warmBgm();                 /* تأكد أن الصوت جاهز */
+  try{ startMusic(); }catch(e){}   /* الفيديو بلا صوت - الموسيقى تملأ المشهد */
   ov.classList.add('on');
   document.body.style.overflow='hidden';
   _hideChrome(true);
@@ -794,7 +808,7 @@ function endIntro(toGame){
   document.getElementById('vprog').style.width='0%'; _clearStall();
   if(toGame){ beginAdventure(); }
 }
-function kickCover(){
+function kickCover(){ warmBgm();
   var c=document.getElementById('coverVid');
   if(!c)return;
   c.muted=true;
