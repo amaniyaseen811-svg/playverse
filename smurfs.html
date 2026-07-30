@@ -95,6 +95,18 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
 .qtmr-num.warn{color:#ff5722}
 .qtmr-num.danger{color:#f44336;animation:tmrPulse .5s ease infinite}
 @keyframes tmrPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+
+/* intro screen controls */
+.intro-home{position:absolute;top:16px;left:16px;z-index:20;width:44px;height:44px;border-radius:50%;
+  background:rgba(0,0,0,.62);border:1.5px solid rgba(255,255,255,.45);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;text-decoration:none;
+  backdrop-filter:blur(6px);transition:.2s}
+.intro-home:hover{background:#ffc107;color:#1a1a00;transform:scale(1.08)}
+.intro-pause{position:absolute;top:16px;left:70px;z-index:20;width:44px;height:44px;border-radius:50%;
+  background:rgba(0,0,0,.62);border:1.5px solid rgba(255,255,255,.45);color:#fff;
+  align-items:center;justify-content:center;font-size:1.05rem;cursor:pointer;
+  backdrop-filter:blur(6px);transition:.2s;padding:0}
+.intro-pause:hover{background:rgba(255,193,7,.85);color:#1a1a00;transform:scale(1.08)}
 </style>
 </head>
 <body>
@@ -111,6 +123,8 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     <div style="margin-top:18px"><button onclick="skipIntro()" style="background:none;border:none;color:#888;font-size:.95rem;cursor:pointer;text-decoration:underline;font-family:inherit">تخطي والذهاب للعبة</button></div>
   </div>
   <video id="introVid" src="smurfs_intro.mp4" playsinline preload="metadata" style="display:none;width:100%;max-height:100vh;object-fit:contain"></video>
+  <a href="index.html" id="introHome" class="intro-home" title="الصفحة الرئيسية">🏠</a>
+  <button id="introPause" class="intro-pause" onclick="toggleIntroVid()" title="توقف مؤقت" style="display:none">⏸️</button>
   <button id="skipBtn" onclick="skipIntro()" style="display:none;position:absolute;bottom:24px;left:24px;padding:11px 24px;border:2px solid rgba(255,255,255,.5);border-radius:30px;background:rgba(0,0,0,.55);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;backdrop-filter:blur(6px);font-family:inherit">تخطي ⏭</button>
 
 <div id="capBox" style="display:none;position:absolute;left:0;right:0;bottom:0;padding:26px 3vw calc(26px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,rgba(0,0,0,.97),rgba(0,0,0,.90) 55%,rgba(0,0,0,.55) 85%,rgba(0,0,0,0));pointer-events:none;z-index:5">
@@ -154,11 +168,27 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
 
 </div>
 <script>
+
+function toggleIntroVid(){
+  var v = document.getElementById('introVid');
+  var b = document.getElementById('introPause');
+  if (!v || !b) return;
+  var wantPause = (b.textContent.indexOf('⏸') !== -1);   // button state drives intent
+  if (wantPause) {
+    try { v.pause(); } catch(e){}
+    b.textContent = '▶️'; b.title = 'متابعة';
+  } else {
+    var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+    b.textContent = '⏸️'; b.title = 'توقف مؤقت';
+  }
+}
+
 function playIntro(){
   var v=document.getElementById('introVid');
   document.getElementById('startGate').style.display='none';
   v.style.display='block';
   document.getElementById('skipBtn').style.display='block';
+  var _ip=document.getElementById('introPause'); if(_ip) _ip.style.display='flex';
   v.play();
   v.onended=skipIntro;
   v.onerror=skipIntro;
