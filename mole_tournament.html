@@ -2475,7 +2475,8 @@ const state = {
   audioEnabled: true,
   audioCtx: null,
   bgGain: null,
-  bgOscillators: null,
+  bgAudio: null,
+  bgFadeId: null,
   // Multiplayer state (Versus 1v1)
   mp: {
     available: false,    // Firebase initialized
@@ -2599,40 +2600,41 @@ function sfxGoal() { tone(523, 0.1, 'square', 0.16); setTimeout(()=>tone(659, 0.
 function sfxWhistle() { tone(2000, 0.2, 'square', 0.1); setTimeout(()=>tone(2400, 0.15, 'square', 0.1), 100); }
 function sfxClick() { tone(800, 0.04, 'sine', 0.08); }
 function startBgMusic() {
-  if (!state.audioEnabled || !state.audioCtx) return;
-  stopBgMusic();
-  const ctx = state.audioCtx;
-  const g = ctx.createGain();
-  g.gain.value = 0;
-  g.connect(ctx.destination);
-  g.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 1);
-  state.bgGain = g;
-  // A simple ambient pad: 3 detuned oscillators
-  const freqs = [110, 165, 220];
-  const oscs = [];
-  for (let i = 0; i < freqs.length; i++) {
-    const o = ctx.createOscillator();
-    o.type = 'sine';
-    o.frequency.value = freqs[i];
-    o.connect(g);
-    o.start();
-    oscs.push(o);
-  }
-  state.bgOscillators = oscs;
-}
-function stopBgMusic() {
-  if (state.bgGain && state.audioCtx) {
+  if (!state.audioEnabled) return;
+  if (!state.bgAudio) {
     try {
-      state.bgGain.gain.linearRampToValueAtTime(0.0001, state.audioCtx.currentTime + 0.5);
-    } catch(e){}
+      state.bgAudio = new Audio('mole_music.mp3');
+      state.bgAudio.loop = true;
+      state.bgAudio.volume = 0;
+    } catch(e) { state.bgAudio = null; return; }
   }
-  if (state.bgOscillators) {
-    for (let i = 0; i < state.bgOscillators.length; i++) {
-      try { state.bgOscillators[i].stop(state.audioCtx.currentTime + 0.6); } catch(e){}
-    }
-    state.bgOscillators = null;
-  }
-  state.bgGain = null;
+  var a = state.bgAudio;
+  try {
+    var pr = a.play();
+    if (pr && pr.catch) pr.catch(function(){});
+    // fade in to a comfortable level
+    var target = 0.22, step = target / 16, v = 0;
+    if (state.bgFadeId) clearInterval(state.bgFadeId);
+    state.bgFadeId = setInterval(function(){
+      v += step;
+      if (v >= target) { v = target; clearInterval(state.bgFadeId); state.bgFadeId = null; }
+      try { a.volume = v; } catch(e){}
+    }, 60);
+  } catch(e){}
+}
+
+function stopBgMusic() {
+  var a = state.bgAudio;
+  if (!a) return;
+  if (state.bgFadeId) { clearInterval(state.bgFadeId); state.bgFadeId = null; }
+  var v = a.volume, step = v / 10;
+  state.bgFadeId = setInterval(function(){
+    v -= step;
+    if (v <= 0.01) {
+      clearInterval(state.bgFadeId); state.bgFadeId = null;
+      try { a.pause(); a.currentTime = 0; a.volume = 0; } catch(e){}
+    } else { try { a.volume = v; } catch(e){} }
+  }, 45);
 }
 
 // ============ Toast & Flash ============
