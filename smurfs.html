@@ -78,6 +78,23 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
 .home-btn:hover{background:#ffc107;color:#1a1a00;transform:scale(1.05)}
 .home-btn-screen{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.25);border-radius:50px;padding:12px 30px;font-family:Tajawal,sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin:6px auto;transition:all .25s;text-decoration:none;max-width:300px;width:100%;justify-content:center}
 .home-btn-screen:hover{background:rgba(255,193,7,.15);border-color:#ffc107;color:#ffc107}
+
+/* ==== per-question 20s timer ==== */
+.qtmr-wrap{margin:8px auto 6px;max-width:340px}
+.qtmr-row{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:5px}
+.qtmr-ico{font-size:1rem}
+.qtmr-num{font-size:1.35rem;font-weight:900;color:#ffc107;min-width:34px;text-align:center;font-family:Tajawal,sans-serif}
+.qtmr-lbl{font-size:.74rem;color:rgba(255,255,255,.5)}
+.qtmr-pause{background:rgba(255,193,7,.15);border:1.5px solid rgba(255,193,7,.5);color:#ffc107;border-radius:50%;width:32px;height:32px;font-size:.9rem;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;padding:0;margin-right:4px}
+.qtmr-pause:hover{background:rgba(255,193,7,.3);transform:scale(1.08)}
+.qtmr-pause.paused{background:rgba(76,175,80,.2);border-color:#4caf50;color:#4caf50}
+.qtmr-bar{height:6px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden}
+.qtmr-fill{height:100%;width:100%;background:linear-gradient(90deg,#4caf50,#ffc107);border-radius:6px;transition:width .95s linear}
+.qtmr-fill.warn{background:linear-gradient(90deg,#ffc107,#ff5722)}
+.qtmr-fill.danger{background:linear-gradient(90deg,#ff5722,#f44336)}
+.qtmr-num.warn{color:#ff5722}
+.qtmr-num.danger{color:#f44336;animation:tmrPulse .5s ease infinite}
+@keyframes tmrPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 </style>
 </head>
 <body>
@@ -275,6 +292,15 @@ function skipIntro(){
 </div>
 <div class="qpanel">
 <div class="qbadge" id="qbadge">❓ السؤال 1</div>
+<div class="qtmr-wrap">
+  <div class="qtmr-row">
+    <span class="qtmr-ico">⏱️</span>
+    <span class="qtmr-num" id="qtmrNum">20</span>
+    <span class="qtmr-lbl">ثانية</span>
+    <button class="qtmr-pause" id="qtmrPause" onclick="toggleQPause()" title="توقف مؤقت">⏸️</button>
+  </div>
+  <div class="qtmr-bar"><div class="qtmr-fill" id="qtmrFill"></div></div>
+</div>
 <div class="qt" id="qt"></div>
 </div>
 </div>
@@ -664,6 +690,7 @@ var IMG_END="/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhc
 var score=0, qi=0, atts=2, answered=false, ctmr=null;
 
 function go(n) {
+  if (n !== 4 && typeof stopQTmr === 'function') stopQTmr();
   document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('on'); });
   var pages = ['p0','p1','p2','p3','p4','p5','p6','p7'];
   var el = document.getElementById(pages[n]);
@@ -715,6 +742,91 @@ function buildProg() {
   }
 }
 
+
+/* ===== per-question 20s timer with pause ===== */
+var QTIME = 20;
+var qTmrLeft = QTIME, qTmrId = null, qTmrPaused = false;
+
+function paintQTmr(){
+  var n = document.getElementById('qtmrNum');
+  var f = document.getElementById('qtmrFill');
+  if (!n || !f) return;
+  n.textContent = qTmrLeft;
+  f.style.width = (qTmrLeft / QTIME * 100) + '%';
+  n.className = 'qtmr-num' + (qTmrLeft <= 5 ? ' danger' : qTmrLeft <= 10 ? ' warn' : '');
+  f.className = 'qtmr-fill' + (qTmrLeft <= 5 ? ' danger' : qTmrLeft <= 10 ? ' warn' : '');
+}
+
+function stopQTmr(){
+  if (qTmrId) { clearInterval(qTmrId); qTmrId = null; }
+}
+
+function startQTmr(){
+  stopQTmr();
+  qTmrLeft = QTIME;
+  qTmrPaused = false;
+  var pb = document.getElementById('qtmrPause');
+  if (pb) { pb.textContent = '⏸️'; pb.classList.remove('paused'); pb.disabled = false; }
+  paintQTmr();
+  qTmrId = setInterval(function(){
+    if (qTmrPaused) return;
+    qTmrLeft--;
+    if (qTmrLeft < 0) qTmrLeft = 0;
+    paintQTmr();
+    if (qTmrLeft <= 0) { stopQTmr(); onQTimeout(); }
+  }, 1000);
+}
+
+function toggleQPause(){
+  var pb = document.getElementById('qtmrPause');
+  if (!qTmrId) return;
+  qTmrPaused = !qTmrPaused;
+  if (pb) {
+    pb.textContent = qTmrPaused ? '▶️' : '⏸️';
+    pb.classList.toggle('paused', qTmrPaused);
+    pb.title = qTmrPaused ? 'متابعة' : 'توقف مؤقت';
+  }
+}
+
+/* time ran out -> counts as a wrong attempt, same rules as the game */
+function onQTimeout(){
+  if (typeof answered !== 'undefined' && answered) return;
+  var all = document.querySelectorAll('#opts .opt');
+  var fb = document.getElementById('fb');
+  var ri = document.getElementById('rimg');
+  var riEl = document.getElementById('rimgEl');
+  var q = QS[qi];
+  atts--;
+  if (typeof sfxWrong === 'function') sfxWrong();
+  if (atts > 0) {
+    document.getElementById('h2').className = 'hh lost';
+    fb.textContent = '⏰ انتهى الوقت! محاولة أخيرة!';
+    fb.className = 'fb on ng';
+    if (riEl && typeof IMG_LOSE !== 'undefined') { riEl.src = 'data:image/jpeg;base64,' + IMG_LOSE; ri.className = 'rimg on'; }
+    setTimeout(function(){
+      ri.className = 'rimg';
+      fb.className = 'fb'; fb.textContent = '';
+      startQTmr();
+    }, 1800);
+  } else {
+    answered = true;
+    document.getElementById('h1').className = 'hh lost';
+    all.forEach(function(b){ b.disabled = true; });
+    all.forEach(function(b){ if (b.textContent === q.o[q.a]) b.classList.add('ok'); });
+    fb.textContent = '⏰ انتهى الوقت! سيعود من البداية...';
+    fb.className = 'fb on ng';
+    if (riEl && typeof IMG_LOSE !== 'undefined') { riEl.src = 'data:image/jpeg;base64,' + IMG_LOSE; ri.className = 'rimg on'; }
+    var pb = document.getElementById('qtmrPause'); if (pb) pb.disabled = true;
+    setTimeout(function(){
+      document.getElementById('loseMsg').innerHTML = '<p>الإجابة الصحيحة: <strong style="color:#ffc107">' + q.o[q.a] + '</strong></p><p>انتهى الوقت! شرشبيل أمسك بالسنافر — العب من البداية!</p>';
+      go(6);
+      if (bgMusic) bgMusic.volume = 0.08;
+      if (typeof sfxGargamelWin === 'function') sfxGargamelWin();
+      setTimeout(function(){ if (bgMusic) bgMusic.volume = 0.25; }, 7000);
+    }, 2000);
+  }
+}
+
 function showQ() {
   answered = false; atts = 2;
   document.getElementById('h1').className = 'hh';
@@ -756,10 +868,13 @@ function showQ() {
     })(opt, b);
     op.appendChild(b);
   });
+  startQTmr();
 }
 
 function checkAns(correct, btn, q) {
   if (answered) return;
+  stopQTmr();
+  var _pb = document.getElementById('qtmrPause'); if (_pb) _pb.disabled = true;
   var all = document.querySelectorAll('#opts .opt');
   var fb = document.getElementById('fb');
   var ri = document.getElementById('rimg');
@@ -795,6 +910,7 @@ function checkAns(correct, btn, q) {
         fb.className = 'fb'; fb.textContent = '';
         btn.classList.remove('ng');
         btn.disabled = false;
+        startQTmr();
       }, 1800);
     } else {
       answered = true;
