@@ -486,6 +486,22 @@ document.addEventListener('visibilitychange', function(){
   }
 });
 
+/* أوقف الموسيقى أثناء المقدمة، واستأنفها بعدها */
+var _musWasOn=false;
+function pauseMusicForIntro(){
+  var a=document.getElementById('bgm');
+  if(!a) return;
+  _musWasOn = !a.paused;
+  try{ a.pause(); }catch(e){}
+}
+function resumeMusicAfterIntro(){
+  var a=document.getElementById('bgm');
+  if(!a || !musOn) return;
+  try{ a.currentTime=0; }catch(e){}
+  var p=a.play(); if(p&&p.catch){p.catch(function(){});}
+  musStarted=true;
+}
+
 function startMusic(){
   const a=document.getElementById('bgm');
   if(!a||musStarted||!musOn)return;
@@ -798,8 +814,8 @@ function _hideChrome(on){
 }
 function startIntro(){
   var ov=document.getElementById('introOv'),v=vEl();
-  warmBgm();                 /* تأكد أن الصوت جاهز */
-  try{ startMusic(); }catch(e){}   /* الفيديو بلا صوت - الموسيقى تملأ المشهد */
+  warmBgm();                 /* نحمّل الموسيقى بهدوء لتكون جاهزة بعد الفيديو */
+  try{ pauseMusicForIntro(); }catch(e){}   /* الفيديو يبقى صامتاً */
   ov.classList.add('on');
   document.body.style.overflow='hidden';
   _hideChrome(true);
@@ -824,7 +840,7 @@ function endIntro(toGame){
   document.body.style.overflow='';
   _hideChrome(false);
   document.getElementById('vprog').style.width='0%'; _clearStall();
-  if(toGame){ beginAdventure(); }
+  if(toGame){ resumeMusicAfterIntro(); beginAdventure(); }
 }
 function kickCover(){ warmBgm();
   var c=document.getElementById('coverVid');
