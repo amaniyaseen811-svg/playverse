@@ -3937,5 +3937,49 @@ clearInterval(babBrkT);babBrkOn=false;b.textContent='⏸ استراحة';m.style
   background:rgba(10,17,40,.9);border:1.5px solid #ffd166;color:#ffd166;border-radius:22px;
   padding:8px 14px;font-family:inherit;font-weight:900;font-size:13px;cursor:pointer">🏆 النتائج</div>
 <script src="bab-lang.js"></script>
+
+<!-- زر الرئيسية -->
+<button id="babHomeBtn" onclick="babGoHome()"
+  style="position:fixed;top:14px;inset-inline-start:14px;z-index:2147483000;
+  padding:10px 16px;border-radius:30px;border:2px solid rgba(255,255,255,.3);
+  background:rgba(10,10,26,.85);color:#fff;font-family:inherit;font-size:14px;
+  font-weight:900;cursor:pointer;backdrop-filter:blur(8px)">🏠 الرئيسية</button>
+<script>
+function babGoHome(){
+  if(confirm('بدك ترجع للصفحة الرئيسية؟ التقدّم رح يضيع.')){
+    window.location.href = 'index.html';
+  }
+}
+</script>
+
+<!-- زر الرجوع للمشهد السابق (شاشة القصة فقط) -->
+<button id="babBackBtn" onclick="babBackSlide()"
+  style="position:fixed;top:14px;inset-inline-end:14px;z-index:2147483000;display:none;
+  padding:10px 16px;border-radius:30px;border:2px solid rgba(255,255,255,.3);
+  background:rgba(10,10,26,.85);color:#fff;font-family:inherit;font-size:14px;
+  font-weight:900;cursor:pointer;backdrop-filter:blur(8px)">⏪ رجوع</button>
+<script>
+(function(){
+  function onStory(){
+    var s = document.getElementById('storyScreen');
+    return s && !s.classList.contains('hidden')
+             && getComputedStyle(s).display !== 'none';
+  }
+  window.babBackSlide = function(){
+    try{
+      if (!onStory()) return;
+      if (typeof storyIndex === 'number' && storyIndex > 0
+          && typeof showStorySlide === 'function') showStorySlide(storyIndex - 1);
+    }catch(e){}
+  };
+  setInterval(function(){
+    var b = document.getElementById('babBackBtn');
+    if (!b) return;
+    var vis = false;
+    try{ vis = onStory() && typeof storyIndex === 'number' && storyIndex > 0; }catch(e){}
+    b.style.display = vis ? 'block' : 'none';
+  }, 400);
+})();
+</script>
 </body>
 </html>
