@@ -764,6 +764,21 @@ body{font-family:'Tajawal',sans-serif;background:var(--dark);color:white;directi
         </div>
       </div>
 
+      <div class="concept-card cc-wide">
+        <div class="cc-ico">🧫</div><div class="cc-h">الأمشاج (Gametes)</div>
+        <div class="cc-b">
+          الأمشاج هي <b>الخلايا الجنسية</b> التي تشترك في عملية التكاثر، وهي:<br>
+          • <b>الحيوان المنوي</b> (Sperm) — المشيج الذكري<br>
+          • <b>البويضة</b> (Egg / Ovum) — المشيج الأنثوي<br><br>
+          <b>خصائصها:</b><br>
+          • تحتوي على <b>نصف عدد الكروموسومات (n)</b>، لذلك تُسمى <b>أحادية المجموعة الكروموسومية</b> (Haploid)<br>
+          • عند اتحاد المشيج الذكري مع الأنثوي تتكون <b>اللاقحة</b> (Zygote) التي تحمل العدد الكامل <b>(2n)</b><br><br>
+          <b style="color:#ffc107">⚠️ انتبه — لا تخلط بينهما:</b><br>
+          • <b>الأمشاج</b> = خلايا جنسية<br>
+          • <b>الطُرُز الجينية</b> (Genotypes) = التركيب الجيني للفرد (مثل AA أو Aa أو aa)
+        </div>
+      </div>
+
       <div class="concept-card">
         <div class="cc-ico">⚡</div><div class="cc-h">قانون الانعزال</div>
         <div class="cc-b">عند تكوّن الأمشاج <b>ينفصل الأليلان</b>، فيحمل كل مشيج أليلاً واحداً فقط.</div>
@@ -800,7 +815,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--dark);color:white;directi
 
     </div>
     <div class="concept-hint">🖐️ كل إجابة صحيحة تكشف بصمة من اسم المتّهم — ركّز جيداً!</div>
-    <button class="btn-start" onclick="startL2()">🕵️ جاهز — ابدأ التحقيق!</button>
+    <button class="btn-start" onclick="l2ModePick()">🕵️ جاهز — ابدأ التحقيق!</button>
   </div>
 </div>
 
@@ -1863,5 +1878,414 @@ function showInfo(){ showS('s-info'); window.scrollTo(0,0); }
   }, 400);
 })();
 </script>
+<!-- ===================== نمط الصف (سباق متزامن) — وحدة مستقلة ===================== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<style>
+#l2mpOv{position:fixed;inset:0;z-index:2147483100;display:none;
+  background:linear-gradient(160deg,#0a0a18,#141428);color:#fff;
+  overflow-y:auto;padding:26px 16px 120px;text-align:center}
+#l2mpOv.on{display:block}
+#l2mpOv h2{font-size:1.5rem;font-weight:900;color:#ffc107;margin:6px 0 4px}
+#l2mpOv p.sub{color:#9fb6da;font-size:.9rem;margin-bottom:20px}
+.l2mp-card{max-width:430px;margin:0 auto 12px;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.12);border-radius:18px;padding:18px}
+.l2mp-b{all:unset;display:block;box-sizing:border-box;width:100%;cursor:pointer;
+  font-family:inherit;font-size:1rem;font-weight:900;color:#fff;text-align:center;
+  padding:14px;border-radius:30px;background:rgba(255,255,255,.09);
+  border:2px solid rgba(255,255,255,.18);margin-top:10px;transition:.2s}
+.l2mp-b:hover{background:rgba(220,38,38,.35);border-color:#dc2626}
+.l2mp-b.go{background:#dc2626;border-color:#dc2626}
+.l2mp-b.gh{background:rgba(255,193,7,.18);border-color:#ffc107;color:#ffc107}
+.l2mp-in{all:unset;box-sizing:border-box;width:100%;padding:13px;border-radius:14px;
+  background:rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.2);color:#fff;
+  font-family:inherit;font-size:1rem;text-align:center;margin-top:10px}
+.l2mp-code{font-size:2.6rem;font-weight:900;color:#ffc107;letter-spacing:.35em;
+  margin:10px 0;font-family:monospace}
+.l2mp-row{display:flex;justify-content:space-between;align-items:center;
+  padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.05);margin-bottom:6px}
+.l2mp-row.me{background:rgba(255,193,7,.16);border:1px solid rgba(255,193,7,.4)}
+.l2mp-row.r1{background:rgba(255,215,0,.16)}
+.l2mp-nm{font-weight:800;font-size:.95rem}
+.l2mp-sc{font-weight:900;color:#ffc107}
+.l2mp-hint{color:#9fb6da;font-size:.82rem;margin-top:8px;line-height:1.6}
+#l2mpBar{position:fixed;top:0;left:0;right:0;z-index:2147483090;display:none;
+  background:rgba(10,10,26,.94);border-bottom:1.5px solid rgba(255,193,7,.35);
+  padding:8px 12px;color:#fff;font-size:.85rem;font-weight:800;
+  display:none;align-items:center;justify-content:space-between;gap:8px;backdrop-filter:blur(8px)}
+#l2mpBar.on{display:flex}
+#l2mpBar .tag{color:#ffc107}
+#l2mpBar button{all:unset;cursor:pointer;padding:7px 13px;border-radius:20px;
+  background:#dc2626;color:#fff;font-weight:900;font-size:.82rem}
+#l2mpBar button:disabled{opacity:.35;cursor:default}
+#l2mpWait{position:fixed;inset:0;z-index:2147483080;display:none;
+  background:rgba(3,3,10,.93);backdrop-filter:blur(6px);color:#fff;
+  align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
+#l2mpWait.on{display:flex}
+</style>
+
+<div id="l2mpBar">
+  <span>👩‍🏫 <span class="tag" id="l2mpBarCode">----</span></span>
+  <span id="l2mpBarQ">سؤال 1 / 12</span>
+  <button id="l2mpNextBtn" onclick="l2mpTeacherNext()">التالي ←</button>
+</div>
+
+<div id="l2mpWait">
+  <div style="font-size:2.4rem">⏳</div>
+  <div id="l2mpWaitT" style="font-size:1.15rem;font-weight:900;color:#ffc107;margin:8px 0">بانتظار المعلّمة…</div>
+  <div id="l2mpWaitS" style="color:#9fb6da;font-size:.9rem"></div>
+</div>
+
+<div id="l2mpOv"><div id="l2mpBody"></div></div>
+
+<script>
+(function(){
+  var CFG = {
+    apiKey: "AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",
+    authDomain: "cursed-castle-bb43b.firebaseapp.com",
+    projectId: "cursed-castle-bb43b",
+    storageBucket: "cursed-castle-bb43b.firebasestorage.app",
+    messagingSenderId: "458563878259",
+    appId: "1:458563878259:web:715ce9f960b2972ccd9906"
+  };
+  var COL = 'lesson2-classroom-rooms';
+  var db = null, unsub = null;
+  var S = { on:false, code:null, isTeacher:false, myId:null, myName:'',
+            lbVis:'all', qi:-1, total:12, myScore:0, answered:false };
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function pid(){ return 'p'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
+  function code4(){ var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',o=''; for(var i=0;i<4;i++) o+=c[Math.floor(Math.random()*c.length)]; return o; }
+
+  function initDb(){
+    if (db) return db;
+    try{
+      if (!window.firebase) return null;
+      if (!firebase.apps.length) firebase.initializeApp(CFG);
+      db = firebase.firestore();
+      return db;
+    }catch(e){ return null; }
+  }
+  function waitDb(ms){
+    return new Promise(function(res){
+      var t0=Date.now();
+      (function tick(){
+        var d=initDb();
+        if(d) return res(d);
+        if(Date.now()-t0>ms) return res(null);
+        setTimeout(tick,250);
+      })();
+    });
+  }
+
+  function open(html){ $('l2mpBody').innerHTML = html; $('l2mpOv').classList.add('on'); window.scrollTo(0,0); }
+  function close(){ $('l2mpOv').classList.remove('on'); }
+  function wait(on,t,s){
+    var w=$('l2mpWait');
+    if(!on){ w.classList.remove('on'); return; }
+    $('l2mpWaitT').textContent = t || 'بانتظار المعلّمة…';
+    $('l2mpWaitS').textContent = s || '';
+    w.classList.add('on');
+  }
+
+  /* ================= شاشة اختيار النمط ================= */
+  window.l2ModePick = function(){
+    open(
+      '<h2>🎮 اختر طريقة اللعب</h2>'+
+      '<p class="sub">سرقة السلالة — الوراثة التطبيقية</p>'+
+      '<div class="l2mp-card">'+
+        '<button class="l2mp-b go" onclick="l2mpSolo()">🧍‍♀️ فردي — العب لوحدك</button>'+
+        '<div class="l2mp-hint">تحلّ الأسئلة على راحتك، ونتيجتك تظهر لك في النهاية.</div>'+
+      '</div>'+
+      '<div class="l2mp-card">'+
+        '<button class="l2mp-b gh" onclick="l2mpTeacherForm()">👩‍🏫 أنا المعلّمة — أنشئ غرفة</button>'+
+        '<button class="l2mp-b" onclick="l2mpJoinForm()">👧 أنا طالبة — دخول بكود</button>'+
+        '<div class="l2mp-hint">سباق متزامن: السؤال يظهر للجميع في نفس اللحظة، وأول إجابة صحيحة تأخذ النقطة.</div>'+
+      '</div>'
+    );
+  };
+
+  window.l2mpSolo = function(){
+    S.on=false; close();
+    if (typeof startL2==='function') startL2();
+  };
+
+  /* ================= المعلّمة ================= */
+  window.l2mpTeacherForm = function(){
+    open(
+      '<h2>👩‍🏫 إنشاء غرفة صفّية</h2>'+
+      '<p class="sub">اكتبي اسمك واختاري من يرى لوحة الترتيب</p>'+
+      '<div class="l2mp-card">'+
+        '<input class="l2mp-in" id="l2mpTName" placeholder="اسم المعلّمة" maxlength="24">'+
+        '<input class="l2mp-in" id="l2mpTMax" type="number" value="40" min="2" max="60" placeholder="أقصى عدد طالبات">'+
+        '<button class="l2mp-b go" onclick="l2mpCreate(\'all\')">👥 الجميع يرى لوحة الترتيب</button>'+
+        '<button class="l2mp-b gh" onclick="l2mpCreate(\'teacher\')">🔒 أنا فقط أرى النتائج</button>'+
+        '<div class="l2mp-hint">في الوضع المغلق: كل طالبة ترى نقاطها ومركزها فقط، ولا ترى أسماء الأخريات.</div>'+
+        '<button class="l2mp-b" onclick="l2ModePick()">→ رجوع</button>'+
+      '</div>'
+    );
+  };
+
+  window.l2mpCreate = async function(vis){
+    var name = ($('l2mpTName').value||'').trim() || 'المعلّمة';
+    var mx = parseInt($('l2mpTMax').value,10) || 40;
+    open('<h2>🔄 جاري الإنشاء…</h2><p class="sub">تأكدي من الاتصال بالإنترنت</p>');
+    var d = await waitDb(9000);
+    if(!d){ return open('<h2>⚠️ لا يوجد اتصال</h2><p class="sub">تأكدي من الإنترنت</p>'+
+      '<div class="l2mp-card"><button class="l2mp-b" onclick="l2mpTeacherForm()">→ حاولي مرة أخرى</button></div>'); }
+
+    var code=null;
+    for(var a=0;a<6;a++){
+      var t=code4();
+      try{ var sn=await d.collection(COL).doc(t).get(); if(!sn.exists){ code=t; break; } }catch(e){}
+    }
+    if(!code){ return open('<h2>⚠️ خطأ</h2><div class="l2mp-card"><button class="l2mp-b" onclick="l2mpTeacherForm()">→ حاولي مرة أخرى</button></div>'); }
+
+    S.isTeacher=true; S.myId=pid(); S.myName=name; S.code=code; S.lbVis=vis; S.on=true;
+    try{
+      await d.collection(COL).doc(code).set({
+        type:'l2class',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        status:'waiting', teacherId:S.myId, teacherName:name,
+        settings:{ maxStudents:mx, leaderboardVisible:vis },
+        students:{}, qi:0, q:{ answers:{}, resolved:false, winner:null }
+      });
+    }catch(e){
+      return open('<h2>⚠️ تعذّر الإنشاء</h2><div class="l2mp-card"><button class="l2mp-b" onclick="l2mpTeacherForm()">→ حاولي مرة أخرى</button></div>');
+    }
+    listen(code);
+  };
+
+  function lobbyTeacher(data){
+    var st=data.students||{}, ids=Object.keys(st);
+    var rows = ids.length ? ids.map(function(i){
+      return '<div class="l2mp-row"><span class="l2mp-nm">'+esc(st[i].name)+'</span><span>✅</span></div>';
+    }).join('') : '<div class="l2mp-hint">لم تدخل أي طالبة بعد…</div>';
+    open(
+      '<h2>كود الغرفة</h2>'+
+      '<div class="l2mp-card"><div class="l2mp-code">'+esc(S.code)+'</div>'+
+      '<div class="l2mp-hint">اكتبي الكود على اللوح — الطالبات يدخلن به</div></div>'+
+      '<div class="l2mp-card"><div style="font-weight:900;margin-bottom:8px">👧 الطالبات ('+ids.length+')</div>'+rows+'</div>'+
+      '<div class="l2mp-card">'+
+        '<button class="l2mp-b go" onclick="l2mpStart()" '+(ids.length?'':'disabled style="opacity:.4"')+'>🚀 ابدأ السباق</button>'+
+        '<div class="l2mp-hint">'+(S.lbVis==='all'?'👥 الجميع سيرى لوحة الترتيب':'🔒 النتائج لك وحدك')+'</div>'+
+        '<button class="l2mp-b" onclick="l2mpQuit()">✕ إلغاء الغرفة</button>'+
+      '</div>'
+    );
+  }
+
+  window.l2mpStart = async function(){
+    var d=await waitDb(6000); if(!d) return;
+    try{ await d.collection(COL).doc(S.code).update({ status:'playing', qi:0,
+      q:{ answers:{}, resolved:false, winner:null } }); }catch(e){}
+  };
+
+  window.l2mpTeacherNext = async function(){
+    var d=await waitDb(6000); if(!d) return;
+    var nx=S.qi+1;
+    try{
+      if(nx>=S.total) await d.collection(COL).doc(S.code).update({ status:'finished' });
+      else await d.collection(COL).doc(S.code).update({ qi:nx, q:{ answers:{}, resolved:false, winner:null } });
+    }catch(e){}
+  };
+
+  /* ================= الطالبة ================= */
+  window.l2mpJoinForm = function(){
+    open(
+      '<h2>👧 الدخول للغرفة</h2>'+
+      '<p class="sub">اكتبي الكود الموجود على اللوح</p>'+
+      '<div class="l2mp-card">'+
+        '<input class="l2mp-in" id="l2mpCode" placeholder="كود الغرفة" maxlength="4" style="text-transform:uppercase;letter-spacing:.3em;font-weight:900">'+
+        '<input class="l2mp-in" id="l2mpSName" placeholder="اسمك" maxlength="20">'+
+        '<button class="l2mp-b go" onclick="l2mpJoin()">دخول ←</button>'+
+        '<button class="l2mp-b" onclick="l2ModePick()">→ رجوع</button>'+
+      '</div>'
+    );
+  };
+
+  window.l2mpJoin = async function(){
+    var code=(($('l2mpCode').value)||'').trim().toUpperCase();
+    var name=(($('l2mpSName').value)||'').trim();
+    if(code.length!==4) return alert('الكود 4 خانات');
+    if(!name) return alert('اكتبي اسمك');
+    open('<h2>🔄 جاري الدخول…</h2>');
+    var d=await waitDb(9000);
+    if(!d) return open('<h2>⚠️ لا يوجد اتصال</h2><div class="l2mp-card"><button class="l2mp-b" onclick="l2mpJoinForm()">→ حاولي مرة أخرى</button></div>');
+    try{
+      var ref=d.collection(COL).doc(code), sn=await ref.get();
+      if(!sn.exists) return open('<h2>⚠️ كود غير صحيح</h2><div class="l2mp-card"><button class="l2mp-b" onclick="l2mpJoinForm()">→ حاولي مرة أخرى</button></div>');
+      var data=sn.data();
+      if(data.type!=='l2class') return open('<h2>⚠️ هذا الكود للعبة أخرى</h2><div class="l2mp-card"><button class="l2mp-b" onclick="l2mpJoinForm()">→ رجوع</button></div>');
+      if(data.status!=='waiting') return open('<h2>⚠️ السباق بدأ فعلاً</h2><div class="l2mp-card"><button class="l2mp-b" onclick="l2mpJoinForm()">→ رجوع</button></div>');
+      var n=Object.keys(data.students||{}).length;
+      if(n>=(data.settings.maxStudents||40)) return open('<h2>⚠️ الغرفة ممتلئة</h2><div class="l2mp-card"><button class="l2mp-b" onclick="l2mpJoinForm()">→ رجوع</button></div>');
+
+      S.isTeacher=false; S.myId=pid(); S.myName=name; S.code=code; S.on=true;
+      S.lbVis=(data.settings&&data.settings.leaderboardVisible)||'all';
+      var u={}; u['students.'+S.myId]={ name:name, score:0 };
+      await ref.update(u);
+      listen(code);
+    }catch(e){
+      open('<h2>⚠️ تعذّر الدخول</h2><div class="l2mp-card"><button class="l2mp-b" onclick="l2mpJoinForm()">→ حاولي مرة أخرى</button></div>');
+    }
+  };
+
+  function lobbyStudent(data){
+    var ids=Object.keys(data.students||{});
+    open(
+      '<h2>✅ دخلتِ الغرفة</h2>'+
+      '<div class="l2mp-card"><div class="l2mp-code">'+esc(S.code)+'</div>'+
+      '<div class="l2mp-hint">مرحباً <b>'+esc(S.myName)+'</b></div></div>'+
+      '<div class="l2mp-card"><div style="font-size:1.6rem">⏳</div>'+
+      '<div style="font-weight:900;color:#ffc107;margin-top:6px">بانتظار المعلّمة لتبدأ…</div>'+
+      '<div class="l2mp-hint">عدد الطالبات في الغرفة: '+ids.length+'</div></div>'+
+      '<div class="l2mp-card"><button class="l2mp-b" onclick="l2mpQuit()">✕ خروج</button></div>'
+    );
+  }
+
+  /* ================= المزامنة ================= */
+  function listen(code){
+    var d=initDb(); if(!d) return;
+    if(unsub){ try{unsub();}catch(e){} unsub=null; }
+    unsub = d.collection(COL).doc(code).onSnapshot(function(snap){
+      if(!snap.exists){ return quitLocal('انتهت الغرفة'); }
+      var data=snap.data();
+      S.lbVis=(data.settings&&data.settings.leaderboardVisible)||'all';
+      if(data.status==='waiting'){ S.isTeacher?lobbyTeacher(data):lobbyStudent(data); return; }
+      if(data.status==='finished'){ finish(data); return; }
+      if(data.status==='playing'){ playing(data); }
+    }, function(){});
+  }
+
+  function playing(data){
+    close();
+    var qi = data.qi||0;
+    $('l2mpBar').classList.add('on');
+    $('l2mpBarCode').textContent = S.code;
+    $('l2mpBarQ').textContent = 'سؤال '+(qi+1)+' / '+S.total;
+    $('l2mpNextBtn').style.display = S.isTeacher ? 'block' : 'none';
+
+    if (qi !== S.qi){
+      S.qi = qi; S.answered = false;
+      wait(false);
+      if (typeof showQ2==='function'){
+        try{ window.q2Idx = qi; showQ2(qi); }catch(e){}
+      }
+      if (typeof showS==='function'){ try{ showS('s-l2q'); }catch(e){} }
+    }
+    // معلّمة: تحسم السؤال عند وجود إجابات
+    if (S.isTeacher) resolve(data);
+    // طالبة أجابت: بانتظار البقية
+    if (!S.isTeacher && S.answered && !(data.q&&data.q.resolved)){
+      wait(true,'✅ تم إرسال إجابتك','بانتظار بقية الطالبات…');
+    }
+    if (data.q && data.q.resolved){
+      wait(false);
+      showBoard(data);
+    }
+  }
+
+  async function resolve(data){
+    var q=data.q||{}; if(q.resolved) return;
+    var ans=q.answers||{}, ids=Object.keys(ans);
+    if(!ids.length) return;
+    var win=null, best=Infinity;
+    ids.forEach(function(i){ if(ans[i] && ans[i].ok && ans[i].t<best){ best=ans[i].t; win=i; } });
+    if(!win) return;
+    var d=await waitDb(5000); if(!d) return;
+    var cur=(data.students&&data.students[win]&&data.students[win].score)||0;
+    var u={}; u['students.'+win+'.score']=cur+1; u['q.resolved']=true; u['q.winner']=win;
+    try{ await d.collection(COL).doc(S.code).update(u); }catch(e){}
+  }
+
+  function showBoard(data){
+    var st=data.students||{}, ids=Object.keys(st)
+      .sort(function(a,b){ return (st[b].score||0)-(st[a].score||0); });
+    var w=data.q&&data.q.winner;
+    var head = w&&st[w] ? '<div class="l2mp-card"><div style="font-size:1.5rem">🏅</div>'+
+      '<div style="font-weight:900;color:#ffc107">أسرع إجابة صحيحة: '+esc(st[w].name)+'</div></div>' : '';
+    var body;
+    if (S.lbVis==='all' || S.isTeacher){
+      body = ids.slice(0,10).map(function(i,k){
+        var m=['🥇','🥈','🥉'][k]||(k+1);
+        return '<div class="l2mp-row'+(i===S.myId?' me':'')+(k===0?' r1':'')+'">'+
+          '<span>'+m+'</span><span class="l2mp-nm">'+esc(st[i].name)+'</span>'+
+          '<span class="l2mp-sc">'+(st[i].score||0)+'</span></div>';
+      }).join('');
+    } else {
+      var my=st[S.myId]||{score:0}, r=ids.indexOf(S.myId)+1;
+      body='<div class="l2mp-row me"><span class="l2mp-nm">نقاطك</span>'+
+        '<span class="l2mp-sc">'+(my.score||0)+'</span></div>'+
+        '<div class="l2mp-hint">مركزك الحالي: '+(r||'-')+' من '+ids.length+'</div>';
+    }
+    open('<h2>📊 بعد السؤال '+(S.qi+1)+'</h2>'+head+
+      '<div class="l2mp-card">'+body+'</div>'+
+      '<div class="l2mp-card"><div class="l2mp-hint">'+
+      (S.isTeacher?'اضغطي «التالي» في الشريط أعلى الشاشة':'بانتظار المعلّمة للسؤال التالي…')+
+      '</div></div>');
+  }
+
+  function finish(data){
+    $('l2mpBar').classList.remove('on'); wait(false);
+    var st=data.students||{}, ids=Object.keys(st)
+      .sort(function(a,b){ return (st[b].score||0)-(st[a].score||0); });
+    var body;
+    if (S.isTeacher){
+      body = ids.map(function(i,k){
+        var m=['🥇','🥈','🥉'][k]||(k+1);
+        return '<div class="l2mp-row'+(k===0?' r1':'')+'"><span>'+m+'</span>'+
+          '<span class="l2mp-nm">'+esc(st[i].name)+'</span>'+
+          '<span class="l2mp-sc">'+(st[i].score||0)+'</span></div>';
+      }).join('') || '<div class="l2mp-hint">لم تلعب أي طالبة</div>';
+    } else if (S.lbVis==='all'){
+      body = ids.slice(0,10).map(function(i,k){
+        var m=['🥇','🥈','🥉'][k]||(k+1);
+        return '<div class="l2mp-row'+(i===S.myId?' me':'')+'"><span>'+m+'</span>'+
+          '<span class="l2mp-nm">'+esc(st[i].name)+'</span>'+
+          '<span class="l2mp-sc">'+(st[i].score||0)+'</span></div>';
+      }).join('');
+    } else {
+      var my=st[S.myId]||{score:0}, r=ids.indexOf(S.myId)+1;
+      body='<div class="l2mp-row me"><span class="l2mp-nm">نتيجتك النهائية</span>'+
+        '<span class="l2mp-sc">'+(my.score||0)+'</span></div>'+
+        '<div class="l2mp-hint">مركزك: '+(r||'-')+' من '+ids.length+'</div>';
+    }
+    open('<h2>🏁 انتهى السباق!</h2><div class="l2mp-card">'+body+'</div>'+
+      '<div class="l2mp-card"><button class="l2mp-b go" onclick="l2mpQuit()">✕ خروج</button></div>');
+  }
+
+  window.l2mpQuit = async function(){
+    if (S.isTeacher && S.code){
+      var d=await waitDb(4000);
+      try{ if(d) await d.collection(COL).doc(S.code).delete(); }catch(e){}
+    }
+    quitLocal();
+  };
+  function quitLocal(){
+    if(unsub){ try{unsub();}catch(e){} unsub=null; }
+    S={ on:false, code:null, isTeacher:false, myId:null, myName:'', lbVis:'all',
+        qi:-1, total:12, myScore:0, answered:false };
+    $('l2mpBar').classList.remove('on'); wait(false);
+    l2ModePick();
+  };
+
+  /* ============ ربط الإجابة (تغليف gradeL2 بدون تعديله) ============ */
+  var _grade = window.gradeL2;
+  window.gradeL2 = function(ok, nodes){
+    try{ if(_grade) _grade.apply(this, arguments); }catch(e){}
+    if(!S.on || S.isTeacher || S.answered) return;
+    S.answered = true;
+    (async function(){
+      var d=await waitDb(5000); if(!d) return;
+      var u={}; u['q.answers.'+S.myId]={ ok:!!ok, t:Date.now() };
+      try{ await d.collection(COL).doc(S.code).update(u); }catch(e){}
+    })();
+  };
+})();
+</script>
+
 </body>
 </html>
