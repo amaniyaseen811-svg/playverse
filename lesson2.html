@@ -1802,106 +1802,66 @@ function restartAll(){
 })();
 </script>
 
-<style>
-.home-btn{display:none!important}
-#pvBar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:99999;
-  display:flex;gap:8px;padding:8px 10px;border-radius:40px;
-  background:rgba(8,8,16,.88);border:1.5px solid rgba(255,255,255,.18);
-  backdrop-filter:blur(10px);box-shadow:0 8px 26px rgba(0,0,0,.55)}
-#pvBar button{all:unset;cursor:pointer;font-family:inherit;font-size:13px;font-weight:900;
-  color:#fff;padding:9px 13px;border-radius:26px;background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.14);transition:.2s;white-space:nowrap}
-#pvBar button:hover{background:rgba(244,67,54,.35);border-color:#f44336}
-#pvBar button:disabled{opacity:.32;cursor:default}
-#pvBar .pv-home{background:rgba(244,67,54,.22);border-color:rgba(244,67,54,.5)}
-#pvPause{position:fixed;inset:0;z-index:99998;display:none;
-  align-items:center;justify-content:center;flex-direction:column;
-  background:rgba(3,3,10,.93);backdrop-filter:blur(6px);color:#fff;text-align:center}
-#pvPause .pt{font-size:34px;font-weight:900;color:#ffc107;margin-bottom:8px}
-#pvPause .ps{font-size:14px;color:#9fb6da;margin-bottom:22px}
-#pvPause button{all:unset;cursor:pointer;font-family:inherit;font-size:17px;font-weight:900;
-  color:#fff;padding:14px 34px;border-radius:32px;background:#f44336;box-shadow:0 6px 20px rgba(244,67,54,.45)}
-@media(max-width:420px){#pvBar button{font-size:12px;padding:8px 10px}}
-</style>
 
-<div id="pvPause">
-  <div class="pt">⏸ توقّف مؤقّت</div>
-  <div class="ps">التحقيق بانتظارك…</div>
-  <button onclick="pvResume()">▶ متابعة</button>
-</div>
 
-<div id="pvBar">
-  <button id="pvBack" onclick="pvBack()">→ رجوع</button>
-  <button onclick="pvPause()">⏸ توقف</button>
-  <button id="pvSkip" onclick="pvSkip()">تخطي ←</button>
-  <button class="pv-home" onclick="pvHome()">🏠 الرئيسية</button>
-</div>
 
 <script>
+function showInfo(){ showS('s-info'); window.scrollTo(0,0); }
+</script>
+
+<!-- زر التخطي (شاشة المقدمة فقط) -->
+<button id="l2SkipBtn" onclick="l2Skip()"
+  style="position:fixed;bottom:16px;inset-inline-end:16px;z-index:2147483000;display:none;
+  padding:11px 18px;border-radius:30px;border:2px solid rgba(255,255,255,.3);
+  background:rgba(10,10,26,.88);color:#fff;font-family:inherit;font-size:14px;
+  font-weight:900;cursor:pointer;backdrop-filter:blur(8px)">تخطي ⏭</button>
+<script>
 (function(){
-  var FLOW = ['s-splash','s-intro','s-l2concept','s-info','s-l2q','s-l2end','s-ws1','s-ws2','s-genie'];
-  var hist = [];
-  var lock = false;
-  var orig = window.showS;
-
-  window.showS = function(id){
-    var cur = document.querySelector('.screen.active');
-    if(!lock && cur && cur.id && cur.id !== id) hist.push(cur.id);
-    orig(id);
-    sync();
-  };
-
-  window.showInfo = function(){ showS('s-info'); window.scrollTo(0,0); };
-
-  function curId(){ var c = document.querySelector('.screen.active'); return c ? c.id : null; }
-
-  function sync(){
-    var b = document.getElementById('pvBack');
-    var s = document.getElementById('pvSkip');
-    if(b) b.disabled = (hist.length === 0);
-    if(s){ var i = FLOW.indexOf(curId()); s.disabled = (i < 0 || i >= FLOW.length - 1); }
+  function cur(){
+    var c = document.querySelector('.screen.active');
+    return c ? c.id : null;
   }
-
-  window.pvBack = function(){
-    if(!hist.length) return;
-    var prev = hist.pop();
-    lock = true; orig(prev); lock = false;
-    window.scrollTo(0,0); sync();
+  window.l2Skip = function(){
+    try{
+      if (cur() === 's-intro' && typeof showL2Concept === 'function') showL2Concept();
+    }catch(e){}
   };
-
-  var INIT = {'s-info':'showInfo','s-l2q':'startL2','s-ws1':'showWS1','s-ws2':'showWS2','s-genie':'showGenie','s-l2concept':'showL2Concept','s-l2end':null,'s-intro':'goIntro'};
-  window.pvSkip = function(){
-    var i = FLOW.indexOf(curId());
-    if(i < 0 || i >= FLOW.length - 1) return;
-    var nxt = FLOW[i+1];
-    var fn = INIT[nxt];
-    if(fn && typeof window[fn] === 'function') window[fn]();
-    else showS(nxt);
-    window.scrollTo(0,0);
-  };
-
-  window.pvPause = function(){
-    document.getElementById('pvPause').style.display = 'flex';
-    try{ var m = document.getElementById('bgMusic'); if(m) m.pause(); }catch(e){}
-    window.__pvPaused = true;
-  };
-  window.pvResume = function(){
-    document.getElementById('pvPause').style.display = 'none';
-    window.__pvPaused = false;
-    try{ var m = document.getElementById('bgMusic'); if(m && !window.__pvMuted){ var p = m.play(); if(p&&p.catch) p.catch(function(){}); } }catch(e){}
-  };
-  window.pvHome = function(){
-    if(confirm('بدك ترجع للصفحة الرئيسية؟ التقدّم رح يضيع.'))
-      window.location.href = 'index.html';
-  };
-
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape') window.__pvPaused ? pvResume() : pvPause();
-  });
-
-  sync();
+  setInterval(function(){
+    var b = document.getElementById('l2SkipBtn');
+    if (!b) return;
+    var vis = false;
+    try{ vis = (cur() === 's-intro'); }catch(e){}
+    b.style.display = vis ? 'block' : 'none';
+  }, 400);
 })();
 </script>
 
+<!-- مسافة أمان أسفل + سهم النزول -->
+<style>
+  .wrap{ padding-bottom:170px !important; }
+  .screen{ padding-bottom:40px; }
+</style>
+<button id="l2DownBtn" onclick="l2ScrollDown()" aria-label="نزول"
+  style="position:fixed;bottom:16px;inset-inline-start:16px;z-index:2147483000;display:none;
+  width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.3);
+  background:rgba(10,10,26,.88);color:#fff;font-size:22px;font-weight:900;
+  cursor:pointer;backdrop-filter:blur(8px)">↓</button>
+<script>
+(function(){
+  window.l2ScrollDown = function(){
+    window.scrollBy({ top: Math.round(window.innerHeight * 0.75), behavior: 'smooth' });
+  };
+  setInterval(function(){
+    var b = document.getElementById('l2DownBtn');
+    if (!b) return;
+    var more = false;
+    try{
+      var doc = document.documentElement;
+      more = (doc.scrollHeight - window.scrollY - window.innerHeight) > 80;
+    }catch(e){}
+    b.style.display = more ? 'block' : 'none';
+  }, 400);
+})();
+</script>
 </body>
 </html>
