@@ -580,7 +580,11 @@ function screenCover(){
   inn.appendChild(el('h1','title','أكاديمية إلمورا<span>IF CLAUSES</span>'));
   inn.appendChild(el('p','sub','ساحر متدرّب فقد عصاه، وعدوّه <b style="color:#f0cd82">ڤيلمار</b> بينتظره في آخر القلعة. ست تحديات تفصلك عن المواجهة — وما بتنفتح إلا بجملة شرطية صحيحة.'));
   var b=el('button','cta','ابدأ المغامرة');
-  b.onclick=function(){startAudio();screenIntroVideo();};
+  b.onclick=function(){
+    try{ bgm.muted=false; bgm.volume=.38; bgm.currentTime=0;
+         var pp=bgm.play(); if(pp&&pp.catch)pp.catch(function(){}); }catch(e){}
+    screenIntroVideo();
+  };
   inn.appendChild(b);
   var b2=el('button','cta ghost','📖 اقرأ القاعدة أولاً');
   b2.onclick=function(){screenRules('cover');};
@@ -593,8 +597,7 @@ function screenCover(){
 function screenIntroVideo(){
   topbar.style.display='none';
   // الموسيقى تستمر من بداية الفيديو
-  function resume(){ if(S.sound){bgm.volume=.38;var q=bgm.play();if(q&&q.catch)q.catch(function(){});} }
-  resume();
+  function resume(){ if(S.sound){var q=bgm.play();if(q&&q.catch)q.catch(function(){});} }
   pauseBgm();
   var s=el('div','vidscreen');
   var v=document.createElement('video');
@@ -858,6 +861,14 @@ document.getElementById('btnRule').onclick=function(){screenRules('peek');};
 document.getElementById('btnHome').onclick=function(){
   if(confirm('ترجعي للصفحة الرئيسية؟'))location.href='index.html';
 };
+
+/* ---------- شبكة أمان للصوت ---------- */
+function kickAudio(){
+  if(!S.sound) return;
+  if(bgm.paused){ bgm.muted=false; var q=bgm.play(); if(q&&q.catch)q.catch(function(){}); }
+}
+document.addEventListener('click', kickAudio, true);
+document.addEventListener('touchstart', kickAudio, true);
 
 /* ---------- تشغيل ---------- */
 // تحميل مسبق خفيف للصور الأولى فقط
