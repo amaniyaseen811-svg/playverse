@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>أكاديمية إلمورا — If Clauses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@500;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#080a11;
+  --stone:#141a27;
+  --stone-2:#1d2536;
+  --parch:#f3e6c8;
+  --parch-dim:#cbbb98;
+  --gold:#d8a33f;
+  --gold-soft:#f0cd82;
+  --crimson:#8d2130;
+  --spell:#8fd8ff;
+  --curse:#57bd6a;
+  --wrong:#c0392b;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--ink);
+  color:var(--parch);
+  font-family:'Tajawal',system-ui,sans-serif;
+  display:flex;align-items:center;justify-content:center;
+  padding:0;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(216,163,63,.13), transparent 60%),
+    radial-gradient(900px 500px at 50% 110%, rgba(141,33,48,.14), transparent 60%);
+}
+
+/* ---------- الإطار ---------- */
+.frame{
+  position:relative;z-index:1;
+  width:100%;max-width:760px;min-height:100dvh;
+  display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#0d1119,#0a0d14);
+}
+
+/* ---------- الشريط العلوي ---------- */
+.topbar{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:rgba(10,13,20,.9);
+  border-bottom:1px solid rgba(216,163,63,.25);
+  position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);
+}
+.icon-btn{
+  background:rgba(216,163,63,.1);
+  border:1px solid rgba(216,163,63,.35);
+  color:var(--gold-soft);
+  width:36px;height:36px;border-radius:9px;
+  font-size:15px;cursor:pointer;display:grid;place-items:center;
+  transition:.2s;
+}
+.icon-btn:hover{background:rgba(216,163,63,.22)}
+.icon-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lives{display:flex;gap:4px;font-size:17px;letter-spacing:1px}
+.life{filter:drop-shadow(0 0 5px rgba(141,33,48,.9))}
+.life.lost{opacity:.2;filter:grayscale(1)}
+.spacer{flex:1}
+.trophy{
+  font-family:'Cinzel',serif;font-size:13px;color:var(--gold-soft);
+  border:1px solid rgba(216,163,63,.3);border-radius:20px;padding:5px 12px;
+  background:rgba(216,163,63,.07);
+}
+
+/* ---------- المشهد ---------- */
+.stage{flex:1;display:flex;flex-direction:column}
+/* ---------- الإطار السحري ---------- */
+.scene-wrap{
+  position:relative;margin:12px 12px 0;padding:5px;
+  border-radius:18px;overflow:hidden;
+  background:#120f08;
+  box-shadow:0 10px 40px rgba(0,0,0,.6), 0 0 0 1px rgba(216,163,63,.35);
+}
+.scene-wrap .halo{
+  position:absolute;top:50%;left:50%;width:190%;aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  background:conic-gradient(#d8a33f,#f7e3ad,#8d2130,#8fd8ff,#d8a33f);
+  animation:spin 9s linear infinite;opacity:.85;
+}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+.scene-img{
+  position:relative;width:100%;z-index:2;
+  aspect-ratio:3/4;overflow:hidden;background:#0a0d14;
+  border-radius:14px;
+}
+/* الخلفية: نسخة مكبّرة ومموّهة تملا الفراغ */
+.scene-img .bg{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;filter:blur(22px) saturate(1.2) brightness(.55);
+  transform:scale(1.25);
+  animation:bgDrift 24s ease-in-out infinite alternate;
+}
+@keyframes bgDrift{
+  0%{transform:scale(1.25) translate(-2%,-2%)}
+  100%{transform:scale(1.35) translate(2%,2%)}
+}
+
+/* الصورة الأساسية: كاملة بدون أي قص */
+.scene-img .fg{
+  position:absolute;inset:0;width:100%;height:100%;z-index:1;
+  object-fit:contain;
+  filter:drop-shadow(0 6px 24px rgba(0,0,0,.65));
+  animation:fadeIn 1s ease-out both, breathe 16s ease-in-out 1s infinite alternate;
+}
+@keyframes fadeIn{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:scale(1)}}
+@keyframes breathe{
+  0%{transform:scale(1)}
+  100%{transform:scale(1.035)}
+}
+
+/* زوايا ذهبية */
+.cnr{position:absolute;width:26px;height:26px;z-index:4;pointer-events:none;
+  border:2px solid var(--gold-soft);opacity:.9;
+  filter:drop-shadow(0 0 5px rgba(216,163,63,.8));}
+.cnr.tl{top:8px;left:8px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
+.cnr.tr{top:8px;right:8px;border-left:0;border-bottom:0;border-radius:0 8px 0 0}
+.cnr.bl{bottom:8px;left:8px;border-right:0;border-top:0;border-radius:0 0 0 8px}
+.cnr.br{bottom:8px;right:8px;border-left:0;border-top:0;border-radius:0 0 8px 0}
+
+/* وهج سحري يمر فوق المشهد */
+.scene-img .glow{
+  position:absolute;inset:-30%;pointer-events:none;z-index:2;
+  background:radial-gradient(circle at 50% 50%, rgba(216,163,63,.18), transparent 55%);
+  animation:sweep 13s ease-in-out infinite alternate;
+}
+@keyframes sweep{
+  0%{transform:translate(-22%,-14%)}
+  100%{transform:translate(22%,14%)}
+}
+
+/* الشرارات الطايرة */
+.sparks{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:3}
+.sparks i{
+  position:absolute;bottom:-14px;display:block;border-radius:50%;
+  background:#ffe9b0;
+  box-shadow:0 0 8px 2px rgba(255,214,120,.85);
+  animation:rise linear infinite;
+}
+@keyframes rise{
+  0%{transform:translateY(0) translateX(0) scale(.5);opacity:0}
+  12%{opacity:1}
+  70%{opacity:.9}
+  100%{transform:translateY(-115%) translateX(var(--dx)) scale(1.1);opacity:0}
+}
+
+/* ---------- لوح الرقّ ---------- */
+.panel{
+  flex:1;padding:18px 16px 30px;
+  display:flex;flex-direction:column;gap:14px;
+  animation:riseUp .5s ease-out both;
+}
+@keyframes riseUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.narr{
+  font-size:16.5px;line-height:1.85;color:var(--parch);
+  background:rgba(243,230,200,.05);
+  border-inline-start:3px solid var(--gold);
+  border-radius:0 10px 10px 0;padding:13px 15px;
+}
+.narr strong{color:var(--gold-soft)}
+
+.quest{
+  font-family:'Cinzel',serif;direction:ltr;text-align:left;
+  font-size:19px;line-height:1.7;color:#fff;
+  background:linear-gradient(180deg,rgba(216,163,63,.14),rgba(216,163,63,.05));
+  border:1px solid rgba(216,163,63,.4);border-radius:12px;
+  padding:16px 18px;
+}
+.quest .blank{color:var(--gold);letter-spacing:2px}
+
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{
+  display:flex;align-items:center;gap:12px;
+  background:var(--stone);border:1px solid rgba(216,163,63,.22);
+  border-radius:11px;padding:13px 15px;
+  font-family:'Cinzel',serif;font-size:17px;color:var(--parch);
+  cursor:pointer;transition:.18s;text-align:left;direction:ltr;width:100%;
+}
+.opt .tag{
+  font-size:12px;width:24px;height:24px;flex:none;border-radius:6px;
+  display:grid;place-items:center;
+  background:rgba(216,163,63,.16);color:var(--gold-soft);
+}
+.opt:hover:not(:disabled){background:var(--stone-2);border-color:var(--gold);transform:translateX(-3px)}
+.opt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.opt:disabled{cursor:default}
+.opt.good{background:rgba(87,189,106,.16);border-color:var(--curse);color:#dcffe4}
+.opt.bad{background:rgba(192,57,43,.16);border-color:var(--wrong);color:#ffdcd8}
+.opt.ar{font-family:'Tajawal',sans-serif;direction:rtl;text-align:right;font-size:16px}
+.opt.ar:hover:not(:disabled){transform:translateX(3px)}
+
+/* أقفال */
+.opt.lock-gold{border-color:rgba(216,163,63,.6)}
+.opt.lock-silver{border-color:rgba(190,200,215,.55)}
+.opt.lock-pink{border-color:rgba(226,160,170,.55)}
+
+.hint{
+  font-size:14px;line-height:1.8;color:var(--parch-dim);
+  background:rgba(143,216,255,.07);border:1px dashed rgba(143,216,255,.3);
+  border-radius:10px;padding:11px 13px;
+}
+.hint b{color:var(--spell)}
+
+.cta{
+  font-family:'Tajawal',sans-serif;font-weight:700;font-size:17px;
+  background:linear-gradient(180deg,var(--gold),#b5822c);
+  color:#1a1206;border:none;border-radius:11px;padding:14px;
+  cursor:pointer;width:100%;transition:.2s;
+  box-shadow:0 5px 20px rgba(216,163,63,.28);
+}
+.cta:hover{filter:brightness(1.09);transform:translateY(-1px)}
+.cta:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.cta.ghost{
+  background:transparent;color:var(--gold-soft);
+  border:1px solid rgba(216,163,63,.5);box-shadow:none;margin-top:10px;
+}
+.cta.ghost:hover{background:rgba(216,163,63,.12)}
+.cta.dark{background:linear-gradient(180deg,var(--crimson),#5e131f);color:#ffe9ec;box-shadow:0 5px 20px rgba(141,33,48,.3)}
+
+/* ---------- الغلاف ---------- */
+.cover{position:relative;flex:1;display:flex;flex-direction:column;justify-content:flex-end;min-height:100dvh}
+.cover-bg{position:absolute;inset:0}
+.cover-bg video{width:100%;height:100%;object-fit:cover}
+.cover-bg img{width:100%;height:100%;object-fit:cover;animation:kenburns 26s ease-in-out infinite alternate}
+.cover-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,10,17,.55),rgba(8,10,17,.78) 45%,rgba(8,10,17,.97))}
+.cover-in{position:relative;z-index:2;padding:26px 20px 40px;text-align:center}
+.kicker{font-family:'Cinzel',serif;font-size:12px;letter-spacing:4px;color:var(--gold);margin-bottom:10px}
+.title{font-family:'Amiri',serif;font-weight:700;font-size:clamp(30px,8vw,46px);line-height:1.25;color:#fff;text-shadow:0 0 26px rgba(216,163,63,.45)}
+.title span{color:var(--gold-soft);display:block;font-family:'Cinzel',serif;font-size:.48em;letter-spacing:5px;margin-top:8px}
+.sub{font-size:15.5px;color:var(--parch-dim);margin:14px auto 22px;max-width:430px;line-height:1.9}
+
+/* ---------- شاشة الفيديو ---------- */
+.vidscreen{position:relative;flex:1;min-height:100dvh;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center}
+.vidscreen video{width:100%;max-height:100dvh;object-fit:contain;background:#000}
+.vidbar{position:absolute;bottom:0;left:0;right:0;padding:16px;z-index:5;
+  display:flex;gap:10px;background:linear-gradient(transparent,rgba(0,0,0,.85))}
+.vidbar .cta{flex:1}
+
+/* ---------- بطاقة القاعدة ---------- */
+.rule{
+  background:var(--stone);border:1px solid rgba(216,163,63,.28);
+  border-radius:13px;padding:15px;
+}
+.rule h3{
+  font-family:'Cinzel',serif;font-size:16px;color:var(--gold);
+  display:flex;align-items:center;gap:9px;margin-bottom:9px;direction:ltr;
+}
+.rule h3 em{
+  font-style:normal;font-family:'Tajawal';font-size:12.5px;
+  color:var(--parch-dim);font-weight:500;
+}
+.rule .form{
+  direction:ltr;text-align:left;font-family:'Cinzel',serif;font-size:14.5px;
+  background:rgba(8,10,17,.55);border-radius:8px;padding:9px 11px;color:var(--gold-soft);margin-bottom:8px;
+}
+.rule .ex{direction:ltr;text-align:left;font-family:'Cinzel',serif;font-size:14.5px;color:#fff;opacity:.92}
+.rule p{font-size:14px;color:var(--parch-dim);line-height:1.8;margin-bottom:8px}
+
+/* ---------- النهاية ---------- */
+.end{text-align:center;padding:10px 0}
+.end .big{font-family:'Amiri',serif;font-size:30px;color:var(--gold-soft);margin-bottom:10px}
+.end .score{font-family:'Cinzel',serif;font-size:15px;color:var(--parch-dim);margin-bottom:6px}
+
+.flash{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0}
+.flash.go{animation:fl .5s ease-out}
+@keyframes fl{0%{opacity:0}30%{opacity:.85}100%{opacity:0}}
+.flash.win{background:radial-gradient(circle at 50% 50%,rgba(143,216,255,.9),transparent 65%)}
+.flash.lose{background:radial-gradient(circle at 50% 50%,rgba(192,57,43,.85),transparent 65%)}
+
+.shake{animation:sh .4s}
+@keyframes sh{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media(min-width:761px){
+  body{padding:0}
+  .scene-img{aspect-ratio:4/3}
+  .frame{min-height:100dvh;border-inline:1px solid rgba(216,163,63,.15)}
+}
+</style>
+</head>
+<body>
+<div class="flash" id="flash"></div>
+
+<div class="frame">
+  <div class="topbar" id="topbar" style="display:none">
+    <button class="icon-btn" id="btnHome" title="الرئيسية">⌂</button>
+    <button class="icon-btn" id="btnSound" title="الصوت">♪</button>
+    <button class="icon-btn" id="btnRule" title="القاعدة">📖</button>
+    <div class="lives" id="lives"></div>
+    <div class="spacer"></div>
+    <div class="trophy" id="trophy">0 / 6</div>
+  </div>
+  <div class="stage" id="stage"></div>
+</div>
+
+<audio id="bgm" loop preload="auto"><source src="elmora-bg.mp3" type="audio/mpeg"></audio>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   لعبة: رَيّان وبوابات الشرط  —  If Clauses (Type 0 / 1 / 2)
+   الشخصيات أصلية: رَيّان، مَيّار، سَيف، سَراج، السيدة دَلْماء، ڤيلمار
+   ============================================================ */
+
+var IMG = {
+  cover:'rayyan-cover.jpg',        hall:'rayyan-hall.jpg',
+  lostwand:'rayyan-lostwand.jpg',  locks:'rayyan-locks.jpg',   locks2:'rayyan-locks.jpg',
+  dolores:'rayyan-dalma.jpg',      drawerGhost:'rayyan-wraith.jpg',
+  wand:'rayyan-wand.jpg',
+  lake:'rayyan-lake.jpg',          lakeWin:'rayyan-lakewin.jpg',   lakeBad:'rayyan-seabeasts.jpg',
+  hallScene:'rayyan-corridor.jpg', hallWin:'rayyan-green.jpg',     hallBad:'rayyan-snake.jpg',
+  dragon:'rayyan-dragon.jpg',      dragonWin:'rayyan-egg.jpg',     dragonBad:'rayyan-dragonfire.jpg',
+  prison:'rayyan-prison.jpg',      prisonWin:'rayyan-siraj.jpg',   prisonBad:'rayyan-wraiths.jpg',
+  maze:'rayyan-maze.jpg',          mazeWin:'rayyan-cupwin.jpg',    mazeBad:'rayyan-spiders.jpg',
+  forest:'rayyan-forest.jpg',      forestWin:'rayyan-stone.jpg',   forestBad:'rayyan-troll.jpg',
+  duel:'rayyan-duel.jpg',
+  potion:'rayyan-potion.jpg',   orb:'rayyan-orb.jpg',       plant:'rayyan-plant.jpg',
+  gate:'rayyan-gate.jpg',       balcony:'rayyan-balcony.jpg', crowd:'rayyan-crowd.jpg',
+  mirror:'rayyan-mirror.jpg',   wings:'rayyan-wings.jpg',   runes:'rayyan-runes.jpg',
+  bridgeBreak:'rayyan-bridgebreak.jpg', bridgeSave:'rayyan-bridgesave.jpg',
+  scroll:'rayyan-scroll.jpg'
+};
+
+var TYPE_LABEL = {0:'TYPE 0 — الحقائق',1:'TYPE 1 — المستقبل الممكن',2:'TYPE 2 — الخيال'};
+
+/* ---------- المراحل الست ---------- */
+var STAGES = [
+  { id:'lake', type:0, img:IMG.lake, win:IMG.lakeWin, bad:IMG.lakeBad,
+    intro:'صديقه <strong>سَيف</strong> غارق تحت بحيرة القلعة وملفوف بأعشاب سحرية. ساعد <strong>رَيّان</strong> ينقذه.',
+    q:['If we freeze water, it ','',' into ice.'],
+    opts:['turn','turns','would turn'], correct:1,
+    hint:'حقيقة علمية ثابتة ← <b>Type 0</b>: if + present simple → present simple. والفاعل <b>it</b> بدّه فعل بـ s.',
+    winTxt:'أحسنت! ذاب السحر عن <strong>سَيف</strong>، وطلعوا الاثنين على وجه الماء.',
+    badTxt:'إجابتك خاطئة… هجمت المخلوقات البحرية على <strong>رَيّان</strong> وصديقه!' },
+
+  { id:'hall', type:0, img:IMG.hallScene, win:IMG.hallWin, bad:IMG.hallBad,
+    intro:'في ممرات <strong>أكاديمية إلمورا</strong> غرفة مخبّأة فيها <strong>الحجر الأخضر</strong>. ساعد رَيّان يلاقيها.',
+    q:['If you heat ice, it ','',' into water.'],
+    opts:['turn','turns','turning'], correct:1,
+    hint:'الجليد دايمًا بذوب — قانون ثابت ← <b>Type 0</b>. مع <b>it</b> منستعمل <b>turns</b>.',
+    winTxt:'انفتح الباب! الحجر الأخضر عم يلمع فوق قاعدته.',
+    badTxt:'إجابتك خاطئة… طلعت أفعى ضخمة من جدار الممر!' },
+
+  { id:'dragon', type:1, img:IMG.dragon, win:IMG.dragonWin, bad:IMG.dragonBad,
+    intro:'في ساحة البطولة، تنين ضخم بيحرس <strong>البيضة الذهبية</strong>. ساعد رَيّان يوصلها.',
+    q:['If he ','',' the exam, his father will buy a bike for him.'],
+    opts:['passed','passes','will pass'], correct:1,
+    hint:'بعد <b>if</b> ما منحط <b>will</b> أبدًا. الجواب فيه will ← يعني الشرط لازم يكون present simple ← <b>Type 1</b>.',
+    winTxt:'أحسنت! خطف رَيّان البيضة الذهبية والجمهور وقف يصفّق.',
+    badTxt:'إجابتك خاطئة… نفخ التنين نار على رَيّان!' },
+
+  { id:'prison', type:1, img:IMG.prison, win:IMG.prisonWin, bad:IMG.prisonBad,
+    intro:'عرّاب رَيّان، <strong>سَراج</strong>، مفقود بسجن الجليد. ساعده يلاقيه.',
+    q:['If Ali wakes up early, he ','',' to school early.'],
+    opts:['go','goes','will go'], correct:2,
+    hint:'موقف ممكن يصير بالمستقبل ← <b>Type 1</b>: if + present simple → <b>will + verb</b>.',
+    winTxt:'لقيه! <strong>سَراج</strong> حضن رَيّان بعد سنين فراق.',
+    badTxt:'إجابتك خاطئة… هجمت أشباح السجن الباردة على رَيّان!' },
+
+  { id:'maze', type:2, img:IMG.maze, win:IMG.mazeWin, bad:IMG.mazeBad,
+    intro:'متاهة الأشواك، وبقلبها <strong>الكأس المسحور</strong>. ساعد رَيّان يوصل قبل ما تسكّر الطرق.',
+    q:['If I moved to Boston, I ','',' on Main Street.'],
+    opts:['live','will live','would live'], correct:2,
+    hint:'الشرط بالـ past simple (<b>moved</b>) ← موقف خيالي ← <b>Type 2</b>: النتيجة <b>would + verb</b>.',
+    winTxt:'وصل! رفع رَيّان الكأس المسحور فوق راسه.',
+    badTxt:'إجابتك خاطئة… زحفت العناكب الضخمة على المتاهة!' },
+
+  { id:'forest', type:2, img:IMG.forest, win:IMG.forestWin, bad:IMG.forestBad,
+    intro:'آخر قطعة ناقصة: <strong>الحجر الأحمر</strong> المخبّى بغابة إلمورا.',
+    q:['If I ','',' a lot of money, I would buy a car.'],
+    opts:['have','had','has'], correct:1,
+    hint:'النتيجة فيها <b>would</b> ← <b>Type 2</b>: الشرط لازم يكون past simple ← <b>had</b>.',
+    winTxt:'لقيه! الحجر الأحمر ولّع بإيد رَيّان مثل شمس صغيرة.',
+    badTxt:'إجابتك خاطئة… طلع ترول ضخم من بين الشجر!' },
+
+  /* ===== المكتبة السرّية — Type 0 ===== */
+  { id:'potion', type:0, img:IMG.potion, win:IMG.potion, bad:IMG.potion,
+    intro:'في مختبر المكتبة السرّية، <strong>رَيّان</strong> بيمزج جرعتين. ساعده يعرف شو بيصير.',
+    q:['If you mix red and blue, you ','',' purple.'],
+    opts:['get','will get','would get'], correct:0,
+    hint:'خلط الألوان قانون ثابت ← <b>Type 0</b>: present simple بالطرفين.',
+    winTxt:'صارت الجرعة بنفسجية بالضبط زي ما توقّعتِ!',
+    badTxt:'انفجرت الجرعة بوجه رَيّان ودخّنت المكتبة!' },
+
+  { id:'orb', type:0, img:IMG.orb, win:IMG.orb, bad:IMG.orb,
+    intro:'كرة من الماء السحري عم تلمع بإيد <strong>رَيّان</strong>. شو بيصير لو بردها؟',
+    q:['Water ','',' if you cool it to zero.'],
+    opts:['freeze','freezes','froze'], correct:1,
+    hint:'حقيقة علمية ← <b>Type 0</b>. الفاعل <b>Water</b> مفرد ← بدّه <b>freezes</b>.',
+    winTxt:'تجمّدت الكرة وصارت بلورة تلج تلمع!',
+    badTxt:'انفجرت الكرة ورشّت مي على كل الكتب!' },
+
+  { id:'plant', type:0, img:IMG.plant, win:IMG.plant, bad:IMG.plant,
+    intro:'نبتة سحرية صغيرة عم تذبل. <strong>رَيّان</strong> بدّه يفهم السبب.',
+    q:["If plants don't get water, they ",'','.'],
+    opts:['die','will die','would die'], correct:0,
+    hint:'قانون طبيعي دايمًا صحيح ← <b>Type 0</b>: present simple.',
+    winTxt:'سقى رَيّان النبتة وكبرت أوراقها الذهبية!',
+    badTxt:'ذبلت النبتة وتحوّلت لرماد!' },
+
+  /* ===== بوابة الرونات — Type 1 ===== */
+  { id:'gate', type:1, img:IMG.gate, win:IMG.gate, bad:IMG.gate,
+    intro:'بوابة الرونات ما بتنفتح إلا بجملة صحيحة عن المستقبل.',
+    q:['If the sky is clear tonight, we ','',' the stars.'],
+    opts:['see','will see','saw'], correct:1,
+    hint:'احتمال ممكن الليلة ← <b>Type 1</b>: if + present simple → <b>will + verb</b>.',
+    winTxt:'انفتحت البوابة والنجوم لمعت فوق القلعة!',
+    badTxt:'انطفت الرونات وسكّرت البوابة بوجه رَيّان!' },
+
+  { id:'balcony', type:1, img:IMG.balcony, win:IMG.balcony, bad:IMG.balcony,
+    intro:'من شرفة القلعة، <strong>مَيّار</strong> عم تتدرّب للمسابقة. شو رأيك بحظها؟',
+    q:['If she ','',' hard, she will win the prize.'],
+    opts:['works','will work','worked'], correct:0,
+    hint:'بعد <b>if</b> ممنوع <b>will</b>. النتيجة فيها will ← الشرط present simple.',
+    winTxt:'فازت مَيّار بالجائزة الأولى!',
+    badTxt:'خسرت مَيّار المسابقة بسبب الجواب الغلط!' },
+
+  { id:'crowd', type:1, img:IMG.crowd, win:IMG.crowd, bad:IMG.scroll,
+    intro:'طلاب إلمورا مجتمعين لرحلة الغد، والجو غيم.',
+    q:['If it rains tomorrow, we ','',' the trip.'],
+    opts:['cancel','will cancel','would cancel'], correct:1,
+    hint:'احتمال حقيقي بكرا ← <b>Type 1</b>: <b>will + verb</b>.',
+    winTxt:'هتف الطلاب لرَيّان — الجواب صحيح!',
+    badTxt:'اختلط الطلاب وضاعت خطة الرحلة!' },
+
+  /* ===== كهف المرايا — Type 2 ===== */
+  { id:'mirror', type:2, img:IMG.mirror, win:IMG.mirror, bad:IMG.mirror,
+    intro:'في كهف المرايا، ظهر ساحر عجوز بالمرآة وسأل <strong>رَيّان</strong> سؤال.',
+    q:['If I ','',' you, I would tell the truth.'],
+    opts:['am','was','were'], correct:2,
+    hint:'تعبير خيالي ثابت ← <b>Type 2</b>: منستعمل <b>were</b> مع كل الضمائر.',
+    winTxt:'ابتسم الساحر ومدّ إيده لرَيّان من جوّا المرآة!',
+    badTxt:'تشقّقت المرآة وانطفى وجه الساحر!' },
+
+  { id:'wings', type:2, img:IMG.wings, win:IMG.wings, bad:IMG.wings,
+    intro:'حلم <strong>رَيّان</strong> إنه يطير فوق أبراج إلمورا.',
+    q:['If we had wings, we ','',' over the castle.'],
+    opts:['fly','will fly','would fly'], correct:2,
+    hint:'الشرط past simple (<b>had</b>) ← <b>Type 2</b>: النتيجة <b>would + verb</b>.',
+    winTxt:'نبتت أجنحة نور لرَيّان وطار فوق القلعة!',
+    badTxt:'وقع رَيّان عن السور وانكسر حلمه!' },
+
+  { id:'runes', type:2, img:IMG.runes, win:IMG.runes, bad:IMG.runes,
+    intro:'رونات قديمة محفورة على صخرة الكهف، وحدها بتحمل الجواب.',
+    q:['If he knew the answer, he ','',' us.'],
+    opts:['tells','will tell','would tell'], correct:2,
+    hint:'الشرط <b>knew</b> ماضي ← <b>Type 2</b>: <b>would + verb</b>.',
+    winTxt:'أضاءت الرونات وكشفت السر لرَيّان!',
+    badTxt:'انطفت الرونات وضاع السر للأبد!' },
+
+  /* ===== الجسر المكسور ===== */
+  { id:'bridgeBreak', type:1, img:IMG.bridgeBreak, win:IMG.bridgeBreak, bad:IMG.bridgeBreak,
+    intro:'حبل الجسر عم ينقطع فوق الوادي! انتبهي للتحذير.',
+    q:['If you ','',' the rope, the bridge will fall.'],
+    opts:['cut','cuts','will cut'], correct:0,
+    hint:'بعد <b>if</b> ما منحط will، ومع <b>you</b> الفعل بدون s ← <b>cut</b>.',
+    winTxt:'فهم رَيّان التحذير وترك الحبل بوقته!',
+    badTxt:'انقطع الحبل وطاح نص الجسر بالوادي!' },
+
+  { id:'bridgeSave', type:2, img:IMG.bridgeSave, win:IMG.bridgeSave, bad:IMG.bridgeSave,
+    intro:'الفجوة واسعة، و<strong>رَيّان</strong> بيتمنى لو معه مكنسة طائرة.',
+    q:['If I had a broom, I ','',' across.'],
+    opts:['flew','will fly','would fly'], correct:2,
+    hint:'أمنية غير واقعية ← <b>Type 2</b>: if + past simple → <b>would + verb</b>.',
+    winTxt:'طار رَيّان فوق الفجوة وأنقذ نفسه!',
+    badTxt:'زلّت رجل رَيّان وتعلّق بالحبل بإيد وحدة!' }
+];
+
+/* ---------- الأقفال ---------- */
+var LOCK_META = {
+  gold:  {ar:'القفل الذهبي', cls:'lock-gold',   dot:'🟡'},
+  silver:{ar:'القفل الفضي',  cls:'lock-silver', dot:'⚪'},
+  pink:  {ar:'القفل الوردي', cls:'lock-pink',   dot:'🩷'}
+};
+var LOCK_TRAP = {
+  gold:{ img:IMG.dolores, type:1,
+    intro:'يا إلهي… طلعت <strong>السيدة دَلْماء</strong> من الدرج وهي غاضبة! جاوب سؤالها وإلا بتعطي رَيّان إنذار.',
+    q:['If you are careless, you ','',' yourself.'],
+    opts:['will hurt','would hurt','would have hurt'], correct:0,
+    hint:'الشرط بالـ present (<b>are</b>) ونتيجة ممكنة بالمستقبل ← <b>Type 1</b>: <b>will + verb</b>.',
+    winTxt:'هدأت السيدة دَلْماء ورجعت لبرواز صورتها.',
+    badTxt:'ما قدرت تنقذ رَيّان… أعطته السيدة دَلْماء إنذار!' },
+  pink:{ img:IMG.drawerGhost, type:0,
+    intro:'طلع <strong>شبح أسود</strong> من الدرج الوردي! جاوب السؤال لتنقذ رَيّان.',
+    q:['When she gets bored, she always ','',' her friend.'],
+    opts:['visits','will visit','visiting'], correct:0,
+    hint:'عادة بتتكرر دايمًا (<b>always</b>) ← <b>Type 0</b>: present simple، ومع <b>she</b> منزيد s.',
+    winTxt:'انطفى الشبح ورجع الدرج خشب عادي.',
+    badTxt:'ما قدرت تنقذ رَيّان… لفّه الشبح بضبابه البارد!' }
+};
+
+/* ---------- الحالة ---------- */
+var S = {lives:3, trophies:0, locks:['gold','silver','pink'], sound:true};
+
+var stage=document.getElementById('stage');
+var topbar=document.getElementById('topbar');
+var livesEl=document.getElementById('lives');
+var trophyEl=document.getElementById('trophy');
+var flash=document.getElementById('flash');
+var bgm=document.getElementById('bgm');
+
+/* ---------- أدوات ---------- */
+function el(tag,cls,html){var n=document.createElement(tag);if(cls)n.className=cls;if(html!=null)n.innerHTML=html;return n;}
+function fx(kind){flash.className='flash '+kind+' go';setTimeout(function(){flash.className='flash';},520);}
+function hud(){
+  var s='';for(var i=0;i<3;i++)s+='<span class="life'+(i<S.lives?'':' lost')+'">✦</span>';
+  livesEl.innerHTML=s;
+  trophyEl.textContent=S.trophies+' / '+STAGES.length;
+}
+function scene(img,label){
+  var wrap=el('div','scene-wrap');
+  wrap.appendChild(el('div','halo'));
+
+  var w=el('div','scene-img');
+  var bg=el('img','bg');bg.src=img;bg.alt='';bg.setAttribute('aria-hidden','true');
+  var im=el('img','fg');im.src=img;im.alt='';im.loading='eager';
+  w.appendChild(bg);w.appendChild(im);
+  w.appendChild(el('div','glow'));
+
+  var sp=el('div','sparks');
+  for(var i=0;i<18;i++){
+    var s=document.createElement('i');
+    var size=(Math.random()*3+1.6).toFixed(1);
+    s.style.width=size+'px';s.style.height=size+'px';
+    s.style.left=(Math.random()*100).toFixed(1)+'%';
+    s.style.animationDuration=(Math.random()*7+7).toFixed(1)+'s';
+    s.style.animationDelay=(-Math.random()*12).toFixed(1)+'s';
+    s.style.setProperty('--dx',((Math.random()*60)-30).toFixed(0)+'px');
+    s.style.opacity=(Math.random()*.5+.5).toFixed(2);
+    sp.appendChild(s);
+  }
+  w.appendChild(sp);
+  wrap.appendChild(w);
+
+  ['tl','tr','bl','br'].forEach(function(c){wrap.appendChild(el('span','cnr '+c));});
+  if(label)wrap.appendChild(el('div','eyebrow',label));
+  return wrap;
+}
+
+function paint(nodes){
+  stage.innerHTML='';
+  nodes.forEach(function(n){stage.appendChild(n);});
+  window.scrollTo(0,0);
+}
+function questionHTML(parts){
+  return parts[0]+'<span class="blank">______</span>'+parts[2];
+}
+
+/* ---------- الغلاف ---------- */
+function screenCover(){
+  topbar.style.display='none';
+  var c=el('div','cover');
+  var bg=el('div','cover-bg');
+  var vid=document.createElement('video');
+  vid.src='elmora-cover.mp4';vid.autoplay=true;vid.loop=true;vid.muted=true;
+  vid.playsInline=true;vid.setAttribute('playsinline','');vid.setAttribute('muted','');
+  var im=el('img');im.src=IMG.cover;im.alt='';
+  vid.onerror=function(){vid.remove();bg.appendChild(im);};
+  bg.appendChild(vid);
+  var pr=vid.play&&vid.play();if(pr&&pr.catch)pr.catch(function(){});
+  var inn=el('div','cover-in');
+  inn.appendChild(el('div','kicker','ELMORA ACADEMY'));
+  inn.appendChild(el('h1','title','أكاديمية إلمورا<span>IF CLAUSES</span>'));
+  inn.appendChild(el('p','sub','ساحر متدرّب فقد عصاه، وعدوّه <b style="color:#f0cd82">ڤيلمار</b> بينتظره في آخر القلعة. ست تحديات تفصلك عن المواجهة — وما بتنفتح إلا بجملة شرطية صحيحة.'));
+  var b=el('button','cta','ابدأ المغامرة');
+  b.onclick=function(){startAudio();screenIntroVideo();};
+  inn.appendChild(b);
+  var b2=el('button','cta ghost','📖 اقرأ القاعدة أولاً');
+  b2.onclick=function(){screenRules('cover');};
+  inn.appendChild(b2);
+  c.appendChild(bg);c.appendChild(inn);
+  paint([c]);
+}
+
+/* ---------- الفيديو التعريفي ---------- */
+function screenIntroVideo(){
+  topbar.style.display='none';
+  try{bgm.pause();}catch(e){}
+  function resume(){ if(S.sound){bgm.volume=.28;var q=bgm.play();if(q&&q.catch)q.catch(function(){});} }
+  pauseBgm();
+  var s=el('div','vidscreen');
+  var v=document.createElement('video');
+  v.src='elmora-intro.mp4';v.controls=true;v.autoplay=true;
+  v.playsInline=true;v.setAttribute('playsinline','');
+  v.onended=function(){resume();screenStory();};
+  v.onerror=function(){resume();screenStory();};
+  s.appendChild(v);
+
+  var bar=el('div','vidbar');
+  var skip=el('button','cta','تخطّي ← ابدأ اللعب');
+  skip.onclick=function(){try{v.pause();}catch(e){} resume(); screenStory();};
+  bar.appendChild(skip);
+  s.appendChild(bar);
+
+  paint([s]);
+  var pr=v.play&&v.play();if(pr&&pr.catch)pr.catch(function(){});
+}
+
+/* ---------- القصة ---------- */
+function screenStory(){
+  topbar.style.display='flex';hud();playBgm();
+  var p=el('div','panel');
+  p.appendChild(el('div','narr',
+    'ضاعت عصا <strong>رَيّان</strong> السحرية.<br>قاعد بغرفة النار حزين، وحواليه <strong>مَيّار</strong> و<strong>سَيف</strong> عم يفتّشوا معه.<br><br>وبدونها… ما بيقدر يواجه <strong>ڤيلمار</strong> أبدًا.<br><br>لازم تلاقيها. <strong>فورًا.</strong>'));
+  var b=el('button','cta','دوّر على العصا');
+  b.onclick=screenLocks;
+  p.appendChild(b);
+  paint([scene(IMG.lostwand,'المقدّمة'),p]);
+}
+
+/* ---------- الأدراج ---------- */
+function screenLocks(){
+  hud();
+  var first=(S.locks.length===3);
+  var p=el('div','panel');
+  p.appendChild(el('div','narr', first
+    ? 'بيتوقّع <strong>رَيّان</strong> إنه العصا بواحد من هالأدراج. إنتِ شو بتتوقعي؟'
+    : 'أحسنت! بس هلأ… وين العصا؟ اختاري درج تاني.'));
+  var box=el('div','opts');
+  S.locks.forEach(function(k){
+    var m=LOCK_META[k];
+    var b=el('button','opt ar '+m.cls,'<span class="tag">'+m.dot+'</span>'+m.ar);
+    b.onclick=function(){pickLock(k);};
+    box.appendChild(b);
+  });
+  p.appendChild(box);
+  paint([scene(first?IMG.locks:IMG.locks2,'ابحث عن العصا'),p]);
+}
+
+function pickLock(key){
+  S.locks=S.locks.filter(function(k){return k!==key;});
+  if(key==='silver'){fx('win');screenWandFound();}
+  else screenTrap(LOCK_TRAP[key]);
+}
+
+function screenTrap(T){
+  var p=el('div','panel');
+  p.appendChild(el('div','narr',T.intro));
+  p.appendChild(el('div','quest',questionHTML(T.q)));
+  var box=el('div','opts');
+  var tags=['A','B','C'];
+  T.opts.forEach(function(txt,i){
+    var b=el('button','opt','<span class="tag">'+tags[i]+'</span>'+txt);
+    b.onclick=function(){answerTrap(T,i,box,p);};
+    box.appendChild(b);
+  });
+  p.appendChild(box);
+  paint([scene(T.img,TYPE_LABEL[T.type]),p]);
+}
+
+function answerTrap(T,i,box,p){
+  var bs=box.querySelectorAll('.opt');
+  for(var j=0;j<bs.length;j++)bs[j].disabled=true;
+  if(i===T.correct){
+    bs[i].classList.add('good');fx('win');
+    p.appendChild(el('div','hint','✓ '+T.winTxt));
+    var b=el('button','cta','كمّل');
+    b.onclick=screenLocks;p.appendChild(b);
+  }else{
+    bs[i].classList.add('bad');bs[T.correct].classList.add('good');
+    fx('lose');S.lives--;hud();
+    stage.querySelector('.scene-wrap').classList.add('shake');
+    p.appendChild(el('div','hint','✗ '+T.badTxt+'<br><br>'+T.hint));
+    var b2=el('button','cta dark',S.lives>0?'حاول مرة ثانية':'…');
+    b2.onclick=function(){S.lives>0?screenLocks():screenGameOver();};
+    p.appendChild(b2);
+  }
+}
+
+function screenWandFound(){
+  var p=el('div','panel');
+  p.appendChild(el('div','narr','أحسنت! <strong>الدرج الفضي</strong> انفتح، وطارت العصا لإيد <strong>رَيّان</strong> لحالها.<br><br>بس ڤيلمار قفل كل بوابات القلعة بتعاويذ شرطية مكسورة. قبل ما تكمّلي… لازم تعرفي القاعدة.'));
+  var b=el('button','cta','افتحي لوح التعاويذ');
+  b.onclick=screenRules;
+  p.appendChild(b);
+  paint([scene(IMG.wand,'لقيتِ العصا'),p]);
+}
+
+/* ---------- بطاقة القاعدة ---------- */
+function screenRules(from){
+  var p=el('div','panel');
+  p.appendChild(el('div','narr','كل جملة شرطية جزئين: <strong>If-clause</strong> (الشرط) و<strong>Main clause</strong> (النتيجة).'));
+
+  function card(n,title,ar,form,ex){
+    var c=el('div','rule');
+    c.appendChild(el('h3','TYPE '+n+' <em>'+title+'</em>'));
+    c.appendChild(el('p',null,ar));
+    c.appendChild(el('div','form',form));
+    c.appendChild(el('div','ex',ex));
+    return c;
+  }
+  p.appendChild(card(0,'Facts','للحقائق العامة والأشياء اللي دايمًا صحيحة.',
+    'If + present simple → present simple','If you heat water, it boils.'));
+  p.appendChild(card(1,'Possible future','للأشياء الممكن تصير بالمستقبل.',
+    'If + present simple → will + verb','If I study, I will pass the exam.'));
+  p.appendChild(card(2,'Unreal','للأشياء الخيالية أو اللي احتمالها ضعيف.',
+    'If + past simple → would + verb','If I were rich, I would travel the world.'));
+
+  var b=el('button','cta', from==='cover' ? 'رجوع للغلاف' : 'ابدأ التحديات');
+  b.onclick=function(){ from==='cover' ? screenCover() : (from==='peek' ? screenStage(CURRENT) : screenStage(0)); };
+  p.appendChild(b);
+  if(from==='cover'){topbar.style.display='none';}
+  paint([p]);
+}
+
+/* ---------- المراحل ---------- */
+var CURRENT=0;
+function screenStage(i){
+  CURRENT=i;
+  if(i>=STAGES.length)return screenDuelIntro();
+  var G=STAGES[i];
+  var p=el('div','panel');
+  p.appendChild(el('div','narr',G.intro));
+  p.appendChild(el('div','quest',questionHTML(G.q)));
+  var box=el('div','opts');
+  var tags=['A','B','C'];
+  G.opts.forEach(function(txt,j){
+    var b=el('button','opt','<span class="tag">'+tags[j]+'</span>'+txt);
+    b.onclick=function(){answerStage(i,j,box,p);};
+    box.appendChild(b);
+  });
+  p.appendChild(box);
+  paint([scene(G.img,TYPE_LABEL[G.type]),p]);
+}
+
+function answerStage(i,j,box,p){
+  var G=STAGES[i];
+  var bs=box.querySelectorAll('.opt');
+  for(var k=0;k<bs.length;k++)bs[k].disabled=true;
+
+  if(j===G.correct){
+    bs[j].classList.add('good');fx('win');
+    S.trophies++;hud();
+    setTimeout(function(){
+      var p2=el('div','panel');
+      p2.appendChild(el('div','narr','✓ '+G.winTxt));
+      p2.appendChild(el('div','hint',G.hint));
+      var b=el('button','cta',i===STAGES.length-1?'إلى المواجهة الأخيرة':'التحدي التالي');
+      b.onclick=function(){screenStage(i+1);};
+      p2.appendChild(b);
+      paint([scene(G.win,'أحسنت'),p2]);
+    },520);
+  }else{
+    bs[j].classList.add('bad');bs[G.correct].classList.add('good');
+    fx('lose');S.lives--;hud();
+    stage.querySelector('.scene-wrap').classList.add('shake');
+    setTimeout(function(){
+      if(S.lives<=0)return screenGameOver();
+      var p2=el('div','panel');
+      p2.appendChild(el('div','narr','✗ '+G.badTxt));
+      p2.appendChild(el('div','hint',G.hint));
+      var b=el('button','cta dark','حاول مرة ثانية');
+      b.onclick=function(){screenStage(i);};
+      p2.appendChild(b);
+      paint([scene(G.bad,'خسرتِ نجمة'),p2]);
+    },520);
+  }
+}
+
+/* ---------- المواجهة ---------- */
+function screenDuelIntro(){
+  var p=el('div','panel');
+  p.appendChild(el('div','narr','أحسنتِ… وصلتِ للنهاية.<br><br><strong>ڤيلمار</strong> واقف قدّام <strong>رَيّان</strong>، والشعاع الأخضر عم يزحف.<br><br>والآن تذكّري جيدًا:<br>ما هي التعويذة اللي رح ينهي فيها رَيّان المعركة؟'));
+  var box=el('div','opts');
+  var spells=['Ignitus','Tenebrus','Disarmus'];
+  var tags=['A','B','C'];
+  spells.forEach(function(sp,i){
+    var b=el('button','opt','<span class="tag">'+tags[i]+'</span>'+sp);
+    b.onclick=function(){castSpell(i,box,p);};
+    box.appendChild(b);
+  });
+  p.appendChild(box);
+  paint([scene(IMG.duel,'THE FINAL DUEL'),p]);
+}
+
+function castSpell(i,box,p){
+  var bs=box.querySelectorAll('.opt');
+  for(var k=0;k<bs.length;k++)bs[k].disabled=true;
+  if(i===2){
+    bs[2].classList.add('good');fx('win');
+    setTimeout(screenVictory,600);
+  }else{
+    bs[i].classList.add('bad');
+    fx('lose');S.lives--;hud();
+    stage.querySelector('.scene-wrap').classList.add('shake');
+    if(S.lives<=0)return setTimeout(screenGameOver,520);
+    p.appendChild(el('div','hint','✗ مش هاي التعويذة… ڤيلمار صدّها وضحك.<br>تذكّري: رَيّان ما بيقتل — بينزع سلاح خصمه.'));
+    var b=el('button','cta dark','جرّبي مرة ثانية');
+    b.onclick=screenDuelIntro;p.appendChild(b);
+  }
+}
+
+function screenVictory(){
+  var p=el('div','panel');
+  var e=el('div','end');
+  e.appendChild(el('div','big','Disarmus!'));
+  e.appendChild(el('div','score','النجوم المتبقية: '+S.lives+' / 3 · الكنوز: '+S.trophies+' / '+STAGES.length));
+  p.appendChild(e);
+  p.appendChild(el('div','narr','طارت عصا <strong>ڤيلمار</strong> من إيده، وانطفى الشعاع الأخضر.<br><br>وقف <strong>رَيّان</strong> بوسط القاعة، حواليه <strong>مَيّار</strong> و<strong>سَيف</strong> و<strong>سَراج</strong>.<br><br>ست بوابات، وست جمل شرطية… وإنتِ اللي فتحتيهم كلهم. <strong>مبروك!</strong>'));
+  var b=el('button','cta','العبي من جديد');
+  b.onclick=reset;p.appendChild(b);
+  paint([scene(IMG.hall,'VICTORY'),p]);
+}
+
+function screenGameOver(){
+  var p=el('div','panel');
+  var e=el('div','end');
+  e.appendChild(el('div','big','خلصت النجوم'));
+  e.appendChild(el('div','score','وصلتِ لـ '+S.trophies+' من '+STAGES.length+' كنوز'));
+  p.appendChild(e);
+  p.appendChild(el('div','narr','ما تزعلي — كل خطأ بيعلّمك القاعدة أحسن.<br><br>راجعي لوح التعاويذ وارجعي أقوى.'));
+  var b=el('button','cta','من البداية');
+  b.onclick=reset;p.appendChild(b);
+  var b2=el('button','cta dark','راجعي القاعدة');
+  b2.onclick=screenRules;p.appendChild(b2);
+  paint([scene(IMG.duel,'GAME OVER'),p]);
+}
+
+function reset(){
+  S.lives=3;S.trophies=0;S.locks=['gold','silver','pink'];
+  screenCover();
+}
+
+/* ---------- الصوت ---------- */
+function playBgm(){
+  if(!S.sound)return;
+  bgm.volume=.30;
+  var pr=bgm.play();if(pr&&pr.catch)pr.catch(function(){});
+  document.getElementById('btnSound').style.color='#8fd8ff';
+}
+function pauseBgm(){try{bgm.pause();}catch(e){}}
+function startAudio(){playBgm();}
+document.getElementById('btnSound').onclick=function(){
+  S.sound=!S.sound;
+  this.style.color=S.sound?'#8fd8ff':'';
+  if(S.sound)playBgm(); else pauseBgm();
+};
+document.getElementById('btnSound').style.color='#8fd8ff';
+document.getElementById('btnRule').onclick=function(){screenRules('peek');};
+document.getElementById('btnHome').onclick=function(){
+  if(confirm('ترجعي للصفحة الرئيسية؟'))location.href='index.html';
+};
+
+/* ---------- تشغيل ---------- */
+// تحميل مسبق خفيف للصور الأولى فقط
+['lostwand','locks','wand','hall'].forEach(function(k){var i=new Image();i.src=IMG[k];});
+screenCover();
+
+})();
+</script>
+</body>
+</html>
