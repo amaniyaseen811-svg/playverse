@@ -592,20 +592,21 @@ function screenCover(){
 /* ---------- الفيديو التعريفي ---------- */
 function screenIntroVideo(){
   topbar.style.display='none';
-  try{bgm.pause();}catch(e){}
-  function resume(){ if(S.sound){bgm.volume=.28;var q=bgm.play();if(q&&q.catch)q.catch(function(){});} }
+  // الموسيقى تستمر من بداية الفيديو
+  function resume(){ if(S.sound){bgm.volume=.38;var q=bgm.play();if(q&&q.catch)q.catch(function(){});} }
+  resume();
   pauseBgm();
   var s=el('div','vidscreen');
   var v=document.createElement('video');
-  v.src='elmora-intro.mp4';v.controls=true;v.autoplay=true;
+  v.src='elmora-intro.mp4';v.controls=true;v.autoplay=true;v.muted=true;v.setAttribute('muted','');
   v.playsInline=true;v.setAttribute('playsinline','');
-  v.onended=function(){resume();screenStory();};
-  v.onerror=function(){resume();screenStory();};
+  v.onended=function(){bgm.volume=.28;screenStory();};
+  v.onerror=function(){bgm.volume=.28;screenStory();};
   s.appendChild(v);
 
   var bar=el('div','vidbar');
   var skip=el('button','cta','تخطّي ← ابدأ اللعب');
-  skip.onclick=function(){try{v.pause();}catch(e){} resume(); screenStory();};
+  skip.onclick=function(){try{v.pause();}catch(e){} bgm.volume=.28; screenStory();};
   bar.appendChild(skip);
   s.appendChild(bar);
 
