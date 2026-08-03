@@ -581,8 +581,12 @@ function screenCover(){
   inn.appendChild(el('p','sub','ساحر متدرّب فقد عصاه، وعدوّه <b style="color:#f0cd82">ڤيلمار</b> بينتظره في آخر القلعة. ست تحديات تفصلك عن المواجهة — وما بتنفتح إلا بجملة شرطية صحيحة.'));
   var b=el('button','cta','ابدأ المغامرة');
   b.onclick=function(){
-    try{ bgm.muted=false; bgm.volume=.38; bgm.currentTime=0;
-         var pp=bgm.play(); if(pp&&pp.catch)pp.catch(function(){}); }catch(e){}
+    // التشغيل أولًا وبمفرده — أي أمر آخر قد يعطّله
+    var pp = bgm.play();
+    if(pp && pp.then){ pp.then(function(){ bgm.volume=.38; })
+                         .catch(function(err){ console.log('AUDIO ERROR:', err && err.name, err && err.message); }); }
+    else { bgm.volume=.38; }
+    try{ bgm.muted=false; }catch(e){}
     screenIntroVideo();
   };
   inn.appendChild(b);
@@ -865,7 +869,9 @@ document.getElementById('btnHome').onclick=function(){
 /* ---------- شبكة أمان للصوت ---------- */
 function kickAudio(){
   if(!S.sound) return;
-  if(bgm.paused){ bgm.muted=false; var q=bgm.play(); if(q&&q.catch)q.catch(function(){}); }
+  if(bgm.paused){ var q=bgm.play();
+    if(q&&q.catch)q.catch(function(err){console.log('AUDIO ERROR:',err&&err.name);});
+    try{bgm.muted=false;}catch(e){} }
 }
 document.addEventListener('click', kickAudio, true);
 document.addEventListener('touchstart', kickAudio, true);
