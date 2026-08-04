@@ -143,6 +143,11 @@ input.nmin{width:100%;max-width:320px;padding:12px;border-radius:12px;border:1px
 .fc button:active{transform:scale(.9)}
 @media(min-width:560px){.fc{inset-inline-end:calc(50% - 260px + 8px)}}
 
+#introOv{position:fixed;inset:0;z-index:95;background:#000;display:none;align-items:center;justify-content:center}
+#introOv.on{display:flex}
+#introOv video{width:100%;height:100%;object-fit:contain;background:#000}
+#skipIntro{position:absolute;top:14px;inset-inline-start:14px;z-index:96;background:#000000aa;border:1px solid var(--gold);
+  color:var(--gold);border-radius:20px;padding:9px 16px;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
 #pauseOv{position:fixed;inset:0;z-index:90;background:#050915f2;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;text-align:center}
 #pauseOv.on{display:flex}
 #pauseOv .box{max-width:340px;padding:24px}
@@ -195,6 +200,11 @@ input.wsin.no{border-color:var(--red);background:#3a1414}
 </div>
 <div id="rain"></div>
 
+<div id="introOv">
+  <button id="skipIntro">تخطي ←</button>
+  <video id="introVid" playsinline preload="none" src="cosette-intro.mp4"></video>
+</div>
+
 <div id="pauseOv"><div class="box">
   <div style="font-size:3rem">⏸️</div>
   <h2>اللعبة متوقفة</h2>
@@ -214,6 +224,7 @@ input.wsin.no{border-color:var(--red);background:#3a1414}
     <p class="sub">من رواية البؤساء – فيكتور هوغو</p>
     <p class="tag">أنقذ كوزيت بقوة النحو العربي!</p>
     <button class="btn" id="goStart">✨ ابدأ المغامرة</button>
+    <button class="btn ghost" id="goIntro">🎬 الفيديو التحفيزي</button>
     <button class="btn ghost" id="goChars">🎭 شخصيات القصة</button>
     <button class="btn ghost" id="goHow">📖 كيف ألعب؟</button>
     <button class="btn ghost" id="goWs">🖨️ ورقة عمل للطباعة</button>
@@ -928,7 +939,29 @@ $('goWs').onclick=()=>{SFX.click();
   $('printArea').innerHTML=h;window.print();};
 
 /* ============ BUTTONS ============ */
-$('goStart').onclick=()=>{A();startMusic();SFX.click();renderLevels();show('s-level')};
+/* ============ INTRO VIDEO ============ */
+let introDone=false,introCb=null;
+function closeIntro(){
+  const v=$('introVid');try{v.pause()}catch(e){}
+  $('introOv').classList.remove('on');
+  if(musGain)musGain.gain.value=musOn?.05:0;
+  const cb=introCb;introCb=null;if(cb)cb();
+}
+function playIntro(cb){
+  const v=$('introVid');introCb=cb;
+  $('introOv').classList.add('on');
+  if(musGain)musGain.gain.value=0;
+  v.currentTime=0;v.muted=false;
+  const p=v.play();
+  if(p&&p.catch)p.catch(()=>{v.muted=true;v.play().catch(()=>closeIntro())});
+}
+$('introVid').onended=closeIntro;
+$('introVid').onerror=()=>{closeIntro()};
+$('skipIntro').onclick=()=>{SFX.click();closeIntro()};
+$('goIntro').onclick=()=>{A();SFX.click();playIntro(null)};
+$('goStart').onclick=()=>{A();startMusic();SFX.click();
+  if(!introDone){introDone=true;playIntro(()=>{renderLevels();show('s-level')});}
+  else{renderLevels();show('s-level')}};
 $('goChars').onclick=()=>{SFX.click();show('s-chars')};
 $('goHow').onclick=()=>{SFX.click();show('s-how')};
 $('btnSound').onclick=()=>{sfxOn=!sfxOn;$('btnSound').textContent=sfxOn?'🔊':'🔇'};
