@@ -228,6 +228,19 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
 }
 .hud,.screen,.foot{position:relative;z-index:1}
 @media (prefers-reduced-motion:reduce){.bgfx{animation:none}}
+
+/* ===== غرفة الصف ===== */
+.roomcode{font-family:'Fredoka',sans-serif;font-size:3.2rem;letter-spacing:10px;text-align:center;
+  color:var(--gold);background:rgba(0,0,0,.28);border:3px dashed rgba(255,201,60,.5);
+  border-radius:20px;padding:10px;margin:10px 0;direction:ltr}
+.board{margin-top:12px}
+.brow{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:9px 12px;margin-bottom:7px}
+.brow .rk{font-family:'Fredoka',sans-serif;font-size:1.1rem;color:var(--gold);width:30px}
+.brow .nm{flex:1;font-weight:700}
+.brow .sc{font-family:'Fredoka',sans-serif;font-size:1.2rem;color:var(--mint)}
+.brow.me{border-color:var(--mint);background:rgba(94,240,196,.14)}
+.brow .st{font-size:.8rem;opacity:.7}
 .shake{animation:sh .4s}
 @keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
 @media (max-width:420px){
@@ -236,6 +249,8 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="sky" id="sky"></div>
@@ -280,9 +295,52 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
     <div class="modes">
       <button class="mode" onclick="pickMode('solo')"><span class="ic">🧒</span><div><h4>لاعب واحد</h4><p>ألعب لحالي وأجمع النجوم</p></div></button>
       <button class="mode" onclick="pickMode('duo')"><span class="ic">🤝</span><div><h4>صديق ضدّ صديق</h4><p>لاعبان بالتناوب على نفس الجهاز</p></div></button>
-      <button class="mode" onclick="pickMode('teams')"><span class="ic">🏫</span><div><h4>فريق ضدّ فريق</h4><p>٤ فرق — مناسبة للصف والعرض على الشاشة</p></div></button>
+      <button class="mode" onclick="pickMode('teams')"><span class="ic">🏫</span><div><h4>فريق ضدّ فريق</h4><p>٤ فرق على نفس الجهاز — للعرض على الشاشة</p></div></button>
+      <button class="mode" onclick="openRoom('all')"><span class="ic">🏆</span><div><h4>تحدّي الصف — الكل يرى الترتيب</h4><p>كل طالب على جهازه، ولوحة الترتيب أمام الجميع</p></div></button>
+      <button class="mode" onclick="openRoom('teacher')"><span class="ic">👩‍🏫</span><div><h4>تقييم صفّي — النتائج للمعلّمة فقط</h4><p>الطلاب يلعبون، والنتائج تظهر للمعلّمة وحدها</p></div></button>
     </div>
     <div class="center"><button class="btn ghost" onclick="show('s-intro')">🎬 شاهد الفيلم</button></div>
+  </div>
+
+  <!-- أ · بوابة الغرفة -->
+  <div class="screen" id="s-room">
+    <h2 class="title" id="roomTitle"></h2>
+    <p class="sub" id="roomSub"></p>
+    <div class="modes">
+      <button class="mode" onclick="teacherGate()"><span class="ic">👩‍🏫</span><div><h4>أنا المعلّمة</h4><p>أنشئ غرفة جديدة وأتابع النتائج</p></div></button>
+      <button class="mode" onclick="showJoin()"><span class="ic">🧒</span><div><h4>أنا طالب/ة</h4><p>عندي رمز الغرفة وأريد اللعب</p></div></button>
+    </div>
+    <div class="center"><button class="btn ghost" onclick="show('s-mode')">↩ رجوع</button></div>
+  </div>
+
+  <!-- ب · دخول المعلّمة -->
+  <div class="screen" id="s-teacher-pass">
+    <h2 class="title">كلمة مرور المعلّمة 🔐</h2>
+    <input class="name" id="tPass" type="password" placeholder="اكتبي كلمة المرور">
+    <div class="center"><button class="btn mint" onclick="checkPass()">دخول</button>
+      <button class="btn ghost" onclick="show('s-room')">↩ رجوع</button></div>
+  </div>
+
+  <!-- ج · لوحة المعلّمة -->
+  <div class="screen" id="s-teacher">
+    <h2 class="title">رمز الغرفة</h2>
+    <div class="roomcode" id="roomCode">----</div>
+    <p class="sub" id="tHint">اكتبي الرمز على اللوح — الطلاب يدخلونه من أجهزتهم.</p>
+    <div id="tBoard"></div>
+    <div class="center">
+      <button class="btn ghost" onclick="copyCode()">📋 انسخ الرمز</button>
+      <button class="btn" onclick="closeRoom()">إنهاء الجلسة ✓</button>
+    </div>
+  </div>
+
+  <!-- د · انضمام الطالب -->
+  <div class="screen" id="s-join">
+    <h2 class="title">ادخل إلى غرفة الصف 🚪</h2>
+    <input class="name" id="jCode" placeholder="رمز الغرفة (٤ أحرف)" maxlength="4" style="text-transform:uppercase;text-align:center;font-size:1.5rem;letter-spacing:6px">
+    <input class="name" id="jName" placeholder="اسمك" maxlength="16">
+    <div class="center"><button class="btn mint" onclick="joinRoom()">انضم 🚀</button>
+      <button class="btn ghost" onclick="show('s-room')">↩ رجوع</button></div>
+    <p class="sub" id="joinMsg"></p>
   </div>
 
   <!-- 2 · أسماء اللاعبين -->
@@ -428,6 +486,7 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
     <h2 class="title" id="resTitle"></h2>
     <div class="score-big" id="resScore"></div>
     <div id="resBoard"></div>
+    <div id="liveBoard"></div>
     <p class="sub" id="resMsg"></p>
     <div class="center"><button class="btn" onclick="location.reload()">العب مرة ثانية 🔄</button></div>
   </div>
@@ -554,6 +613,112 @@ function setBG(i){
 }
 function clearBG(){ bgNow=-1; document.getElementById('bgfx').classList.remove('on'); }
 
+
+
+/* ================= غرفة الصف (Firebase) ================= */
+const FB_CFG={apiKey:"AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",authDomain:"cursed-castle-bb43b.firebaseapp.com",
+  projectId:"cursed-castle-bb43b",storageBucket:"cursed-castle-bb43b.firebasestorage.app",
+  messagingSenderId:"458563878259",appId:"1:458563878259:web:715ce9f960b2972ccd9906"};
+const ROOM_COL='noona-rooms';
+const TEACHER_PASS='amani2026';
+let db=null, unsubRoom=null;
+const online={on:false, vis:'all', role:'', code:'', pid:'', name:''};
+
+function initDb(){
+  if(db) return db;
+  try{
+    if(!window.firebase) return null;
+    if(!firebase.apps.length) firebase.initializeApp(FB_CFG);
+    db=firebase.firestore(); return db;
+  }catch(e){ return null; }
+}
+function code4(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let o='';for(let i=0;i<4;i++)o+=c[Math.floor(Math.random()*c.length)];return o}
+function newPid(){return 'p'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3)}
+function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function openRoom(vis){
+  online.vis=vis;
+  document.getElementById('roomTitle').textContent = vis==='all' ? 'تحدّي الصف 🏆' : 'تقييم صفّي 👩‍🏫';
+  document.getElementById('roomSub').textContent = vis==='all'
+    ? 'كل طالب يلعب على جهازه، ولوحة الترتيب تظهر للجميع.'
+    : 'الطلاب يلعبون، وتظهر النتائج للمعلّمة فقط.';
+  show('s-room');
+}
+function teacherGate(){ document.getElementById('tPass').value=''; show('s-teacher-pass'); }
+function checkPass(){
+  if(document.getElementById('tPass').value.trim()===TEACHER_PASS){ createRoom(); }
+  else{ const el=document.getElementById('tPass'); el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),400); }
+}
+async function createRoom(){
+  const d=initDb();
+  if(!d){ alert('تعذّر الاتصال بالإنترنت — تأكدي من الشبكة وأعيدي المحاولة.'); return; }
+  let code='';
+  for(let i=0;i<6;i++){ const t=code4(); try{ const sn=await d.collection(ROOM_COL).doc(t).get(); if(!sn.exists){code=t;break} }catch(e){} }
+  if(!code) code=code4();
+  online.on=true; online.role='teacher'; online.code=code;
+  try{
+    await d.collection(ROOM_COL).doc(code).set({ vis:online.vis, status:'open', total:20,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(), players:{} });
+  }catch(e){ alert('تعذّر إنشاء الغرفة.'); return; }
+  document.getElementById('roomCode').textContent=code;
+  watchRoom(code, true);
+  show('s-teacher');
+}
+function copyCode(){ try{ navigator.clipboard.writeText(online.code) }catch(e){} }
+async function closeRoom(){
+  const d=initDb();
+  try{ await d.collection(ROOM_COL).doc(online.code).update({status:'closed'}) }catch(e){}
+  if(unsubRoom){unsubRoom(); unsubRoom=null}
+  online.on=false; show('s-mode');
+}
+function showJoin(){ document.getElementById('joinMsg').textContent=''; show('s-join'); }
+async function joinRoom(){
+  const code=(document.getElementById('jCode').value||'').trim().toUpperCase();
+  const nm=(document.getElementById('jName').value||'').trim();
+  const msg=document.getElementById('joinMsg');
+  if(code.length!==4){ msg.textContent='اكتب رمز الغرفة (٤ أحرف).'; return }
+  if(!nm){ msg.textContent='اكتب اسمك أولًا.'; return }
+  const d=initDb();
+  if(!d){ msg.textContent='تعذّر الاتصال بالإنترنت.'; return }
+  msg.textContent='جارٍ الدخول…';
+  let snap;
+  try{ snap=await d.collection(ROOM_COL).doc(code).get(); }catch(e){ msg.textContent='خطأ بالاتصال.'; return }
+  if(!snap.exists){ msg.textContent='ما في غرفة بهذا الرمز — تأكد منه.'; return }
+  const data=snap.data()||{};
+  if(data.status==='closed'){ msg.textContent='هذه الجلسة انتهت.'; return }
+  online.on=true; online.role='student'; online.code=code; online.vis=data.vis||'all';
+  online.pid=newPid(); online.name=nm;
+  try{ await d.collection(ROOM_COL).doc(code).update({['players.'+online.pid]:{name:nm,score:0,done:false}}); }
+  catch(e){ msg.textContent='تعذّر الانضمام.'; return }
+  if(online.vis==='all') watchRoom(code,false);
+  // ابدأ اللعب فرديًا
+  mode='solo'; players=[{name:nm,score:0,hearts:3,out:false}];
+  turn=0; stage=0; keys=0; updateHud(); openLearn();
+}
+function watchRoom(code, isTeacher){
+  const d=initDb(); if(!d) return;
+  if(unsubRoom){unsubRoom()}
+  unsubRoom=d.collection(ROOM_COL).doc(code).onSnapshot(snap=>{
+    const data=snap.data()||{}; const ps=data.players||{};
+    const rows=Object.keys(ps).map(k=>({id:k,...ps[k]})).sort((a,b)=>(b.score||0)-(a.score||0));
+    const html = rows.length
+      ? '<div class="board">'+rows.map((r,i)=>
+          `<div class="brow ${r.id===online.pid?'me':''}"><span class="rk">${['🥇','🥈','🥉'][i]||('#'+(i+1))}</span>
+           <span class="nm">${esc(r.name)}</span>
+           <span class="st">${r.done?'أنهى ✓':'يلعب…'}</span>
+           <span class="sc">${r.score||0}</span></div>`).join('')+'</div>'
+      : '<p class="sub">بانتظار دخول الطلاب…</p>';
+    if(isTeacher){ document.getElementById('tBoard').innerHTML=html; }
+    else{ const lb=document.getElementById('liveBoard'); if(lb) lb.innerHTML=html; }
+  });
+}
+async function pushScore(done){
+  if(!online.on || online.role!=='student') return;
+  const d=initDb(); if(!d) return;
+  const sc=players.reduce((a,b)=>a+b.score,0);
+  try{ await d.collection(ROOM_COL).doc(online.code)
+    .update({['players.'+online.pid]:{name:online.name,score:sc,done:!!done}}); }catch(e){}
+}
 
 /* ================= الموسيقى ================= */
 const bgm=document.getElementById('bgm');
@@ -826,7 +991,7 @@ function judge(ok, hint, timeout){
     document.getElementById('fbMsg').textContent = timeout?'انتهى الوقت! ⏳':'ليست صحيحة… حاول مرة أخرى 💪';
   }
   document.getElementById('fbHint').innerHTML = hint || '';
-  updateHud();
+  updateHud(); pushScore(false);
   setTimeout(()=>show('s-fb'),ok?700:900);
 }
 
@@ -869,7 +1034,7 @@ function openCup(){
   document.getElementById('cupSub').innerHTML =
     (mode==='solo' ? 'مجموع نقاطك: <b>'+total+'</b> من ٢٠' : 'مجموع نقاط المجموعة: <b>'+total+'</b>')
     + '<br>الآن حان وقت ورقتَي العمل ✏️';
-  clearBG(); beep('win'); show('s-cup');
+  clearBG(); pushScore(true); beep('win'); show('s-cup');
 }
 function showWS(n){ show(n===1?'s-ws1':'s-ws2'); }
 
@@ -906,6 +1071,9 @@ function showResult(){
       `<div class="pl">${['🥇','🥈','🥉','🏅'][i]} ${p.name}<b>${p.score}</b></div>`).join('')+'</div>';
     document.getElementById('resMsg').innerHTML='كلكم ساعدتم حَرْفوش… والكوكب صار مضيئًا من جديد ✨';
   }
+  const lb=document.getElementById('liveBoard');
+  if(lb) lb.innerHTML = (online.on && online.role==='student' && online.vis!=='all')
+      ? '<p class="sub">تم إرسال نتيجتك إلى المعلّمة ✓</p>' : lb.innerHTML;
   beep('win'); show('s-result');
 }
 </script>
