@@ -73,6 +73,40 @@ body::before{
   background:rgba(216,163,63,.07);
 }
 
+/* ---------- العدّاد التنازلي ---------- */
+.timer{
+  font-family:'Cinzel',serif;font-size:14px;font-weight:700;letter-spacing:1px;
+  color:var(--gold-soft);
+  border:1px solid rgba(216,163,63,.35);border-radius:20px;
+  padding:5px 10px;background:rgba(216,163,63,.07);
+  min-width:78px;text-align:center;white-space:nowrap;
+  transition:color .3s, border-color .3s;
+}
+.timer.warn{color:#ffd27f;border-color:rgba(216,163,63,.7);background:rgba(216,163,63,.14)}
+.timer.danger{color:#ff9a9a;border-color:rgba(192,57,43,.75);background:rgba(192,57,43,.14);
+  animation:tpulse 1s ease-in-out infinite}
+@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+/* ---------- شاشة الاستراحة ---------- */
+.breakscreen{
+  position:fixed;inset:0;z-index:80;padding:24px;
+  background:rgba(8,10,17,.92);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  animation:riseUp .35s ease-out both;
+}
+.break-card{
+  text-align:center;max-width:340px;width:100%;
+  background:linear-gradient(180deg,var(--stone-2),var(--stone));
+  border:1px solid rgba(216,163,63,.4);border-radius:18px;padding:30px 24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.break-title{font-family:'Amiri',serif;font-size:26px;color:var(--gold-soft);margin-bottom:14px}
+.break-count{
+  font-family:'Cinzel',serif;font-size:66px;font-weight:700;color:#fff;line-height:1;
+  text-shadow:0 0 26px rgba(216,163,63,.55);margin-bottom:12px;
+}
+.break-sub{font-size:15px;color:var(--parch-dim);margin-bottom:22px;line-height:1.7}
+
 /* ---------- المشهد ---------- */
 .stage{flex:1;display:flex;flex-direction:column}
 /* ---------- الإطار السحري ---------- */
@@ -301,11 +335,23 @@ body::before{
     <button class="icon-btn" id="btnHome" title="الرئيسية">⌂</button>
     <button class="icon-btn" id="btnSound" title="الصوت">♪</button>
     <button class="icon-btn" id="btnRule" title="القاعدة">📖</button>
+    <button class="icon-btn" id="btnPause" title="استراحة 20 ثانية">⏸</button>
+    <div class="timer" id="timer">⏳ 30:00</div>
     <div class="lives" id="lives"></div>
     <div class="spacer"></div>
     <div class="trophy" id="trophy">0 / 6</div>
   </div>
   <div class="stage" id="stage"></div>
+</div>
+
+<!-- شاشة الاستراحة -->
+<div class="breakscreen" id="breakscreen" style="display:none">
+  <div class="break-card">
+    <div class="break-title">استراحة ✦</div>
+    <div class="break-count" id="breakCount">20</div>
+    <div class="break-sub">خُذي نفَسًا… الوقت متوقّف</div>
+    <button class="cta" id="btnResume">أكملي الآن</button>
+  </div>
 </div>
 
 <audio id="bgm" loop preload="auto"><source src="elmora-bg.mp3" type="audio/mpeg"></audio>
@@ -515,6 +561,75 @@ var livesEl=document.getElementById('lives');
 var trophyEl=document.getElementById('trophy');
 var flash=document.getElementById('flash');
 var bgm=document.getElementById('bgm');
+var timerEl=document.getElementById('timer');
+var breakScreen=document.getElementById('breakscreen');
+var breakCountEl=document.getElementById('breakCount');
+
+/* ---------- العدّاد التنازلي (30 دقيقة) ---------- */
+var TOTAL_TIME=30*60;   // 1800 ثانية
+var timeLeft=TOTAL_TIME;
+var timerId=null;        // interval واحد للعبة كلها
+var timerRunning=false;  // يشتغل فقط أثناء اللعب الفعلي
+var timerStarted=false;  // هل بدأ العدّ أصلًا؟
+var breakId=null;        // مؤقّت الاستراحة
+var breakLeft=0;
+
+function fmtTime(t){
+  var m=Math.floor(t/60), s=t%60;
+  return m+':'+(s<10?'0':'')+s;
+}
+function renderTimer(){
+  timerEl.textContent='⏳ '+fmtTime(timeLeft);
+  timerEl.classList.remove('warn','danger');
+  if(timeLeft<=60) timerEl.classList.add('danger');
+  else if(timeLeft<=300) timerEl.classList.add('warn');
+}
+function ensureTimer(){
+  if(timerId) return;
+  timerId=setInterval(function(){
+    if(!timerRunning) return;      // متوقّف أثناء الاستراحة
+    timeLeft--;
+    renderTimer();
+    if(timeLeft<=0){
+      stopTimer();
+      screenTimeUp();
+    }
+  },1000);
+}
+function startTimer(){                // يبدأ العدّ أول مرّة
+  timerStarted=true;
+  timerRunning=true;
+  renderTimer();
+  ensureTimer();
+}
+function resumeTimer(){ if(timerStarted){ timerRunning=true; ensureTimer(); } }
+function pauseTimer(){ timerRunning=false; }
+function stopTimer(){
+  timerRunning=false;
+  if(timerId){ clearInterval(timerId); timerId=null; }
+}
+
+/* ---------- الاستراحة: 20 ثانية والوقت متوقّف ---------- */
+function takeBreak(){
+  if(!timerStarted || timeLeft<=0) return;  // فقط أثناء اللعب
+  if(breakId) return;                        // استراحة شغّالة أصلًا
+  pauseTimer();
+  breakLeft=20;
+  breakCountEl.textContent=breakLeft;
+  breakScreen.style.display='flex';
+  breakId=setInterval(function(){
+    breakLeft--;
+    breakCountEl.textContent=breakLeft>0?breakLeft:0;
+    if(breakLeft<=0) endBreak();
+  },1000);
+}
+function endBreak(){
+  if(breakId){ clearInterval(breakId); breakId=null; }
+  breakScreen.style.display='none';
+  resumeTimer();
+}
+
+function goHome(){ location.href='index.html'; }
 
 /* ---------- أدوات ---------- */
 function el(tag,cls,html){var n=document.createElement(tag);if(cls)n.className=cls;if(html!=null)n.innerHTML=html;return n;}
@@ -612,6 +727,10 @@ function screenIntroVideo(){
   s.appendChild(v);
 
   var bar=el('div','vidbar');
+  var back=el('button','cta ghost','⟵ رجوع للألعاب');
+  back.style.marginTop='0';
+  back.onclick=function(){try{v.pause();}catch(e){} goHome();};
+  bar.appendChild(back);
   var skip=el('button','cta','تخطّي ← ابدأ اللعب');
   skip.onclick=function(){try{v.pause();}catch(e){} bgm.volume=.28; screenStory();};
   bar.appendChild(skip);
@@ -624,6 +743,7 @@ function screenIntroVideo(){
 /* ---------- القصة ---------- */
 function screenStory(){
   topbar.style.display='flex';hud();playBgm();
+  if(!timerStarted) startTimer(); else resumeTimer();
   var p=el('div','panel');
   p.appendChild(el('div','narr',
     'ضاعت عصا <strong>رَيّان</strong> السحرية.<br>قاعد بغرفة النار حزين، وحواليه <strong>مَيّار</strong> و<strong>سَيف</strong> عم يفتّشوا معه.<br><br>وبدونها… ما بيقدر يواجه <strong>ڤيلمار</strong> أبدًا.<br><br>لازم تلاقيها. <strong>فورًا.</strong>'));
@@ -724,6 +844,9 @@ function screenRules(from){
   var b=el('button','cta', from==='cover' ? 'رجوع للغلاف' : 'ابدأ التحديات');
   b.onclick=function(){ from==='cover' ? screenCover() : (from==='peek' ? screenStage(CURRENT) : screenStage(0)); };
   p.appendChild(b);
+  var bh=el('button','cta ghost','⟵ رجوع للألعاب');
+  bh.onclick=goHome;
+  p.appendChild(bh);
   if(from==='cover'){topbar.style.display='none';}
   paint([p]);
 }
@@ -816,6 +939,7 @@ function castSpell(i,box,p){
 }
 
 function screenVictory(){
+  stopTimer();endBreak();
   var p=el('div','panel');
   var e=el('div','end');
   e.appendChild(el('div','big','Disarmus!'));
@@ -828,6 +952,7 @@ function screenVictory(){
 }
 
 function screenGameOver(){
+  stopTimer();endBreak();
   var p=el('div','panel');
   var e=el('div','end');
   e.appendChild(el('div','big','خلصت النجوم'));
@@ -841,8 +966,26 @@ function screenGameOver(){
   paint([scene(IMG.duel,'GAME OVER'),p]);
 }
 
+function screenTimeUp(){
+  endBreak();
+  var p=el('div','panel');
+  var e=el('div','end');
+  e.appendChild(el('div','big','انتهى الوقت ⏳'));
+  e.appendChild(el('div','score','وصلتِ لـ '+S.trophies+' من '+STAGES.length+' كنوز'));
+  p.appendChild(e);
+  p.appendChild(el('div','narr','خلصت الـ 30 دقيقة! ما تزعلي — المرة الجاي حاولي تخلّصي التحديات أسرع.'));
+  var b=el('button','cta','من البداية');
+  b.onclick=reset;p.appendChild(b);
+  var b2=el('button','cta dark','⟵ رجوع للألعاب');
+  b2.onclick=goHome;p.appendChild(b2);
+  paint([scene(IMG.duel,"TIME'S UP"),p]);
+}
+
 function reset(){
   S.lives=3;S.trophies=0;S.locks=['gold','silver','pink'];
+  stopTimer();endBreak();
+  timeLeft=TOTAL_TIME;timerStarted=false;
+  renderTimer();
   screenCover();
 }
 
@@ -865,6 +1008,8 @@ document.getElementById('btnRule').onclick=function(){screenRules('peek');};
 document.getElementById('btnHome').onclick=function(){
   if(confirm('ترجعي للصفحة الرئيسية؟'))location.href='index.html';
 };
+document.getElementById('btnPause').onclick=takeBreak;
+document.getElementById('btnResume').onclick=endBreak;
 
 /* ---------- شبكة أمان للصوت ---------- */
 function kickAudio(){
