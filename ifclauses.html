@@ -73,40 +73,6 @@ body::before{
   background:rgba(216,163,63,.07);
 }
 
-/* ---------- العدّاد التنازلي ---------- */
-.timer{
-  font-family:'Cinzel',serif;font-size:14px;font-weight:700;letter-spacing:1px;
-  color:var(--gold-soft);
-  border:1px solid rgba(216,163,63,.35);border-radius:20px;
-  padding:5px 10px;background:rgba(216,163,63,.07);
-  min-width:78px;text-align:center;white-space:nowrap;
-  transition:color .3s, border-color .3s;
-}
-.timer.warn{color:#ffd27f;border-color:rgba(216,163,63,.7);background:rgba(216,163,63,.14)}
-.timer.danger{color:#ff9a9a;border-color:rgba(192,57,43,.75);background:rgba(192,57,43,.14);
-  animation:tpulse 1s ease-in-out infinite}
-@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.45}}
-
-/* ---------- شاشة الاستراحة ---------- */
-.breakscreen{
-  position:fixed;inset:0;z-index:80;padding:24px;
-  background:rgba(8,10,17,.92);backdrop-filter:blur(6px);
-  display:flex;align-items:center;justify-content:center;
-  animation:riseUp .35s ease-out both;
-}
-.break-card{
-  text-align:center;max-width:340px;width:100%;
-  background:linear-gradient(180deg,var(--stone-2),var(--stone));
-  border:1px solid rgba(216,163,63,.4);border-radius:18px;padding:30px 24px;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
-}
-.break-title{font-family:'Amiri',serif;font-size:26px;color:var(--gold-soft);margin-bottom:14px}
-.break-count{
-  font-family:'Cinzel',serif;font-size:66px;font-weight:700;color:#fff;line-height:1;
-  text-shadow:0 0 26px rgba(216,163,63,.55);margin-bottom:12px;
-}
-.break-sub{font-size:15px;color:var(--parch-dim);margin-bottom:22px;line-height:1.7}
-
 /* ---------- المشهد ---------- */
 .stage{flex:1;display:flex;flex-direction:column}
 /* ---------- الإطار السحري ---------- */
@@ -303,6 +269,80 @@ body::before{
 .rule .ex{direction:ltr;text-align:left;font-family:'Cinzel',serif;font-size:14.5px;color:#fff;opacity:.92}
 .rule p{font-size:14px;color:var(--parch-dim);line-height:1.8;margin-bottom:8px}
 
+/* ---------- أنماط اللعب ---------- */
+.mode{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:right;
+  background:var(--stone);border:1px solid rgba(216,163,63,.28);
+  border-radius:14px;padding:15px;color:var(--parch);cursor:pointer;
+  font-family:'Tajawal',sans-serif;transition:.2s;margin-bottom:10px;
+}
+.mode:hover{background:var(--stone-2);border-color:var(--gold);transform:translateX(3px)}
+.mode .mi{width:44px;height:44px;flex:none;border-radius:12px;display:grid;
+  place-items:center;font-size:22px;background:rgba(216,163,63,.15)}
+.mode .mt{font-weight:700;font-size:16px}
+.mode .md{font-size:13px;color:var(--parch-dim);margin-top:2px}
+
+.field{
+  width:100%;background:var(--stone);border:1px solid rgba(216,163,63,.35);
+  border-radius:11px;padding:14px;color:var(--parch);font-family:'Tajawal',sans-serif;
+  font-size:16px;text-align:center;margin-bottom:10px;
+}
+.field:focus{outline:2px solid var(--gold);outline-offset:1px}
+
+.lbrow{
+  display:flex;align-items:center;gap:11px;padding:11px 13px;
+  border-bottom:1px solid rgba(216,163,63,.14);font-size:14.5px;
+}
+.lbrow .rk{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;
+  font-family:'Cinzel',serif;font-size:13px;background:rgba(216,163,63,.16);color:var(--gold-soft)}
+.lbrow .rk.g1{background:var(--gold);color:#1a1206}
+.lbrow .rk.g2{background:#c8ccd4;color:#1a1206}
+.lbrow .rk.g3{background:#c98a52;color:#1a1206}
+.lbrow .nm{flex:1;font-weight:500}
+.lbrow .sc{font-family:'Cinzel',serif;color:var(--gold-soft);font-size:15px}
+.lbrow .dt{font-size:11px;color:var(--parch-dim)}
+.lbbox{background:var(--stone);border:1px solid rgba(216,163,63,.22);
+  border-radius:13px;overflow:hidden;max-height:56vh;overflow-y:auto}
+.lbempty{padding:26px;text-align:center;color:var(--parch-dim);font-size:14px}
+
+/* ---------- صناديق المارد ---------- */
+.gifts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gift{
+  background:linear-gradient(180deg,rgba(143,216,255,.14),rgba(20,26,38,.9));
+  border:1px solid rgba(143,216,255,.4);border-radius:13px;
+  padding:20px 10px;font-size:30px;cursor:pointer;transition:.2s;
+  display:grid;place-items:center;
+}
+.gift:hover{transform:translateY(-3px);border-color:var(--spell);
+  box-shadow:0 6px 20px rgba(143,216,255,.28)}
+.gift:disabled{opacity:.35;cursor:default;transform:none}
+.giftout{
+  font-size:16px;line-height:1.9;text-align:center;color:#dff3ff;
+  background:rgba(143,216,255,.12);border:1px solid rgba(143,216,255,.45);
+  border-radius:12px;padding:15px;
+}
+
+/* ---------- الجوائز ---------- */
+.prize{display:grid;place-items:center;padding:8px 0 4px}
+.prize svg{width:min(58vw,230px);height:auto;
+  filter:drop-shadow(0 0 26px rgba(216,163,63,.65));
+  animation:float 3.4s ease-in-out infinite alternate}
+@keyframes float{from{transform:translateY(0) rotate(-1.5deg)}to{transform:translateY(-12px) rotate(1.5deg)}}
+.prize.gem svg{filter:drop-shadow(0 0 30px rgba(143,216,255,.75))}
+
+.wsheet{display:flex;flex-direction:column;gap:11px}
+.wsbtn{
+  display:flex;align-items:center;gap:13px;text-align:right;
+  background:var(--stone);border:1px solid rgba(216,163,63,.3);
+  border-radius:13px;padding:15px;color:var(--parch);cursor:pointer;
+  font-family:'Tajawal',sans-serif;font-size:16px;transition:.2s;width:100%;
+}
+.wsbtn:hover{background:var(--stone-2);border-color:var(--gold);transform:translateX(3px)}
+.wsbtn .n{width:38px;height:38px;flex:none;border-radius:10px;display:grid;place-items:center;
+  font-family:'Cinzel',serif;font-size:17px;background:rgba(216,163,63,.18);color:var(--gold-soft)}
+.wsbtn small{display:block;color:var(--parch-dim);font-size:13px;margin-top:2px}
+.wsbtn.hard .n{background:rgba(141,33,48,.28);color:#ffc2cb}
+
 /* ---------- النهاية ---------- */
 .end{text-align:center;padding:10px 0}
 .end .big{font-family:'Amiri',serif;font-size:30px;color:var(--gold-soft);margin-bottom:10px}
@@ -335,8 +375,6 @@ body::before{
     <button class="icon-btn" id="btnHome" title="الرئيسية">⌂</button>
     <button class="icon-btn" id="btnSound" title="الصوت">♪</button>
     <button class="icon-btn" id="btnRule" title="القاعدة">📖</button>
-    <button class="icon-btn" id="btnPause" title="استراحة 20 ثانية">⏸</button>
-    <div class="timer" id="timer">⏳ 30:00</div>
     <div class="lives" id="lives"></div>
     <div class="spacer"></div>
     <div class="trophy" id="trophy">0 / 6</div>
@@ -344,17 +382,34 @@ body::before{
   <div class="stage" id="stage"></div>
 </div>
 
-<!-- شاشة الاستراحة -->
-<div class="breakscreen" id="breakscreen" style="display:none">
-  <div class="break-card">
-    <div class="break-title">استراحة ✦</div>
-    <div class="break-count" id="breakCount">20</div>
-    <div class="break-sub">خُذي نفَسًا… الوقت متوقّف</div>
-    <button class="cta" id="btnResume">أكملي الآن</button>
-  </div>
-</div>
-
 <audio id="bgm" loop preload="auto"><source src="elmora-bg.mp3" type="audio/mpeg"></audio>
+
+<script>
+/* ===== لوحة النتائج المشتركة — إلمورا ===== */
+var ELM_PASS='amani2026', ELM_GAME='elmora', elmDB=null, elmName='', ELM_MODE='solo';
+(function(){
+  function boot(){
+    try{
+      if(!firebase.apps.length){
+        firebase.initializeApp({
+          apiKey:"AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",
+          authDomain:"cursed-castle-bb43b.firebaseapp.com",
+          projectId:"cursed-castle-bb43b",
+          storageBucket:"cursed-castle-bb43b.firebasestorage.app",
+          messagingSenderId:"458563878259",
+          appId:"1:458563878259:web:715ce9f960b2972ccd9906"
+        });
+      }
+      elmDB=firebase.firestore();
+    }catch(e){console.log('FB',e)}
+  }
+  function ld(u,cb){var x=document.createElement('script');x.src=u;x.onload=cb;x.onerror=function(){cb()};document.head.appendChild(x)}
+  ld('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',function(){
+    if(typeof firebase==='undefined')return;
+    ld('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',boot);
+  });
+})();
+</script>
 
 <script>
 (function(){
@@ -381,7 +436,8 @@ var IMG = {
   gate:'rayyan-gate.jpg',       balcony:'rayyan-balcony.jpg', crowd:'rayyan-crowd.jpg',
   mirror:'rayyan-mirror.jpg',   wings:'rayyan-wings.jpg',   runes:'rayyan-runes.jpg',
   bridgeBreak:'rayyan-bridgebreak.jpg', bridgeSave:'rayyan-bridgesave.jpg',
-  scroll:'rayyan-scroll.jpg'
+  scroll:'rayyan-scroll.jpg',
+  cup:'rayyan-cup.jpg', genie:'rayyan-genie.jpg'
 };
 
 var TYPE_LABEL = {0:'TYPE 0 — الحقائق',1:'TYPE 1 — المستقبل الممكن',2:'TYPE 2 — الخيال'};
@@ -561,75 +617,6 @@ var livesEl=document.getElementById('lives');
 var trophyEl=document.getElementById('trophy');
 var flash=document.getElementById('flash');
 var bgm=document.getElementById('bgm');
-var timerEl=document.getElementById('timer');
-var breakScreen=document.getElementById('breakscreen');
-var breakCountEl=document.getElementById('breakCount');
-
-/* ---------- العدّاد التنازلي (30 دقيقة) ---------- */
-var TOTAL_TIME=30*60;   // 1800 ثانية
-var timeLeft=TOTAL_TIME;
-var timerId=null;        // interval واحد للعبة كلها
-var timerRunning=false;  // يشتغل فقط أثناء اللعب الفعلي
-var timerStarted=false;  // هل بدأ العدّ أصلًا؟
-var breakId=null;        // مؤقّت الاستراحة
-var breakLeft=0;
-
-function fmtTime(t){
-  var m=Math.floor(t/60), s=t%60;
-  return m+':'+(s<10?'0':'')+s;
-}
-function renderTimer(){
-  timerEl.textContent='⏳ '+fmtTime(timeLeft);
-  timerEl.classList.remove('warn','danger');
-  if(timeLeft<=60) timerEl.classList.add('danger');
-  else if(timeLeft<=300) timerEl.classList.add('warn');
-}
-function ensureTimer(){
-  if(timerId) return;
-  timerId=setInterval(function(){
-    if(!timerRunning) return;      // متوقّف أثناء الاستراحة
-    timeLeft--;
-    renderTimer();
-    if(timeLeft<=0){
-      stopTimer();
-      screenTimeUp();
-    }
-  },1000);
-}
-function startTimer(){                // يبدأ العدّ أول مرّة
-  timerStarted=true;
-  timerRunning=true;
-  renderTimer();
-  ensureTimer();
-}
-function resumeTimer(){ if(timerStarted){ timerRunning=true; ensureTimer(); } }
-function pauseTimer(){ timerRunning=false; }
-function stopTimer(){
-  timerRunning=false;
-  if(timerId){ clearInterval(timerId); timerId=null; }
-}
-
-/* ---------- الاستراحة: 20 ثانية والوقت متوقّف ---------- */
-function takeBreak(){
-  if(!timerStarted || timeLeft<=0) return;  // فقط أثناء اللعب
-  if(breakId) return;                        // استراحة شغّالة أصلًا
-  pauseTimer();
-  breakLeft=20;
-  breakCountEl.textContent=breakLeft;
-  breakScreen.style.display='flex';
-  breakId=setInterval(function(){
-    breakLeft--;
-    breakCountEl.textContent=breakLeft>0?breakLeft:0;
-    if(breakLeft<=0) endBreak();
-  },1000);
-}
-function endBreak(){
-  if(breakId){ clearInterval(breakId); breakId=null; }
-  breakScreen.style.display='none';
-  resumeTimer();
-}
-
-function goHome(){ location.href='index.html'; }
 
 /* ---------- أدوات ---------- */
 function el(tag,cls,html){var n=document.createElement(tag);if(cls)n.className=cls;if(html!=null)n.innerHTML=html;return n;}
@@ -702,7 +689,7 @@ function screenCover(){
                          .catch(function(err){ console.log('AUDIO ERROR:', err && err.name, err && err.message); }); }
     else { bgm.volume=.38; }
     try{ bgm.muted=false; }catch(e){}
-    screenIntroVideo();
+    screenModes();
   };
   inn.appendChild(b);
   var b2=el('button','cta ghost','📖 اقرأ القاعدة أولاً');
@@ -710,6 +697,109 @@ function screenCover(){
   inn.appendChild(b2);
   c.appendChild(bg);c.appendChild(inn);
   paint([c]);
+}
+
+/* ---------- أنماط اللعب ---------- */
+function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function screenModes(){
+  topbar.style.display='none';
+  var p=el('div','panel');
+  p.appendChild(el('div','narr','<strong>كيف بدك تلعبي؟</strong><br>اختاري نمط اللعب المناسب.'));
+
+  function mk(icon,title,desc,fn){
+    var b=el('button','mode','<span class="mi">'+icon+'</span><span><span class="mt">'+title+'</span><span class="md">'+desc+'</span></span>');
+    b.onclick=fn;p.appendChild(b);
+  }
+  mk('\uD83C\uDFAF','لعب فردي','بتلعبي لحالك — نتيجتك ما بتظهر لحدا',
+     function(){ELM_MODE='solo';elmName='';screenIntroVideo();});
+  mk('\uD83D\uDCCB','اختبار','بتكتبي اسمك — نتيجتك بتوصل للمعلّمة بس',
+     function(){ELM_MODE='exam';screenName();});
+  mk('\uD83D\uDC65','تحدي الصف','بتكتبي اسمك — نتيجتك بتظهر للكل',
+     function(){ELM_MODE='team';screenName();});
+
+  var b1=el('button','cta ghost','\uD83C\uDFC6 لوحة النتائج');
+  b1.onclick=function(){screenBoard('team');};
+  p.appendChild(b1);
+
+  var b2=el('button','cta ghost','\uD83D\uDCCB سجل الاختبارات (للمعلّمة)');
+  b2.style.opacity='.6';b2.style.fontSize='13px';
+  b2.onclick=function(){
+    var pw=prompt('أدخلي كلمة السر لعرض سجل الاختبارات:');
+    if(pw===null)return;
+    if(pw!==ELM_PASS){alert('كلمة السر غير صحيحة');return;}
+    screenBoard('exam');
+  };
+  p.appendChild(b2);
+
+  paint([p]);
+}
+
+function screenName(){
+  var p=el('div','panel');
+  p.appendChild(el('div','narr','<strong>شو اسمك أيتها الساحرة؟</strong><br>'+
+    (ELM_MODE==='exam' ? 'اسمك ونتيجتك بيوصلوا للمعلّمة بس.' : 'اسمك رح يظهر بلوحة نتائج الصف.')));
+  var inp=document.createElement('input');
+  inp.className='field';inp.maxLength=24;inp.placeholder='اكتبي اسمك هون...';
+  inp.autocomplete='off';
+  try{inp.value=localStorage.getItem('elm_name')||'';}catch(e){}
+  p.appendChild(inp);
+  var b=el('button','cta','يلا نبلش');
+  b.onclick=function(){
+    var v=(inp.value||'').trim();
+    if(!v){inp.focus();return;}
+    elmName=v; try{localStorage.setItem('elm_name',v);}catch(e){}
+    screenIntroVideo();
+  };
+  p.appendChild(b);
+  var b2=el('button','cta ghost','رجوع');
+  b2.onclick=screenModes;p.appendChild(b2);
+  paint([p]);
+  setTimeout(function(){inp.focus();},250);
+}
+
+/* ---------- حفظ النتيجة ---------- */
+function saveResult(){
+  if(ELM_MODE==='solo')return;
+  if(!elmDB)return;
+  try{
+    elmDB.collection('playverse_scores').add({
+      game:ELM_GAME, mode:ELM_MODE, name:elmName||'لاعب',
+      score:S.trophies, lives:S.lives, total:STAGES.length,
+      ts: Date.now(),
+      date: new Date().toLocaleString('ar-EG')
+    });
+  }catch(e){console.log('save',e)}
+}
+
+/* ---------- لوحة النتائج ---------- */
+function screenBoard(kind){
+  topbar.style.display='none';
+  var p=el('div','panel');
+  p.appendChild(el('div','narr','<strong>'+(kind==='exam'?'\uD83D\uDCCB سجل الاختبارات':'\uD83C\uDFC6 لوحة نتائج الصف')+'</strong><br>'+
+    (kind==='exam'?'للمعلّمة فقط — نتائج نمط الاختبار':'أعلى النتائج في تحدي الصف')));
+  var box=el('div','lbbox','<div class="lbempty">جارٍ التحميل… \u23F3</div>');
+  p.appendChild(box);
+  var b=el('button','cta','رجوع');
+  b.onclick=screenModes;p.appendChild(b);
+  paint([p]);
+
+  if(!elmDB){box.innerHTML='<div class="lbempty">ما في اتصال بالإنترنت \uD83C\uDF10<br>افتحي اللعبة من الرابط على النت</div>';return;}
+  elmDB.collection('playverse_scores').where('game','==',ELM_GAME).limit(400).get().then(function(snap){
+    var rows=[];
+    snap.forEach(function(d){var o=d.data();o._id=d.id;if(o.mode===kind)rows.push(o);});
+    if(!rows.length){box.innerHTML='<div class="lbempty">ما في نتائج بعد.</div>';return;}
+    rows.sort(function(a,b){return (b.score||0)-(a.score||0) || (b.lives||0)-(a.lives||0) || (b.ts||0)-(a.ts||0);});
+    var html='';
+    rows.slice(0,100).forEach(function(o,i){
+      var cls=i===0?' g1':i===1?' g2':i===2?' g3':'';
+      html+='<div class="lbrow"><span class="rk'+cls+'">'+(i+1)+'</span>'+
+            '<span class="nm">'+esc(o.name)+
+            (kind==='exam'?'<span class="dt"><br>'+esc(o.date||'')+'</span>':'')+
+            '</span><span class="sc">'+(o.score||0)+' / '+(o.total||STAGES.length)+'</span></div>';
+    });
+    box.innerHTML=html;
+  }).catch(function(){box.innerHTML='<div class="lbempty">تعذّر التحميل.</div>';});
 }
 
 /* ---------- الفيديو التعريفي ---------- */
@@ -727,10 +817,6 @@ function screenIntroVideo(){
   s.appendChild(v);
 
   var bar=el('div','vidbar');
-  var back=el('button','cta ghost','⟵ رجوع للألعاب');
-  back.style.marginTop='0';
-  back.onclick=function(){try{v.pause();}catch(e){} goHome();};
-  bar.appendChild(back);
   var skip=el('button','cta','تخطّي ← ابدأ اللعب');
   skip.onclick=function(){try{v.pause();}catch(e){} bgm.volume=.28; screenStory();};
   bar.appendChild(skip);
@@ -743,7 +829,6 @@ function screenIntroVideo(){
 /* ---------- القصة ---------- */
 function screenStory(){
   topbar.style.display='flex';hud();playBgm();
-  if(!timerStarted) startTimer(); else resumeTimer();
   var p=el('div','panel');
   p.appendChild(el('div','narr',
     'ضاعت عصا <strong>رَيّان</strong> السحرية.<br>قاعد بغرفة النار حزين، وحواليه <strong>مَيّار</strong> و<strong>سَيف</strong> عم يفتّشوا معه.<br><br>وبدونها… ما بيقدر يواجه <strong>ڤيلمار</strong> أبدًا.<br><br>لازم تلاقيها. <strong>فورًا.</strong>'));
@@ -844,9 +929,6 @@ function screenRules(from){
   var b=el('button','cta', from==='cover' ? 'رجوع للغلاف' : 'ابدأ التحديات');
   b.onclick=function(){ from==='cover' ? screenCover() : (from==='peek' ? screenStage(CURRENT) : screenStage(0)); };
   p.appendChild(b);
-  var bh=el('button','cta ghost','⟵ رجوع للألعاب');
-  bh.onclick=goHome;
-  p.appendChild(bh);
   if(from==='cover'){topbar.style.display='none';}
   paint([p]);
 }
@@ -926,7 +1008,7 @@ function castSpell(i,box,p){
   for(var k=0;k<bs.length;k++)bs[k].disabled=true;
   if(i===2){
     bs[2].classList.add('good');fx('win');
-    setTimeout(screenVictory,600);
+    setTimeout(screenCup,600);
   }else{
     bs[i].classList.add('bad');
     fx('lose');S.lives--;hud();
@@ -938,21 +1020,71 @@ function castSpell(i,box,p){
   }
 }
 
-function screenVictory(){
-  stopTimer();endBreak();
+function screenCup(){
+  saveResult();
   var p=el('div','panel');
   var e=el('div','end');
-  e.appendChild(el('div','big','Disarmus!'));
   e.appendChild(el('div','score','النجوم المتبقية: '+S.lives+' / 3 · الكنوز: '+S.trophies+' / '+STAGES.length));
   p.appendChild(e);
-  p.appendChild(el('div','narr','طارت عصا <strong>ڤيلمار</strong> من إيده، وانطفى الشعاع الأخضر.<br><br>وقف <strong>رَيّان</strong> بوسط القاعة، حواليه <strong>مَيّار</strong> و<strong>سَيف</strong> و<strong>سَراج</strong>.<br><br>ست بوابات، وست جمل شرطية… وإنتِ اللي فتحتيهم كلهم. <strong>مبروك!</strong>'));
-  var b=el('button','cta','العبي من جديد');
-  b.onclick=reset;p.appendChild(b);
-  paint([scene(IMG.hall,'VICTORY'),p]);
+  p.appendChild(el('div','narr','مبروك! هزمتِ <strong>ڤيلمار</strong> وأنقذتِ أكاديمية إلمورا.<br><br>بس الساحر الحقيقي بيتمرّن كمان… معك ورقتين تمرين.'));
+  var b=el('button','cta','انتقلي لورقة العمل ←');
+  b.onclick=screenWorksheets;p.appendChild(b);
+  paint([scene(IMG.cup,'TROPHY'),p]);
+}
+
+function screenWorksheets(){
+  var p=el('div','panel');
+  p.appendChild(el('div','narr','<strong>أوراق التمرين</strong><br>افتحي الورقة، حلّيها، وفي آخرها مفتاح الإجابات.'));
+  var box=el('div','wsheet');
+
+  var w1=el('button','wsbtn','<span class="n">I</span><span>ورقة العمل الأولى<small>مستوى عادي · ٥ تمارين</small></span>');
+  w1.onclick=function(){window.open('elmora-ws1.html','_blank');};
+  box.appendChild(w1);
+
+  var w2=el('button','wsbtn hard','<span class="n">II</span><span>ورقة العمل الثانية<small>مستوى متقدّم · تصحيح أخطاء وإعادة صياغة</small></span>');
+  w2.onclick=function(){window.open('elmora-ws2.html','_blank');};
+  box.appendChild(w2);
+
+  p.appendChild(box);
+  var b=el('button','cta','خلّصت ← الجائزة الأخيرة');
+  b.onclick=screenVictory;p.appendChild(b);
+  paint([p]);
+}
+
+var GIFTS=[
+  '\uD83C\uDFC5 ربحتِ علامتين إضافيتين!',
+  '\uD83E\uDD1D بتقدري تنقذي صديقتك بأي عدد من النقاط',
+  '\uD83C\uDF81 إلك هدية مميزة… اطلبيها من معلمتك',
+  '\uD83C\uDF1F رح تكوني من نجوم PlayVerse هالأسبوع!'
+];
+
+function screenVictory(){
+  var p=el('div','panel');
+  p.appendChild(el('div','narr','طارت عصا <strong>ڤيلمار</strong> من إيده وانطفى الشعاع الأخضر.<br><br>\uD83E\uDDDE\u200D\u2642\uFE0F المارد بيمنحك جائزة… اختاري صندوق واحد لتكشفيه!'));
+
+  var box=el('div','gifts');
+  var order=GIFTS.slice();
+  for(var k=order.length-1;k>0;k--){var r=Math.floor(Math.random()*(k+1));var t=order[k];order[k]=order[r];order[r]=t;}
+  var picked=false;
+  order.forEach(function(txt){
+    var g=el('button','gift','\uD83C\uDF81');
+    g.onclick=function(){
+      if(picked)return; picked=true;
+      var all=box.querySelectorAll('.gift');
+      for(var m=0;m<all.length;m++)all[m].disabled=true;
+      g.textContent='\u2728'; fx('win');
+      p.insertBefore(el('div','giftout',txt), box.nextSibling);
+      var b2=el('button','cta','العبي من جديد');
+      b2.onclick=reset; p.appendChild(b2);
+    };
+    box.appendChild(g);
+  });
+  p.appendChild(box);
+  paint([scene(IMG.genie,'THE GENIE'),p]);
 }
 
 function screenGameOver(){
-  stopTimer();endBreak();
+  saveResult();
   var p=el('div','panel');
   var e=el('div','end');
   e.appendChild(el('div','big','خلصت النجوم'));
@@ -966,28 +1098,11 @@ function screenGameOver(){
   paint([scene(IMG.duel,'GAME OVER'),p]);
 }
 
-function screenTimeUp(){
-  endBreak();
-  var p=el('div','panel');
-  var e=el('div','end');
-  e.appendChild(el('div','big','انتهى الوقت ⏳'));
-  e.appendChild(el('div','score','وصلتِ لـ '+S.trophies+' من '+STAGES.length+' كنوز'));
-  p.appendChild(e);
-  p.appendChild(el('div','narr','خلصت الـ 30 دقيقة! ما تزعلي — المرة الجاي حاولي تخلّصي التحديات أسرع.'));
-  var b=el('button','cta','من البداية');
-  b.onclick=reset;p.appendChild(b);
-  var b2=el('button','cta dark','⟵ رجوع للألعاب');
-  b2.onclick=goHome;p.appendChild(b2);
-  paint([scene(IMG.duel,"TIME'S UP"),p]);
-}
-
 function reset(){
   S.lives=3;S.trophies=0;S.locks=['gold','silver','pink'];
-  stopTimer();endBreak();
-  timeLeft=TOTAL_TIME;timerStarted=false;
-  renderTimer();
   screenCover();
 }
+window.elmBoard=screenBoard;
 
 /* ---------- الصوت ---------- */
 function playBgm(){
@@ -1008,8 +1123,6 @@ document.getElementById('btnRule').onclick=function(){screenRules('peek');};
 document.getElementById('btnHome').onclick=function(){
   if(confirm('ترجعي للصفحة الرئيسية؟'))location.href='index.html';
 };
-document.getElementById('btnPause').onclick=takeBreak;
-document.getElementById('btnResume').onclick=endBreak;
 
 /* ---------- شبكة أمان للصوت ---------- */
 function kickAudio(){
