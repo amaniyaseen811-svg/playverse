@@ -177,6 +177,19 @@
     .mg-spark,.mg-rune{opacity:.5;}
   }
 
+  /* ===== أنماط اللعب والنتائج ===== */
+  .field{width:100%;max-width:320px;padding:13px 15px;font-size:17px;text-align:center;
+    border:3px solid var(--blue);border-radius:14px;font-family:inherit;margin:7px auto;display:block;}
+  .field:focus{border-color:var(--purple);outline:none;}
+  .board{width:100%;border-collapse:collapse;font-size:15px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.08);}
+  .board th{background:linear-gradient(90deg,var(--pink),var(--purple));color:#fff;padding:10px 6px;font-size:14px;}
+  .board td{padding:9px 6px;border-bottom:1px solid #f0e8f5;text-align:center;}
+  .board tr:nth-child(even) td{background:#fdf7ff;}
+  .board .me td{background:#fff3cd!important;font-weight:bold;}
+  .rank1{color:var(--gold);font-size:19px;}
+  .room-pill{background:rgba(255,255,255,.28);}
+  .note{font-size:13.5px;color:#8b7b86;line-height:1.8;margin-top:8px;}
+
   /* ===== خريطة المراحل ===== */
   .levels{display:flex;flex-direction:column;gap:12px;margin:14px 0;}
   .level-card{display:flex;align-items:center;gap:13px;background:#fff;border-radius:18px;padding:13px 15px;box-shadow:0 5px 14px rgba(0,0,0,.07);border:3px solid #fff;cursor:pointer;text-align:right;transition:transform .12s,border-color .2s;font-family:inherit;width:100%;}
@@ -334,12 +347,79 @@
       </div>
     </div>
     <div class="row2">
+      <span class="pill room-pill" id="roomPill" style="display:none;"></span>
       <span class="pill clock" id="clockPill">⏳ 30:00</span>
       <span class="pill" id="heartsPill">❤️❤️❤️</span>
       <span class="pill" id="scorePill">النقاط: 0</span>
       <button class="icon-btn" id="pauseBtn" onclick="togglePause()" title="إيقاف مؤقت">⏸️</button>
       <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="الصوت">🔊</button>
       <button class="icon-btn" onclick="goHome()" title="خريطة المراحل">🗺️</button>
+    </div>
+  </div>
+
+  <!-- اختيار نمط اللعب -->
+  <div class="screen" id="screen-mode">
+    <h2 class="title">🎮 اختر طريقة اللعب</h2>
+    <div class="levels">
+      <button class="level-card" onclick="pickMode('solo')">
+        <span class="lv-emoji">🧍</span>
+        <span class="lv-body"><span class="lv-name">لعب فردي</span><br>
+        <span class="lv-desc">تلعب لحالك، والنتيجة بتضل على جهازك</span></span></button>
+      <button class="level-card" onclick="pickMode('class')">
+        <span class="lv-emoji">👥</span>
+        <span class="lv-body"><span class="lv-name">جماعي — الكل بشوف النتائج</span><br>
+        <span class="lv-desc">سباق صفّي بلوحة نتائج مباشرة يشوفها الجميع</span></span></button>
+      <button class="level-card" onclick="pickMode('teacher')">
+        <span class="lv-emoji">👩‍🏫</span>
+        <span class="lv-body"><span class="lv-name">الكل بيلعب — المعلّمة بس بتشوف</span><br>
+        <span class="lv-desc">النتائج محفوظة وما بيشوفها إلا المعلّمة بكلمة السر</span></span></button>
+    </div>
+    <div class="btn-row"><button class="btn secondary" onclick="backToPlatform()">🏠 العودة إلى الألعاب</button></div>
+  </div>
+
+  <!-- الدخول للغرفة -->
+  <div class="screen" id="screen-join">
+    <h2 class="title" id="joinTitle">👥 الدخول إلى الغرفة</h2>
+    <div class="story-text" id="joinHint"></div>
+    <input class="field" id="pName" maxlength="20" placeholder="اسمك">
+    <input class="field" id="pRoom" maxlength="16" placeholder="كود الغرفة — مثال: صف1">
+    <div class="note" id="joinMsg"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="doJoin()">✅ دخول</button>
+      <button class="btn ghost" onclick="showScreen('mode')">↩️ رجوع</button>
+    </div>
+  </div>
+
+  <!-- لوحة النتائج -->
+  <div class="screen" id="screen-board">
+    <h2 class="title">🏁 لوحة النتائج</h2>
+    <div class="note" id="boardRoom"></div>
+    <div id="boardWrap" style="margin-top:10px;"></div>
+    <div class="btn-row">
+      <button class="btn secondary" onclick="loadBoard()">🔄 تحديث</button>
+      <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+    </div>
+  </div>
+
+  <!-- نتائج المعلّمة -->
+  <div class="screen" id="screen-teacher">
+    <h2 class="title">🔒 نتائج الطلاب</h2>
+    <div id="teacherLock">
+      <div class="story-text">هذه الشاشة للمعلّمة فقط.</div>
+      <input class="field" id="tPass" type="password" placeholder="كلمة السر">
+      <div class="note" id="tMsg"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="checkTeacher()">🔓 دخول</button>
+        <button class="btn ghost" onclick="goHome()">↩️ رجوع</button>
+      </div>
+    </div>
+    <div id="teacherPanel" style="display:none;">
+      <div class="note" id="teacherRoom"></div>
+      <div id="teacherWrap" style="margin-top:10px;"></div>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="loadBoard(true)">🔄 تحديث</button>
+        <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+      </div>
     </div>
   </div>
 
@@ -350,6 +430,8 @@
     <div class="story-text" style="font-size:14px;padding:10px 13px;" id="totalLine"></div>
     <div class="btn-row">
       <button class="btn ghost" onclick="playIntro()">🎬 القصة والمقدمة</button>
+      <button class="btn ghost" id="boardBtn" style="display:none;" onclick="openBoard()">🏁 لوحة النتائج</button>
+      <button class="btn ghost" id="teacherBtn" style="display:none;" onclick="showScreen('teacher')">🔒 نتائج الطلاب</button>
       <button class="btn ghost" onclick="openTrophy(true)">🏆 الجوائز</button>
       <button class="btn ghost" onclick="resetProgress()">🧹 مسح التقدّم</button>
     </div>
@@ -547,6 +629,46 @@
 
 </div>
 
+<script type="module">
+/* اتصال Firebase — نفس مشروع باقي ألعاب PlayVerse */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDocs, query, where, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",
+  authDomain: "cursed-castle-bb43b.firebaseapp.com",
+  projectId: "cursed-castle-bb43b",
+  storageBucket: "cursed-castle-bb43b.firebasestorage.app",
+  messagingSenderId: "458563878259",
+  appId: "1:458563878259:web:715ce9f960b2972ccd9906"
+};
+
+try{
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db  = getFirestore(app);
+  const COL = 'playverse_scores';
+  const key = s => String(s).replace(/[^\p{L}\p{N}_-]/gu,'_').slice(0,40);
+
+  window.PV = {
+    ready:true,
+    async save(d){
+      const id = 'sally_' + key(d.room) + '_' + key(d.name);
+      await setDoc(doc(db, COL, id), Object.assign({game:'sally', ts:serverTimestamp()}, d), {merge:true});
+    },
+    async list(room){
+      const q = query(collection(db, COL), where('game','==','sally'), where('room','==',room));
+      const snap = await getDocs(q);
+      const rows = [];
+      snap.forEach(s => rows.push(s.data()));
+      rows.sort((a,b)=>(b.score||0)-(a.score||0));
+      return rows;
+    }
+  };
+}catch(e){
+  window.PV = {ready:false};
+}
+</script>
 <script>
 /* ============================================================
    مغامرة سالي مع الأرقام — نسخة PlayVerse
@@ -741,7 +863,8 @@ function toggleSound(){
 /* ---------- الشاشات والرجوع المنطقي ---------- */
 let currentScreen='story';
 const BACK_MAP={
-  home:null, lesson:'home', play:'lesson',
+  mode:null, join:'mode', home:'mode', board:'home', teacher:'home',
+  lesson:'home', play:'lesson',
   levelDone:'home', gameOver:'home', timeUp:'home',
   trophy:'home', ws1:'trophy', ws2:'ws1', genie:'ws2'
 };
@@ -762,6 +885,7 @@ function goBack(){
     clearInterval(timerInterval);
   }
   if(target==='home') goHome();
+  else if(target==='mode') showScreen('mode');
   else if(target==='trophy') openTrophy(true);
   else if(target==='ws1') openWS(1);
   else if(target==='ws2') openWS(2);
@@ -1062,7 +1186,7 @@ function endLevel(won){
   progress.stars[currentLevel]=Math.max(progress.stars[currentLevel]||0,stars);
   if(currentLevel+1>progress.unlocked-1) progress.unlocked=Math.min(LEVELS.length,currentLevel+2);
   if(totalScore>progress.best) progress.best=totalScore;
-  saveProgress(); sndWin();
+  saveProgress(); sndWin(); saveScore();
 
   const levelScore=score;
   score=0;                       // تصفير نقاط المرحلة بعد إضافتها للمجموع
@@ -1258,6 +1382,90 @@ function revealGift(i){
   const card=document.getElementById('prizeCard');
   card.innerHTML=GENIE_GIFTS[i];
   card.classList.add('show');
+}
+
+
+/* ============================================================
+   أنماط اللعب: فردي / جماعي / نتائج المعلّمة
+   ============================================================ */
+const TEACHER_PASS = 'amani2026';
+let gameMode='solo', playerName='', roomCode='';
+
+function pickMode(m){
+  gameMode = m;
+  if(m==='solo'){
+    playerName=''; roomCode='';
+    document.getElementById('roomPill').style.display='none';
+    document.getElementById('boardBtn').style.display='none';
+    document.getElementById('teacherBtn').style.display='none';
+    goHome(); return;
+  }
+  document.getElementById('joinTitle').textContent =
+    (m==='class') ? '👥 سباق الصف' : '👩‍🏫 لعب صفّي — نتائج للمعلّمة';
+  document.getElementById('joinHint').innerHTML = (m==='class')
+    ? 'اكتب اسمك وكود الغرفة اللي أعطتك إياه المعلّمة. الكل بنفس الغرفة بيشوف لوحة النتائج مباشرة 🏁'
+    : 'اكتب اسمك وكود الغرفة. النتيجة بتنحفظ للمعلّمة، وما حدا من الطلاب بيشوف نتائج غيره 🔒';
+  document.getElementById('joinMsg').textContent =
+    (window.PV && window.PV.ready) ? '' : '⚠️ ما في اتصال بالإنترنت — النتائج ما رح تنحفظ.';
+  showScreen('join');
+}
+
+function doJoin(){
+  const n=document.getElementById('pName').value.trim();
+  const r=document.getElementById('pRoom').value.trim();
+  const msg=document.getElementById('joinMsg');
+  if(n.length<2){ msg.textContent='✍️ اكتب اسمك أولًا'; return; }
+  if(r.length<1){ msg.textContent='✍️ اكتب كود الغرفة'; return; }
+  playerName=n; roomCode=r;
+  const pill=document.getElementById('roomPill');
+  pill.style.display=''; pill.textContent='👤 '+n+' • '+r;
+  document.getElementById('boardBtn').style.display   = (gameMode==='class')   ? '' : 'none';
+  document.getElementById('teacherBtn').style.display = (gameMode==='teacher') ? '' : 'none';
+  goHome();
+}
+
+/* حفظ النتيجة */
+function saveScore(){
+  if(gameMode==='solo' || !playerName || !roomCode) return;
+  if(!(window.PV && window.PV.ready)) return;
+  const stars=progress.stars.reduce((a,b)=>a+b,0);
+  window.PV.save({
+    room: roomCode, name: playerName, mode: gameMode,
+    score: totalScore, stars: stars,
+    correct: correctTotal, answered: answeredTotal,
+    levels: progress.unlocked-1
+  }).catch(()=>{});
+}
+
+/* لوحة النتائج */
+function openBoard(){ showScreen('board'); loadBoard(); }
+function loadBoard(forTeacher){
+  const wrap=document.getElementById(forTeacher?'teacherWrap':'boardWrap');
+  const roomEl=document.getElementById(forTeacher?'teacherRoom':'boardRoom');
+  roomEl.textContent='الغرفة: '+(roomCode||'—');
+  wrap.innerHTML='<div class="note">⏳ جاري التحميل…</div>';
+  if(!(window.PV && window.PV.ready)){ wrap.innerHTML='<div class="note">⚠️ ما في اتصال بالإنترنت</div>'; return; }
+  window.PV.list(roomCode).then(rows=>{
+    if(!rows.length){ wrap.innerHTML='<div class="note">ما في نتائج بعد — أول ما يخلّص أحد مرحلة بتظهر هون.</div>'; return; }
+    let h='<table class="board"><tr><th>#</th><th>الاسم</th><th>النقاط</th><th>النجوم</th><th>صحيح</th></tr>';
+    rows.forEach((r,i)=>{
+      const me=(r.name===playerName)?' class="me"':'';
+      const rank=(i===0)?'<span class="rank1">🥇</span>':(i===1?'🥈':(i===2?'🥉':(i+1)));
+      h+=`<tr${me}><td>${rank}</td><td>${r.name||''}</td><td>${r.score||0}</td><td>${'⭐'.repeat(r.stars||0)||'—'}</td><td>${r.correct||0}/${r.answered||0}</td></tr>`;
+    });
+    h+='</table>';
+    wrap.innerHTML=h;
+  }).catch(()=>{ wrap.innerHTML='<div class="note">⚠️ ما قدرت أجيب النتائج</div>'; });
+}
+
+/* شاشة المعلّمة */
+function checkTeacher(){
+  const p=document.getElementById('tPass').value.trim();
+  if(p!==TEACHER_PASS){ document.getElementById('tMsg').textContent='❌ كلمة السر غير صحيحة'; return; }
+  document.getElementById('tMsg').textContent='';
+  document.getElementById('teacherLock').style.display='none';
+  document.getElementById('teacherPanel').style.display='';
+  loadBoard(true);
 }
 
 /* ---------- القصة صارت هي المقدمة نفسها ---------- */
@@ -1487,7 +1695,7 @@ function closeIntro(){
 loadProgress();
 renderClock();
 renderHome();
-showScreen('home');
+showScreen('mode');
 // المقدمة بتشتغل لحالها أول ما تفتح اللعبة
 setTimeout(playIntro, 250);
 </script>
