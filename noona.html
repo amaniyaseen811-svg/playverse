@@ -432,9 +432,12 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
     <div class="center"><button class="btn" onclick="location.reload()">العب مرة ثانية 🔄</button></div>
   </div>
 
+  <audio id="bgm" src="noona-music.mp3" loop preload="auto"></audio>
+
   <div class="foot">
     <button class="btn ghost" onclick="location.reload()">🏠 البداية</button>
     <button class="btn ghost" id="sndBtn" onclick="toggleSound()">🔊 الصوت</button>
+    <button class="btn ghost" id="musBtn" onclick="toggleMusic()">🎵 الموسيقى</button>
   </div>
 </div>
 
@@ -514,14 +517,20 @@ function mkUtt(t){
 }
 function say(text){
   if(!soundOn)return;
-  try{ speechSynthesis.cancel(); speechSynthesis.speak(mkUtt(text)); }catch(e){}
+  try{ speechSynthesis.cancel(); duckMusic(true);
+    const u=mkUtt(text); u.onend=()=>duckMusic(false); speechSynthesis.speak(u);
+    setTimeout(()=>duckMusic(false),2500);
+  }catch(e){}
 }
 /* ينطق قائمة بالتتابع: الحرف أولًا ثم الكلمة */
 function saySeq(parts){
   if(!soundOn)return;
   try{
-    speechSynthesis.cancel();
-    parts.forEach(t=>{ if(t) speechSynthesis.speak(mkUtt(t)); });
+    speechSynthesis.cancel(); duckMusic(true);
+    parts.forEach((t,i)=>{ if(!t) return; const u=mkUtt(t);
+      if(i===parts.length-1) u.onend=()=>duckMusic(false);
+      speechSynthesis.speak(u); });
+    setTimeout(()=>duckMusic(false), 900+parts.length*900);
   }catch(e){}
 }
 /* الحرف ثم الكلمة:  A … Apple */
@@ -545,13 +554,33 @@ function setBG(i){
 }
 function clearBG(){ bgNow=-1; document.getElementById('bgfx').classList.remove('on'); }
 
+
+/* ================= الموسيقى ================= */
+const bgm=document.getElementById('bgm');
+let musicOn=true, musicReady=false;
+bgm.volume=0.22;
+function startMusic(){
+  if(!musicOn) return;
+  bgm.play().then(()=>{musicReady=true}).catch(()=>{});
+}
+function toggleMusic(){
+  musicOn=!musicOn;
+  document.getElementById('musBtn').textContent = musicOn?'🎵 الموسيقى':'🎵 صامت';
+  if(musicOn){ startMusic(); } else { bgm.pause(); }
+}
+function duckMusic(down){ bgm.volume = down ? 0.06 : 0.22; }
+/* أول لمسة من المستخدم تشغّل الموسيقى (سياسة المتصفحات) */
+['click','touchstart'].forEach(ev=>
+  document.addEventListener(ev, function once(){ startMusic(); document.removeEventListener(ev, once); }, {once:true}));
+
 /* ================= المقدمة (الفيلم) ================= */
 const introVid=document.getElementById('introVid');
 function playIntro(){
-  try{ introVid.play(); introVid.scrollIntoView({block:'center',behavior:'smooth'}); }
+  try{ bgm.pause(); introVid.play(); introVid.scrollIntoView({block:'center',behavior:'smooth'}); }
   catch(e){ show('s-mode'); }
 }
-introVid.addEventListener('ended',()=>show('s-mode'));
+introVid.addEventListener('ended',()=>{ startMusic(); show('s-mode'); });
+introVid.addEventListener('pause',()=>{ if(!introVid.ended) startMusic(); });
 introVid.addEventListener('error',()=>{ show('s-mode'); });
 
 /* ================= المراحل والأسئلة ================= */
@@ -565,12 +594,12 @@ const STAGES=[
  time:20,
  qs:[
   {k:"sound",  q:"اسمع الحرف جيدًا… أيّ حرف هو؟", say:"A", opts:[["A",1],["E",0],["B",0],["C",0]], hint:"A مثل <span class='en'>Apple</span> 🍎"},
-  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"⚽", word:"Ball", opts:[["D",0],["B",1],["P",0],["F",0]], hint:"<span class='en'>Ball</span> تبدأ بحرف <span class='en'>B</span>"},
-  {k:"case",   q:"اختر الحرف الصغير المطابق:", show:"D", opts:[["b",0],["d",1],["p",0],["q",0]], hint:"<span class='en'>D</span> الصغير هو <span class='en'>d</span>"},
-  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"🐟", word:"Fish", opts:[["S",0],["V",0],["F",1],["T",0]], hint:"<span class='en'>Fish</span> تبدأ بحرف <span class='en'>F</span>"},
-  {k:"sound",  q:"اسمع الحرف… أيّ واحد هو؟", say:"M", opts:[["N",0],["M",1],["W",0],["H",0]], hint:"<span class='en'>M</span> مثل <span class='en'>Moon</span> 🌙"},
-  {k:"seq",    q:"أيّ حرف يأتي بعد؟", show:"C", opts:[["A",0],["E",0],["D",1],["B",0]], hint:"الترتيب: <span class='en'>A B C D E</span>"},
-  {k:"case",   q:"اختر الحرف الصغير المطابق:", show:"E", opts:[["a",0],["c",0],["e",1],["o",0]], hint:"<span class='en'>E</span> الصغير هو <span class='en'>e</span>"}
+  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"⚽", word:"Ball", opts:[["B",1],["D",0],["S",0],["F",0]], hint:"<span class='en'>Ball</span> تبدأ بحرف <span class='en'>B</span>"},
+  {k:"case",   q:"هذا هو الحرف الكبير… اختر شكله الصغير:", show:"D", opts:[["d",1],["m",0],["s",0],["k",0]], hint:"<span class='en'>D</span> الكبير ← <span class='en'>d</span> الصغير"},
+  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"🐟", word:"Fish", opts:[["F",1],["S",0],["T",0],["V",0]], hint:"<span class='en'>Fish</span> تبدأ بحرف <span class='en'>F</span>"},
+  {k:"sound",  q:"اسمع الحرف… أيّ واحد هو؟", say:"M", opts:[["M",1],["S",0],["T",0],["R",0]], hint:"<span class='en'>M</span> مثل <span class='en'>Moon</span> 🌙"},
+  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"🍎", word:"Apple", opts:[["A",1],["M",0],["T",0],["S",0]], hint:"<span class='en'>Apple</span> تبدأ بحرف <span class='en'>A</span>"},
+  {k:"case",   q:"هذا هو الحرف الكبير… اختر شكله الصغير:", show:"E", opts:[["e",1],["k",0],["w",0],["r",0]], hint:"<span class='en'>E</span> الكبير ← <span class='en'>e</span> الصغير"}
  ]
 },
 {
@@ -611,10 +640,11 @@ const STAGES=[
 /* ================= الحالة ================= */
 let mode='solo', players=[], turn=0, stage=0, qi=0, keys=0;
 let timerId=null, timeLeft=0, answered=false;
-let slots=[], picked=[];
+let slots=[], picked=[], curOpts=[];
 
 function show(id){
   if(id!=='s-intro'){try{introVid.pause()}catch(e){}}
+  if(id==='s-quiz'||id==='s-learn'){duckMusic(false)}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');window.scrollTo(0,0)}
 
@@ -714,12 +744,13 @@ function renderQ(){
     let visual='';
     if(q.k==='sound')  visual=`<button class="say" onclick="say('${q.say}')">🔊 اضغط لتسمع الحرف</button>`;
     if(q.k==='listen') visual=`<button class="say" onclick="say('${q.say}')">🔊 اضغط لتسمع الكلمة</button>`;
-    if(q.k==='case'||q.k==='seq') visual=`<div class="big">${q.show}</div>`;
+    if(q.k==='case') visual=`<div class="big">${q.show}</div>`;
     if(q.k==='first')  visual=`<div class="big emoji">${q.emoji}</div><div class="big" style="font-size:2.2rem">${q.word}</div>
                                <button class="say" onclick="say('${q.word}')">🔊 اسمع الكلمة</button>`;
     if(q.k==='word')   visual=`<div class="big emoji">${q.emoji}</div>`;
     if(q.k==='miss')   visual=`<div class="big emoji">${q.emoji}</div><div class="big" style="font-size:2.6rem">${q.word}</div>`;
-    const opts=q.opts.map((o,i)=>{
+    curOpts = q.opts.slice().sort(()=>Math.random()-0.5);   // خلط مواقع الخيارات
+    const opts=curOpts.map((o,i)=>{
       const isEmoji=/\p{Emoji}/u.test(o[0]) && !/^[A-Za-z]/.test(o[0]);
       return `<button class="opt" id="op${i}" onclick="answer(${i},${o[1]})">
         <span class="${isEmoji?'em':'lt'}">${o[0]}</span></button>`;
@@ -767,7 +798,7 @@ function answer(i,correct){
   const q=STAGES[stage].qs[qi];
   document.querySelectorAll('.opt').forEach((b,j)=>{
     b.disabled=true;
-    if(q.opts[j][1]) b.classList.add('ok');
+    if(curOpts[j][1]) b.classList.add('ok');
   });
   if(!correct) document.getElementById('op'+i).classList.add('no');
   judge(!!correct, q.hint);
@@ -781,7 +812,7 @@ function judge(ok, hint, timeout){
     setTimeout(()=>{
       if(q0.k==='first'){ sayLW(q0.word[0].toUpperCase(), q0.word); }
       else if(q0.k==='sound'){ sayLW(q0.say, LETTER_EX[q0.say]||''); }
-      else if(q0.k==='case'||q0.k==='seq'){ const L=(q0.opts.find(o=>o[1])||[''])[0].toUpperCase();
+      else if(q0.k==='case'){ const L=(q0.opts.find(o=>o[1])||[''])[0].toUpperCase();
         sayLW(L, LETTER_EX[L]||''); }
       else if(q0.k==='miss'){ spellWord(q0.full); }
       else if(q0.k==='word'||q0.k==='listen'){ const w=(q0.opts.find(o=>o[1])||[''])[0];
