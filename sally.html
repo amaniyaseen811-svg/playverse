@@ -363,7 +363,7 @@
   <!-- فيديو المقدمة -->
   <div class="overlay" id="vidOverlay">
     <div style="width:100%;max-width:420px;text-align:center;">
-      <video id="introVid" playsinline controls preload="metadata" src="sally-intro.mp4" style="width:100%;border-radius:16px;background:#000;"></video>
+      <video id="introVid" playsinline controls preload="metadata" style="width:100%;border-radius:16px;background:#000;"></video>
       <div class="btn-row"><button class="btn" onclick="closeIntro()">إغلاق ✖️</button></div>
     </div>
   </div>
@@ -1082,10 +1082,17 @@ function prevScene(){
 }
 
 /* ---------- فيديو المقدمة ---------- */
+const INTRO_FILES=['sally_intro.mp4','sally_intro.mp4','sally-intro-new.mp4'];
+let introTry=0;
 (function(){
   const v=document.getElementById('introVid'); if(!v) return;
   v.addEventListener('loadedmetadata',()=>{document.getElementById('introVidRow').style.display='flex';});
-  v.addEventListener('error',()=>{document.getElementById('introVidRow').style.display='none';});
+  v.addEventListener('error',()=>{
+    introTry++;
+    if(introTry<INTRO_FILES.length){ v.src=INTRO_FILES[introTry]; v.load(); }
+    else document.getElementById('introVidRow').style.display='none';
+  });
+  v.src=INTRO_FILES[0];
 })();
 function playIntro(){
   const v=document.getElementById('introVid');
