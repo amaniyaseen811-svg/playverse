@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>نُونا وحَرْفوش · مغامرة الحروف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#180f3d;
+  --deep:#2a1a5e;
+  --violet:#6b3fa0;
+  --mint:#5ef0c4;
+  --gold:#ffc93c;
+  --coral:#ff6b8b;
+  --cream:#fff6e5;
+  --ink:#20143f;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Baloo Bhaijaan 2','Segoe UI',Tahoma,sans-serif;
+  background:
+    radial-gradient(900px 600px at 80% -10%, #4b2a8f 0%, transparent 60%),
+    radial-gradient(700px 500px at 10% 110%, #2b6f7d 0%, transparent 55%),
+    linear-gradient(180deg,#180f3d 0%, #241356 55%, #170e34 100%);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:12px;color:var(--cream);overflow-x:hidden;
+}
+/* نجوم الخلفية */
+.sky{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sky i{position:absolute;background:#fff;border-radius:50%;opacity:.6;animation:tw 3s infinite ease-in-out}
+@keyframes tw{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:.9;transform:scale(1)}}
+
+.stage{
+  position:relative;z-index:1;width:100%;max-width:680px;
+  background:linear-gradient(180deg,#2d1c66 0%,#241452 100%);
+  border-radius:30px;padding:0 0 18px;
+  border:3px solid rgba(94,240,196,.35);
+  box-shadow:0 26px 60px rgba(0,0,0,.55), inset 0 0 60px rgba(107,63,160,.35);
+  overflow:hidden;
+}
+/* ===== شريط الحالة ===== */
+.hud{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 16px;background:rgba(0,0,0,.22);border-bottom:2px solid rgba(94,240,196,.18);flex-wrap:wrap}
+.hud .chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:5px 12px;font-size:.95rem;font-weight:700}
+.keys span{opacity:.28;font-size:1.1rem}
+.keys span.on{opacity:1;filter:drop-shadow(0 0 6px var(--gold))}
+.timer-ring{width:44px;height:44px;position:relative;flex:0 0 auto}
+.timer-ring svg{transform:rotate(-90deg)}
+.timer-ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;font-family:'Fredoka',sans-serif}
+.timer-ring.warn b{color:var(--coral)}
+
+.screen{display:none;padding:20px 18px 6px;animation:pop .45s cubic-bezier(.2,.9,.3,1.4)}
+.screen.on{display:block}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+
+h2.title{font-size:1.5rem;font-weight:800;text-align:center;line-height:1.6;
+  background:linear-gradient(180deg,#fff,#ffd66e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{text-align:center;opacity:.85;font-size:1.02rem;margin-top:6px;line-height:1.9}
+
+/* ===== الشخصيات ===== */
+.cast{display:flex;align-items:flex-end;justify-content:center;gap:6px;margin:6px 0 2px}
+.char{width:120px;height:150px}
+.char.small{width:88px;height:110px}
+#harf{animation:float 3.2s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+#harf.happy{animation:cheer .6s ease 2}
+@keyframes cheer{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-22px) rotate(-8deg)}60%{transform:translateY(-6px) rotate(8deg)}}
+#harf.sad{animation:none;transform:translateY(10px) rotate(4deg);filter:grayscale(.45)}
+.blink{animation:blink 4s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+
+/* ===== الفقاعة ===== */
+.bubble{background:var(--cream);color:var(--ink);border-radius:20px;padding:16px 18px;
+  font-size:1.12rem;line-height:2;position:relative;margin-top:10px;border:3px solid var(--gold);
+  box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.bubble::after{content:"";position:absolute;top:-14px;right:34px;border:8px solid transparent;border-bottom-color:var(--gold)}
+.bubble b{color:#7a2f9a}
+.en{font-family:'Fredoka',sans-serif;direction:ltr;display:inline-block}
+
+/* ===== الأزرار ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;
+  border:none;cursor:pointer;font-weight:800;font-size:1.1rem;color:#33206b;
+  background:linear-gradient(180deg,#ffe08a,#ffbe2e);padding:14px 30px;border-radius:999px;
+  box-shadow:0 6px 0 #c88a10, 0 12px 22px rgba(0,0,0,.35);transition:transform .12s,box-shadow .12s;margin-top:14px}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 #c88a10,0 6px 12px rgba(0,0,0,.3)}
+.btn.mint{background:linear-gradient(180deg,#8ff7db,#3fd9ab);box-shadow:0 6px 0 #1a8f70,0 12px 22px rgba(0,0,0,.35)}
+.btn.ghost{background:rgba(255,255,255,.1);color:var(--cream);border:2px solid rgba(255,255,255,.25);
+  box-shadow:none;font-size:.95rem;padding:10px 20px}
+.center{text-align:center}
+
+/* ===== اختيار النمط ===== */
+.modes{display:grid;gap:12px;margin-top:16px}
+.mode{display:flex;align-items:center;gap:14px;text-align:right;width:100%;cursor:pointer;
+  background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.16);border-radius:20px;
+  padding:14px 16px;color:var(--cream);font-family:inherit;transition:.18s}
+.mode:hover,.mode:focus-visible{border-color:var(--mint);background:rgba(94,240,196,.12);transform:translateY(-2px)}
+.mode .ic{font-size:1.9rem;flex:0 0 auto}
+.mode h4{font-size:1.12rem;font-weight:800}
+.mode p{font-size:.9rem;opacity:.8;line-height:1.7}
+
+/* ===== لوحة اللاعبين ===== */
+.players{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 2px}
+.pl{background:rgba(255,255,255,.07);border:2px solid transparent;border-radius:16px;padding:8px 14px;
+  min-width:96px;text-align:center;font-size:.92rem;font-weight:700}
+.pl.turn{border-color:var(--mint);background:rgba(94,240,196,.16);box-shadow:0 0 16px rgba(94,240,196,.35)}
+.pl b{display:block;font-family:'Fredoka',sans-serif;font-size:1.35rem;color:var(--gold)}
+.pl.out{opacity:.35}
+
+/* ===== بطاقة السؤال ===== */
+.q-card{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.14);
+  border-radius:24px;padding:18px 16px;margin-top:12px}
+.eyebrow{font-size:.85rem;letter-spacing:.5px;opacity:.75;text-align:center}
+.q-text{font-size:1.2rem;font-weight:700;text-align:center;margin:6px 0 12px;line-height:1.8}
+.big{font-family:'Fredoka',sans-serif;font-size:4.2rem;font-weight:700;text-align:center;color:var(--mint);
+  direction:ltr;text-shadow:0 0 26px rgba(94,240,196,.55);line-height:1.1;margin:4px 0}
+.big.emoji{font-size:4.6rem;text-shadow:none}
+.say{background:rgba(94,240,196,.14);border:2px solid rgba(94,240,196,.4);color:var(--mint);
+  border-radius:999px;padding:8px 18px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;display:block;margin:0 auto}
+.say:active{transform:scale(.95)}
+.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.opt{background:linear-gradient(180deg,#fff8ea,#ffe9c2);color:var(--ink);border:none;border-radius:18px;
+  padding:16px 8px;font-size:1.15rem;font-weight:800;font-family:inherit;cursor:pointer;
+  box-shadow:0 5px 0 #c9a463;transition:.12s;display:flex;flex-direction:column;align-items:center;gap:4px}
+.opt:active{transform:translateY(4px);box-shadow:0 1px 0 #c9a463}
+.opt .lt{font-family:'Fredoka',sans-serif;font-size:2rem;direction:ltr}
+.opt .em{font-size:2.4rem}
+.opt.ok{background:linear-gradient(180deg,#9cf7cf,#43d69f);box-shadow:0 5px 0 #1d8a63}
+.opt.no{background:linear-gradient(180deg,#ffb3c1,#ff7d95);box-shadow:0 5px 0 #b8384f}
+.opt:disabled{cursor:default}
+
+/* بناء الكلمة */
+.slots{display:flex;gap:8px;justify-content:center;margin:14px 0;direction:ltr;flex-wrap:wrap}
+.slot{width:56px;height:64px;border-radius:14px;border:3px dashed rgba(94,240,196,.5);
+  display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-size:2rem;color:var(--gold)}
+.slot.full{border-style:solid;background:rgba(94,240,196,.14)}
+.slot.ok{border-color:#43d69f;background:rgba(67,214,159,.28)}
+.slot.no{border-color:var(--coral);background:rgba(255,107,139,.25)}
+.tiles{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;direction:ltr}
+.tile{width:54px;height:54px;border-radius:14px;border:none;cursor:pointer;font-family:'Fredoka',sans-serif;
+  font-size:1.6rem;background:linear-gradient(180deg,#fff8ea,#ffdca0);color:var(--ink);box-shadow:0 4px 0 #c9a463}
+.tile.used{opacity:.25;pointer-events:none}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+/* ===== التغذية الراجعة ===== */
+.fb{text-align:center}
+.fb .msg{font-size:1.3rem;font-weight:800;margin-top:8px}
+.fb .msg.good{color:var(--mint)}
+.fb .msg.bad{color:var(--coral)}
+.fb .hint{background:rgba(255,255,255,.08);border-radius:16px;padding:12px;margin-top:10px;font-size:1.05rem;line-height:1.9}
+
+/* ===== بطاقة الدرس ===== */
+.learn{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin-top:14px}
+.lcard{background:rgba(255,255,255,.08);border:2px solid rgba(255,201,60,.35);border-radius:18px;
+  padding:12px 6px;text-align:center;cursor:pointer}
+.lcard .lt{font-family:'Fredoka',sans-serif;font-size:2.1rem;color:var(--gold);direction:ltr}
+.lcard .w{font-family:'Fredoka',sans-serif;font-size:.95rem;direction:ltr;opacity:.9}
+.lcard .em{font-size:1.7rem}
+
+/* ===== البوابة والجائزة ===== */
+.boxes{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+.box{background:linear-gradient(180deg,#7a4bbd,#4a2a86);border:3px solid var(--gold);border-radius:20px;
+  padding:24px 10px;font-size:2.6rem;cursor:pointer;transition:.15s;color:#fff}
+.box:active{transform:scale(.96)}
+.box.open{background:linear-gradient(180deg,#ffd873,#ffb020);color:var(--ink)}
+.trophy{font-size:4rem;text-align:center;animation:float 3s infinite}
+.score-big{font-family:'Fredoka',sans-serif;font-size:3rem;color:var(--gold);text-align:center}
+.foot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:0 18px}
+input.name{font-family:inherit;font-size:1rem;padding:12px 14px;border-radius:14px;border:2px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);color:var(--cream);width:100%;margin-top:8px}
+input.name::placeholder{color:rgba(255,246,229,.5)}
+.vidbox{margin:14px 0 4px;border-radius:22px;overflow:hidden;border:3px solid rgba(255,201,60,.5);
+  box-shadow:0 14px 34px rgba(0,0,0,.5);background:#0d0824;max-height:62vh;display:flex;justify-content:center}
+.vidbox video{width:100%;max-height:62vh;display:block;object-fit:contain}
+.shake{animation:sh .4s}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+@media (max-width:420px){
+  .big{font-size:3.4rem}.char{width:100px;height:126px}.opt{font-size:1.05rem}
+  h2.title{font-size:1.28rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="sky" id="sky"></div>
+
+<div class="stage">
+  <!-- شريط الحالة -->
+  <div class="hud">
+    <div class="chip" id="hearts">❤️❤️❤️</div>
+    <div class="chip keys" id="keys"><span id="k1">🔑</span><span id="k2">🔑</span><span id="k3">🔑</span></div>
+    <div class="chip"><span id="stars">⭐ 0</span></div>
+    <div class="timer-ring" id="ring" style="display:none">
+      <svg width="44" height="44"><circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,.15)" stroke-width="4" fill="none"></circle>
+      <circle id="ringBar" cx="22" cy="22" r="18" stroke="#5ef0c4" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="113" stroke-dashoffset="0"></circle></svg>
+      <b id="ringNum">20</b>
+    </div>
+  </div>
+
+  <!-- 0 · المقدمة (الفيلم) -->
+  <div class="screen on" id="s-intro">
+    <h2 class="title">نُونا وحَرْفوش</h2>
+    <p class="sub">قصة كائن ضاعت منه حروفه… وبنتٍ قرّرت أن تساعده 🌌</p>
+    <div class="vidbox">
+      <video id="introVid" playsinline preload="metadata" poster="noona-cover.jpg" controls>
+        <source src="noona-intro.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="center">
+      <button class="btn" onclick="playIntro()">▶ شاهد المقدمة</button><br>
+      <button class="btn ghost" onclick="show('s-story')">تخطّي المقدمة ⏩</button>
+    </div>
+  </div>
+
+  <!-- 0ب · القصة المكتوبة -->
+  <div class="screen" id="s-story">
+    <div class="cast">
+      <svg class="char" id="noona" viewBox="0 0 120 150"></svg>
+      <svg class="char" id="harf" viewBox="0 0 120 150"></svg>
+    </div>
+    <h2 class="title" id="storyTitle">نُونا وحَرْفوش</h2>
+    <div class="bubble" id="storyText"></div>
+    <div class="center"><button class="btn" id="storyBtn">تابِع ▶</button></div>
+  </div>
+
+  <!-- 1 · اختيار النمط -->
+  <div class="screen" id="s-mode">
+    <h2 class="title">مين رح يساعد حَرْفوش؟</h2>
+    <div class="modes">
+      <button class="mode" onclick="pickMode('solo')"><span class="ic">🧒</span><div><h4>لاعب واحد</h4><p>ألعب لحالي وأجمع النجوم</p></div></button>
+      <button class="mode" onclick="pickMode('duo')"><span class="ic">🤝</span><div><h4>صديق ضدّ صديق</h4><p>لاعبان بالتناوب على نفس الجهاز</p></div></button>
+      <button class="mode" onclick="pickMode('teams')"><span class="ic">🏫</span><div><h4>فريق ضدّ فريق</h4><p>٤ فرق — مناسبة للصف والعرض على الشاشة</p></div></button>
+    </div>
+  </div>
+
+  <!-- 2 · أسماء اللاعبين -->
+  <div class="screen" id="s-names">
+    <h2 class="title">مين معنا اليوم؟</h2>
+    <div id="nameFields"></div>
+    <div class="center"><button class="btn mint" onclick="confirmNames()">يلا نبدأ 🚀</button></div>
+  </div>
+
+  <!-- 3 · بطاقة الدرس -->
+  <div class="screen" id="s-learn">
+    <h2 class="title" id="learnTitle"></h2>
+    <p class="sub" id="learnSub"></p>
+    <div class="learn" id="learnGrid"></div>
+    <div class="center"><button class="btn" onclick="startStage()">جاهز! ابدأ التحدّي ⚡</button></div>
+  </div>
+
+  <!-- 4 · السؤال -->
+  <div class="screen" id="s-quiz">
+    <div class="players" id="plStrip"></div>
+    <div class="q-card" id="qCard"></div>
+  </div>
+
+  <!-- 5 · النتيجة اللحظية -->
+  <div class="screen" id="s-fb">
+    <div class="cast"><svg class="char small" id="harf2" viewBox="0 0 120 150"></svg></div>
+    <div class="fb">
+      <div class="msg" id="fbMsg"></div>
+      <div class="hint" id="fbHint"></div>
+    </div>
+    <div class="center"><button class="btn mint" onclick="nextQ()">التالي ▶</button></div>
+  </div>
+
+  <!-- 6 · نهاية المرحلة -->
+  <div class="screen" id="s-stage-end">
+    <div class="center" style="font-size:3.4rem">🔑</div>
+    <h2 class="title" id="seTitle"></h2>
+    <p class="sub" id="seSub"></p>
+    <div class="center"><button class="btn" id="seBtn"></button></div>
+  </div>
+
+  <!-- 7 · بوابة الجائزة -->
+  <div class="screen" id="s-gate">
+    <h2 class="title">بوّابة كوكب الحروف انفتحت! 🌌</h2>
+    <p class="sub">اختر صندوقًا واحدًا… واحد منهم فيه نجمة حَرْفوش الذهبية.</p>
+    <div class="boxes" id="boxes"></div>
+    <div class="center" id="gateNext" style="display:none"><button class="btn mint" onclick="showResult()">شوف نتيجتك 🏆</button></div>
+  </div>
+
+  <!-- 8 · النتيجة -->
+  <div class="screen" id="s-result">
+    <div class="trophy">🏆</div>
+    <h2 class="title" id="resTitle"></h2>
+    <div class="score-big" id="resScore"></div>
+    <div id="resBoard"></div>
+    <p class="sub" id="resMsg"></p>
+    <div class="center"><button class="btn" onclick="location.reload()">العب مرة ثانية 🔄</button></div>
+  </div>
+
+  <div class="foot">
+    <button class="btn ghost" onclick="location.reload()">🏠 البداية</button>
+    <button class="btn ghost" id="sndBtn" onclick="toggleSound()">🔊 الصوت</button>
+  </div>
+</div>
+
+<script>
+/* ================= الشخصيات (رسم متجهي) ================= */
+function noonaSVG(){return `
+<defs><linearGradient id="dress" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#5ef0c4"/><stop offset="1" stop-color="#2aa88a"/></linearGradient></defs>
+<ellipse cx="60" cy="143" rx="30" ry="6" fill="rgba(0,0,0,.28)"/>
+<path d="M38 142 L46 100 L74 100 L82 142 Z" fill="url(#dress)"/>
+<rect x="44" y="96" width="32" height="12" rx="6" fill="#ffd166"/>
+<path d="M40 108 q-10 14 -4 26" stroke="#f6c9a8" stroke-width="8" fill="none" stroke-linecap="round"/>
+<path d="M80 108 q10 12 6 22" stroke="#f6c9a8" stroke-width="8" fill="none" stroke-linecap="round"/>
+<circle cx="60" cy="66" r="27" fill="#f9d3b4"/>
+<path d="M33 62 q4-30 27-30 t27 30 q-6-12 -27-12 t-27 12" fill="#3c2a55"/>
+<circle cx="30" cy="60" r="11" fill="#3c2a55"/><circle cx="90" cy="60" r="11" fill="#3c2a55"/>
+<circle cx="30" cy="60" r="4" fill="#ffc93c"/><circle cx="90" cy="60" r="4" fill="#ffc93c"/>
+<g class="blink" style="transform-origin:60px 68px">
+<circle cx="50" cy="68" r="5" fill="#20143f"/><circle cx="70" cy="68" r="5" fill="#20143f"/>
+<circle cx="51.6" cy="66" r="1.8" fill="#fff"/><circle cx="71.6" cy="66" r="1.8" fill="#fff"/></g>
+<path d="M52 80 q8 8 16 0" stroke="#c2557a" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="41" cy="76" r="4" fill="#ff9aae" opacity=".65"/><circle cx="79" cy="76" r="4" fill="#ff9aae" opacity=".65"/>`}
+
+function harfSVG(){return `
+<defs><radialGradient id="body" cx=".35" cy=".3">
+<stop offset="0" stop-color="#b98cff"/><stop offset="1" stop-color="#6b3fa0"/></radialGradient>
+<radialGradient id="glow" cx=".5" cy=".5"><stop offset="0" stop-color="#5ef0c4"/><stop offset="1" stop-color="rgba(94,240,196,0)"/></radialGradient></defs>
+<ellipse cx="60" cy="146" rx="26" ry="5" fill="rgba(0,0,0,.25)"/>
+<circle cx="60" cy="34" r="22" fill="url(#glow)"/>
+<line x1="60" y1="58" x2="60" y2="40" stroke="#ffc93c" stroke-width="4" stroke-linecap="round"/>
+<circle cx="60" cy="34" r="9" fill="#ffc93c"/>
+<text x="60" y="39" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="12" font-weight="700" fill="#3a2560" id="hLetter">A</text>
+<path d="M60 60 q34 6 34 44 q0 30 -34 30 q-34 0 -34 -30 q0 -38 34 -44 Z" fill="url(#body)"/>
+<path d="M26 104 q-13 4 -12 18" stroke="#8f5fd6" stroke-width="7" fill="none" stroke-linecap="round"/>
+<path d="M94 104 q13 4 12 18" stroke="#8f5fd6" stroke-width="7" fill="none" stroke-linecap="round"/>
+<g class="blink" style="transform-origin:60px 92px">
+<circle cx="44" cy="92" r="8" fill="#fff"/><circle cx="60" cy="84" r="10" fill="#fff"/><circle cx="76" cy="92" r="8" fill="#fff"/>
+<circle cx="44" cy="93" r="4" fill="#20143f"/><circle cx="60" cy="85" r="5" fill="#20143f"/><circle cx="76" cy="93" r="4" fill="#20143f"/></g>
+<path d="M50 110 q10 10 20 0" stroke="#2a1450" stroke-width="4" fill="none" stroke-linecap="round" id="hMouth"/>
+<circle cx="40" cy="72" r="3" fill="#5ef0c4"/><circle cx="82" cy="76" r="4" fill="#5ef0c4"/><circle cx="70" cy="126" r="3" fill="#5ef0c4"/>`}
+
+document.getElementById('noona').innerHTML = noonaSVG();
+document.getElementById('harf').innerHTML  = harfSVG();
+document.getElementById('harf2').innerHTML = harfSVG();
+
+// نجوم الخلفية
+(function(){let h='';for(let i=0;i<46;i++){const s=Math.random()*2.4+1;
+h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;width:${s}px;height:${s}px;animation-delay:${Math.random()*3}s"></i>`}
+document.getElementById('sky').innerHTML=h})();
+
+/* ================= الصوت ================= */
+let soundOn = true;
+function toggleSound(){soundOn=!soundOn;document.getElementById('sndBtn').textContent=soundOn?'🔊 الصوت':'🔇 الصوت'}
+let actx=null;
+function beep(type){
+  if(!soundOn)return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const notes = type==='good'?[523,659,784]:type==='bad'?[300,220]:[784,988,1319];
+    notes.forEach((f,i)=>{
+      const o=actx.createOscillator(),g=actx.createGain();
+      o.type='triangle';o.frequency.value=f;o.connect(g);g.connect(actx.destination);
+      const t=actx.currentTime+i*0.12;
+      g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
+      o.start(t);o.stop(t+0.24);
+    });
+  }catch(e){}
+}
+function say(text){
+  if(!soundOn)return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US';u.rate=0.75;u.pitch=1.15;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ================= المقدمة (الفيلم) ================= */
+const introVid=document.getElementById('introVid');
+function playIntro(){
+  try{ introVid.play(); introVid.scrollIntoView({block:'center',behavior:'smooth'}); }
+  catch(e){ show('s-story'); }
+}
+introVid.addEventListener('ended',()=>show('s-mode'));
+introVid.addEventListener('error',()=>{ show('s-story'); });
+
+/* ================= القصة ================= */
+const STORY=[
+ {t:"نُونا وحَرْفوش", x:`في ليلة صافية، كانت <b>نُونا</b> تراقب النجوم من سطح بيتها… فجأة! ✨ شيء صغير لامع سقط في حديقتها.`},
+ {t:"مَن هذا؟", x:`كائن غريب بثلاث عيون وقرن مضيء! قال بصوت مرتجف: «أنا <b>حَرْفوش</b>… من كوكب الحروف. اصطدمت مركبتي وتناثرت كل حروفي وكلماتي في الأرض!» 🛸`},
+ {t:"المهمّة", x:`بدون حروفه، حَرْفوش لا يستطيع العودة إلى بيته. قالت نُونا: «لا تخف، سنجمعها معًا!»<br><br>٣ مراحل… ٣ مفاتيح 🔑 وبوّابة كوكب الحروف تنتظر. هل تساعدنا؟`}
+];
+let storyIdx=0;
+function renderStory(){
+  const s=STORY[storyIdx];
+  document.getElementById('storyTitle').textContent=s.t;
+  document.getElementById('storyText').innerHTML=s.x;
+  document.getElementById('storyBtn').textContent = storyIdx<STORY.length-1?'تابِع ▶':'أساعدكم! 💚';
+}
+renderStory();
+document.getElementById('storyBtn').onclick=()=>{
+  storyIdx++;
+  if(storyIdx<STORY.length){renderStory()}else{show('s-mode')}
+};
+
+/* ================= المراحل والأسئلة ================= */
+const STAGES=[
+{
+ name:"مرحلة ١ · الحروف الضائعة", icon:"🔤",
+ learnTitle:"قبل ما نبدأ… تعرّف على الحروف",
+ learnSub:"اضغط على أي بطاقة لتسمع الحرف والكلمة 🔊",
+ learn:[{l:"A a",w:"Apple",e:"🍎"},{l:"B b",w:"Ball",e:"⚽"},{l:"C c",w:"Cat",e:"🐱"},
+        {l:"D d",w:"Dog",e:"🐶"},{l:"E e",w:"Egg",e:"🥚"},{l:"F f",w:"Fish",e:"🐟"}],
+ time:20,
+ qs:[
+  {k:"sound",  q:"اسمع الحرف جيدًا… أيّ حرف هو؟", say:"A", opts:[["A",1],["E",0],["B",0],["C",0]], hint:"A مثل <span class='en'>Apple</span> 🍎"},
+  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"⚽", word:"Ball", opts:[["D",0],["B",1],["P",0],["F",0]], hint:"<span class='en'>Ball</span> تبدأ بحرف <span class='en'>B</span>"},
+  {k:"case",   q:"اختر الحرف الصغير المطابق:", show:"D", opts:[["b",0],["d",1],["p",0],["q",0]], hint:"<span class='en'>D</span> الصغير هو <span class='en'>d</span>"},
+  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"🐟", word:"Fish", opts:[["S",0],["V",0],["F",1],["T",0]], hint:"<span class='en'>Fish</span> تبدأ بحرف <span class='en'>F</span>"},
+  {k:"sound",  q:"اسمع الحرف… أيّ واحد هو؟", say:"M", opts:[["N",0],["M",1],["W",0],["H",0]], hint:"<span class='en'>M</span> مثل <span class='en'>Moon</span> 🌙"},
+  {k:"seq",    q:"أيّ حرف يأتي بعد؟", show:"C", opts:[["A",0],["E",0],["D",1],["B",0]], hint:"الترتيب: <span class='en'>A B C D E</span>"},
+  {k:"case",   q:"اختر الحرف الصغير المطابق:", show:"E", opts:[["a",0],["c",0],["e",1],["o",0]], hint:"<span class='en'>E</span> الصغير هو <span class='en'>e</span>"},
+  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"🥚", word:"Egg", opts:[["E",1],["G",0],["A",0],["I",0]], hint:"<span class='en'>Egg</span> تبدأ بحرف <span class='en'>E</span>"},
+  {k:"first",  q:"بأيّ حرف تبدأ هذه الكلمة؟", emoji:"🐱", word:"Cat", opts:[["S",0],["C",1],["K",0],["G",0]], hint:"<span class='en'>Cat</span> تبدأ بحرف <span class='en'>C</span>"},
+  {k:"case",   q:"اختر الحرف الصغير المطابق:", show:"B", opts:[["d",0],["h",0],["b",1],["g",0]], hint:"<span class='en'>B</span> الصغير هو <span class='en'>b</span>"},
+  {k:"sound",  q:"اسمع الحرف… أيّ واحد هو؟", say:"S", opts:[["F",0],["Z",0],["C",0],["S",1]], hint:"<span class='en'>S</span> مثل <span class='en'>Sun</span> ☀️"},
+  {k:"seq",    q:"أيّ حرف يأتي بعد؟", show:"A", opts:[["C",0],["B",1],["D",0],["E",0]], hint:"الترتيب: <span class='en'>A B C D E</span>"}
+ ]
+},
+{
+ name:"مرحلة ٢ · الكلمات الهاربة", icon:"📖",
+ learnTitle:"كلمات حَرْفوش الصغيرة",
+ learnSub:"اضغط على البطاقة لتسمع الكلمة 🔊",
+ learnSub2:true,
+ learn:[{l:"🐱",w:"Cat",e:""},{l:"☀️",w:"Sun",e:""},{l:"🚌",w:"Bus",e:""},
+        {l:"🥛",w:"Milk",e:""},{l:"🐝",w:"Bee",e:""},{l:"⭐",w:"Star",e:""}],
+ time:20,
+ qs:[
+  {k:"word",  q:"ما اسم هذه الصورة؟", emoji:"🐱", opts:[["Hat",0],["Cat",1],["Car",0],["Cow",0]], hint:"🐱 = <span class='en'>Cat</span>"},
+  {k:"miss",  q:"أكمل الحرف الناقص:", emoji:"☀️", word:"S_N", full:"Sun", opts:[["U",1],["O",0],["A",0],["E",0]], hint:"<span class='en'>S-U-N = Sun</span> ☀️"},
+  {k:"listen",q:"اسمع الكلمة… واختر صورتها", say:"Milk", opts:[["🍞",0],["🥛",1],["🍎",0],["🐟",0]], hint:"<span class='en'>Milk</span> = حليب 🥛"},
+  {k:"word",  q:"ما اسم هذه الصورة؟", emoji:"🚌", opts:[["Box",0],["Bed",0],["Bus",1],["Bag",0]], hint:"🚌 = <span class='en'>Bus</span>"},
+  {k:"miss",  q:"أكمل الحرف الناقص:", emoji:"🐶", word:"D_G", full:"Dog", opts:[["A",0],["O",1],["I",0],["U",0]], hint:"<span class='en'>D-O-G = Dog</span> 🐶"},
+  {k:"listen",q:"اسمع الكلمة… واختر صورتها", say:"Bee", opts:[["🐝",1],["🐦",0],["🦋",0],["🐜",0]], hint:"<span class='en'>Bee</span> = نحلة 🐝"},
+  {k:"word",  q:"ما اسم هذه الصورة؟", emoji:"⭐", opts:[["Star",1],["Sun",0],["Stop",0],["Sky",0]], hint:"⭐ = <span class='en'>Star</span>"},
+  {k:"miss",  q:"أكمل الحرف الناقص:", emoji:"🐟", word:"F_SH", full:"Fish", opts:[["A",0],["E",0],["I",1],["O",0]], hint:"<span class='en'>F-I-S-H = Fish</span> 🐟"},
+  {k:"word",  q:"ما اسم هذه الصورة؟", emoji:"🌙", opts:[["Man",0],["Moon",1],["Mop",0],["Milk",0]], hint:"🌙 = <span class='en'>Moon</span>"},
+  {k:"listen",q:"اسمع الكلمة… واختر صورتها", say:"Star", opts:[["🌙",0],["☀️",0],["⭐",1],["🌸",0]], hint:"<span class='en'>Star</span> = نجمة ⭐"},
+  {k:"miss",  q:"أكمل الحرف الناقص:", emoji:"🚌", word:"B_S", full:"Bus", opts:[["O",0],["U",1],["A",0],["E",0]], hint:"<span class='en'>B-U-S = Bus</span> 🚌"},
+  {k:"word",  q:"ما اسم هذه الصورة؟", emoji:"🥛", opts:[["Milk",1],["Mask",0],["Melon",0],["Mail",0]], hint:"🥛 = <span class='en'>Milk</span>"}
+ ]
+},
+{
+ name:"مرحلة ٣ · بناء الكلمة", icon:"🧩",
+ learnTitle:"آخر تحدٍّ… ابنِ الكلمة بنفسك",
+ learnSub:"اضغط الحروف بالترتيب الصحيح لتكوين الكلمة. الأزرق ⟲ يمسح ويعيد.",
+ learn:[{l:"C-A-T",w:"Cat",e:"🐱"},{l:"S-U-N",w:"Sun",e:"☀️"},{l:"E-G-G",w:"Egg",e:"🥚"},
+        {l:"B-O-X",w:"Box",e:"📦"},{l:"F-I-S-H",w:"Fish",e:"🐟"},{l:"S-T-A-R",w:"Star",e:"⭐"}],
+ time:35,
+ qs:[
+  {k:"build", q:"ابنِ الكلمة:", emoji:"🐱", ans:"CAT",  extra:"RM"},
+  {k:"build", q:"ابنِ الكلمة:", emoji:"☀️", ans:"SUN",  extra:"OT"},
+  {k:"build", q:"ابنِ الكلمة:", emoji:"🥚", ans:"EGG",  extra:"AB"},
+  {k:"build", q:"ابنِ الكلمة:", emoji:"📦", ans:"BOX",  extra:"SE"},
+  {k:"build", q:"ابنِ الكلمة:", emoji:"🐟", ans:"FISH", extra:"TO"},
+  {k:"build", q:"ابنِ الكلمة:", emoji:"⭐", ans:"STAR", extra:"NE"},
+  {k:"build", q:"ابنِ الكلمة:", emoji:"🌙", ans:"MOON", extra:"PA"},
+  {k:"build", q:"ابنِ الكلمة:", emoji:"🚌", ans:"BUS",  extra:"TE"}
+ ]
+}];
+
+/* ================= الحالة ================= */
+let mode='solo', players=[], turn=0, stage=0, qi=0, keys=0;
+let timerId=null, timeLeft=0, answered=false;
+let slots=[], picked=[];
+
+function show(id){
+  if(id!=='s-intro'){try{introVid.pause()}catch(e){}}
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');window.scrollTo(0,0)}
+
+function pickMode(m){
+  mode=m;
+  const n = m==='solo'?1:m==='duo'?2:4;
+  let h='';
+  for(let i=0;i<n;i++){
+    const ph = m==='teams'?`اسم الفريق ${i+1}`:`اسم اللاعب ${i+1}`;
+    const dv = m==='teams'?`فريق ${i+1}`:(n===1?'نُونا الصغيرة':`لاعب ${i+1}`);
+    h+=`<input class="name" id="nm${i}" placeholder="${ph}" value="${dv}" maxlength="14">`;
+  }
+  document.getElementById('nameFields').innerHTML=h;
+  show('s-names');
+}
+function confirmNames(){
+  players=[];
+  document.querySelectorAll('#nameFields .name').forEach((el,i)=>{
+    players.push({name:(el.value||`لاعب ${i+1}`).trim(), score:0, hearts:3, out:false});
+  });
+  turn=0; stage=0; keys=0;
+  updateHud(); openLearn();
+}
+
+function openLearn(){
+  const st=STAGES[stage];
+  document.getElementById('learnTitle').textContent=st.icon+' '+st.learnTitle;
+  document.getElementById('learnSub').textContent=st.learnSub;
+  document.getElementById('learnGrid').innerHTML = st.learn.map(c=>
+    `<button class="lcard" onclick="say('${c.w}')">
+       <div class="${/^[A-Za-z]/.test(c.l)?'lt':'em'}">${c.l}</div>
+       <div class="w">${c.w}</div>${c.e?`<div class="em">${c.e}</div>`:''}
+     </button>`).join('');
+  show('s-learn');
+}
+function startStage(){
+  qi=0;
+  players.forEach(p=>{p.hearts=3;p.out=false});
+  turn=0; renderQ();
+}
+
+/* ===== شريط اللاعبين ===== */
+function renderPlayers(){
+  const strip=document.getElementById('plStrip');
+  if(mode==='solo'){strip.innerHTML='';return}
+  strip.innerHTML=players.map((p,i)=>
+    `<div class="pl ${i===turn?'turn':''} ${p.out?'out':''}">
+       ${p.name}<b>${p.score}</b>${'❤️'.repeat(p.hearts)||'💀'}</div>`).join('');
+}
+function updateHud(){
+  const p=players[turn]||{hearts:3};
+  document.getElementById('hearts').textContent = '❤️'.repeat(p.hearts) || '💔';
+  document.getElementById('stars').textContent = '⭐ '+players.reduce((a,b)=>a+b.score,0);
+  for(let i=1;i<=3;i++)document.getElementById('k'+i).classList.toggle('on', keys>=i);
+}
+
+/* ===== المؤقّت ===== */
+function startTimer(sec){
+  stopTimer(); timeLeft=sec;
+  const ring=document.getElementById('ring');ring.style.display='block';
+  const bar=document.getElementById('ringBar');
+  const tick=()=>{
+    document.getElementById('ringNum').textContent=timeLeft;
+    bar.style.strokeDashoffset = 113*(1-timeLeft/sec);
+    ring.classList.toggle('warn', timeLeft<=5);
+    bar.style.stroke = timeLeft<=5 ? '#ff6b8b' : '#5ef0c4';
+    if(timeLeft<=0){stopTimer(); if(!answered) judge(false, null, true)}
+    timeLeft--;
+  };
+  tick(); timerId=setInterval(tick,1000);
+}
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null}
+  document.getElementById('ring').style.display='none'}
+
+/* ===== عرض السؤال ===== */
+function renderQ(){
+  const st=STAGES[stage], q=st.qs[qi];
+  answered=false; picked=[]; slots=[];
+  updateHud(); renderPlayers();
+  const card=document.getElementById('qCard');
+  const who = mode==='solo'?'':`<div class="eyebrow">دور: <b>${players[turn].name}</b></div>`;
+  let body='';
+
+  if(q.k==='build'){
+    const letters=(q.ans+q.extra).split('').sort(()=>Math.random()-0.5);
+    body=`<div class="big emoji">${q.emoji}</div>
+      <button class="say" onclick="say('${q.ans}')">🔊 اسمع الكلمة</button>
+      <div class="slots" id="slots">${q.ans.split('').map((_,i)=>`<div class="slot" id="sl${i}"></div>`).join('')}</div>
+      <div class="tiles">${letters.map((c,i)=>`<button class="tile" id="tl${i}" onclick="tap(${i},'${c}')">${c}</button>`).join('')}</div>
+      <div class="row"><button class="btn ghost" onclick="clearSlots()">⟲ مسح</button>
+      <button class="btn mint" style="margin-top:0" onclick="checkBuild()">تحقّق ✓</button></div>`;
+  }else{
+    let visual='';
+    if(q.k==='sound')  visual=`<button class="say" onclick="say('${q.say}')">🔊 اضغط لتسمع الحرف</button>`;
+    if(q.k==='listen') visual=`<button class="say" onclick="say('${q.say}')">🔊 اضغط لتسمع الكلمة</button>`;
+    if(q.k==='case'||q.k==='seq') visual=`<div class="big">${q.show}</div>`;
+    if(q.k==='first')  visual=`<div class="big emoji">${q.emoji}</div><div class="big" style="font-size:2.2rem">${q.word}</div>
+                               <button class="say" onclick="say('${q.word}')">🔊 اسمع</button>`;
+    if(q.k==='word')   visual=`<div class="big emoji">${q.emoji}</div>`;
+    if(q.k==='miss')   visual=`<div class="big emoji">${q.emoji}</div><div class="big" style="font-size:2.6rem">${q.word}</div>`;
+    const opts=q.opts.map((o,i)=>{
+      const isEmoji=/\p{Emoji}/u.test(o[0]) && !/^[A-Za-z]/.test(o[0]);
+      return `<button class="opt" id="op${i}" onclick="answer(${i},${o[1]})">
+        <span class="${isEmoji?'em':'lt'}">${o[0]}</span></button>`;
+    }).join('');
+    body=`${visual}<div class="opts">${opts}</div>`;
+  }
+
+  card.innerHTML=`${who}
+    <div class="eyebrow">${st.icon} ${st.name} — سؤال ${qi+1} من ${st.qs.length}</div>
+    <div class="q-text">${q.q}</div>${body}`;
+  show('s-quiz');
+  if(q.k==='sound'||q.k==='listen') setTimeout(()=>say(q.say),450);
+  startTimer(st.time);
+}
+
+/* ===== بناء الكلمة ===== */
+function tap(i,c){
+  const ans=STAGES[stage].qs[qi].ans;
+  if(picked.length>=ans.length)return;
+  const sl=document.getElementById('sl'+picked.length);
+  sl.textContent=c; sl.classList.add('full');
+  document.getElementById('tl'+i).classList.add('used');
+  picked.push({c,i});
+}
+function clearSlots(){
+  const ans=STAGES[stage].qs[qi].ans;
+  for(let i=0;i<ans.length;i++){const sl=document.getElementById('sl'+i);sl.textContent='';sl.className='slot'}
+  picked.forEach(p=>document.getElementById('tl'+p.i).classList.remove('used'));
+  picked=[];
+}
+function checkBuild(){
+  const ans=STAGES[stage].qs[qi].ans;
+  if(picked.length<ans.length){document.getElementById('slots').classList.add('shake');
+    setTimeout(()=>document.getElementById('slots').classList.remove('shake'),400);return}
+  const ok = picked.map(p=>p.c).join('')===ans;
+  for(let i=0;i<ans.length;i++)document.getElementById('sl'+i).classList.add(ok?'ok':'no');
+  judge(ok, `الكلمة الصحيحة: <span class='en'>${ans}</span> ${STAGES[stage].qs[qi].emoji}`);
+  if(ok) say(ans);
+}
+
+/* ===== الإجابة والحكم ===== */
+function answer(i,correct){
+  if(answered)return;
+  const q=STAGES[stage].qs[qi];
+  document.querySelectorAll('.opt').forEach((b,j)=>{
+    b.disabled=true;
+    if(q.opts[j][1]) b.classList.add('ok');
+  });
+  if(!correct) document.getElementById('op'+i).classList.add('no');
+  judge(!!correct, q.hint);
+}
+function judge(ok, hint, timeout){
+  if(answered)return; answered=true; stopTimer();
+  const p=players[turn];
+  const h2=document.getElementById('harf2');
+  if(ok){ p.score+=10; beep('good'); h2.className='char small happy';
+    document.getElementById('fbMsg').className='msg good';
+    document.getElementById('fbMsg').textContent=['أحسنت! 🌟','رائع! حَرْفوش استعاد حرفًا ✨','ممتاز! 💚'][Math.floor(Math.random()*3)];
+  }else{
+    p.hearts--; beep('bad'); h2.className='char small sad';
+    document.getElementById('fbMsg').className='msg bad';
+    document.getElementById('fbMsg').textContent = timeout?'انتهى الوقت! ⏳':'ليست صحيحة… حاول مرة أخرى 💪';
+  }
+  document.getElementById('fbHint').innerHTML = hint || '';
+  updateHud();
+  setTimeout(()=>show('s-fb'),ok?700:900);
+}
+
+/* ===== الانتقال ===== */
+function nextQ(){
+  document.getElementById('harf2').className='char small';
+  qi++;
+  if(mode!=='solo'){
+    let guard=0;
+    do{ turn=(turn+1)%players.length; guard++ }while(players[turn].hearts<=0 && guard<=players.length);
+  }
+  if(players.every(p=>p.hearts<=0)){ endStage(); return }
+  if(qi>=STAGES[stage].qs.length){ endStage(); return }
+  renderQ();
+}
+function endStage(){
+  const dead = players.every(p=>p.hearts<=0);
+  if(!dead) keys++;
+  updateHud();
+  const last = stage>=STAGES.length-1;
+  document.getElementById('seTitle').textContent = dead
+    ? 'انتهت القلوب… لكن حَرْفوش ما زال يثق بك!'
+    : `مفتاح جديد! (${keys} من ٣) 🔑`;
+  document.getElementById('seSub').innerHTML = dead
+    ? 'أعد المرحلة وستنجح هذه المرة — كل محاولة تجعلك أقوى 💪'
+    : (last ? 'المفاتيح الثلاثة معك… بوّابة كوكب الحروف جاهزة! 🌌'
+            : `أحسنتم! الآن إلى <b>${STAGES[stage+1].name}</b>`);
+  const btn=document.getElementById('seBtn');
+  if(dead){ btn.textContent='أعد المرحلة 🔄'; btn.onclick=()=>{players.forEach(p=>{p.hearts=3});qi=0;turn=0;renderQ()} }
+  else if(last){ btn.textContent='افتح البوّابة 🌌'; btn.onclick=openGate }
+  else { btn.textContent='المرحلة التالية ▶'; btn.onclick=()=>{stage++;openLearn()} }
+  show('s-stage-end');
+}
+
+/* ===== الجائزة ===== */
+function openGate(){
+  const win=Math.floor(Math.random()*4);
+  document.getElementById('boxes').innerHTML=[0,1,2,3].map(i=>
+    `<button class="box" id="bx${i}" onclick="openBox(${i},${i===win})">🎁</button>`).join('');
+  document.getElementById('gateNext').style.display='none';
+  show('s-gate');
+}
+function openBox(i,win){
+  document.querySelectorAll('.box').forEach(b=>b.disabled=true);
+  const b=document.getElementById('bx'+i);
+  b.classList.add('open'); b.textContent = win?'🌟':'🪶';
+  beep(win?'win':'good');
+  if(win) players.forEach(p=>p.score+=20);
+  document.getElementById('gateNext').style.display='block';
+}
+function showResult(){
+  const total=players.reduce((a,b)=>a+b.score,0);
+  document.getElementById('resScore').textContent='⭐ '+total;
+  if(mode==='solo'){
+    document.getElementById('resTitle').textContent='حَرْفوش عاد إلى كوكبه! 🛸';
+    document.getElementById('resBoard').innerHTML='';
+    document.getElementById('resMsg').innerHTML=
+      `شكرًا لك يا بطل — بفضلك استعاد حَرْفوش كل حروفه وكلماته.<br>نُونا تلوّح لك من بعيد 👋💚`;
+  }else{
+    const sorted=[...players].sort((a,b)=>b.score-a.score);
+    document.getElementById('resTitle').textContent='الفائز: '+sorted[0].name+' 🥇';
+    document.getElementById('resBoard').innerHTML='<div class="players">'+sorted.map((p,i)=>
+      `<div class="pl">${['🥇','🥈','🥉','🏅'][i]} ${p.name}<b>${p.score}</b></div>`).join('')+'</div>';
+    document.getElementById('resMsg').innerHTML='كلكم ساعدتم حَرْفوش… والكوكب صار مضيئًا من جديد ✨';
+  }
+  beep('win'); show('s-result');
+}
+</script>
+</body>
+</html>
