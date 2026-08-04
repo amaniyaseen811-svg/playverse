@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root{
   --bg:#0b0f26; --card:#1b2149; --card2:#232a5c;
@@ -188,6 +190,19 @@ input.wsin.ok{border-color:var(--green);background:#12341f}
 input.wsin.no{border-color:var(--red);background:#3a1414}
 .wsfix{color:#9fe6bd;font-size:.85rem;margin-top:6px;line-height:1.8}
 .wsres{border-radius:16px;padding:14px;text-align:center;margin:10px 0;background:#ffffff0d;border:1px solid #ffffff26}
+.code{font-family:'Amiri',serif;font-size:2.6rem;letter-spacing:10px;color:var(--gold);background:#ffffff0d;
+  border:2px dashed var(--gold);border-radius:18px;padding:10px 6px;margin:10px auto;text-align:center;direction:ltr}
+.lbrow{display:flex;align-items:center;gap:10px;background:#ffffff0d;border:1px solid #ffffff1f;border-radius:14px;
+  padding:9px 12px;margin:7px 0}
+.lbrow.me{border-color:var(--gold);background:#e9b9491a}
+.lbrow .rk{width:30px;height:30px;flex:0 0 30px;border-radius:50%;background:#2a2160;color:var(--gold);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+.lbrow .nm2{flex:1;font-size:.95rem;font-weight:700}
+.lbrow .pr{font-size:.72rem;color:var(--muted)}
+.lbrow .sc{color:var(--gold);font-weight:700}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2fbf71;margin-inline-end:5px}
+.dot.off{background:#777}
+.note{background:#ffffff0d;border:1px solid #ffffff26;border-radius:14px;padding:12px;color:#cdd3f0;font-size:.87rem;line-height:1.9;margin:10px 0}
 .conf{position:fixed;top:-10px;width:9px;height:14px;z-index:70;animation:cf 3s linear forwards}
 @keyframes cf{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
 
@@ -286,6 +301,77 @@ input.wsin.no{border-color:var(--red);background:#3a1414}
       <div class="ds">رجل وقور بقلبٍ رحيم، حمل عن كوزيت دلوها وعبء خوفها. هو رفيقك في رحلة النحو نحو الحرية.</div></div>
   </div>
   <button class="btn ghost back" style="margin-top:14px">↩ رجوع</button>
+</section>
+
+<section id="s-mode" class="screen">
+  <h2 style="color:var(--gold);text-align:center;margin-bottom:2px">🎮 اختر نمط اللعب</h2>
+  <p style="text-align:center;color:var(--muted);font-size:.85rem;margin-top:0">فردي أو جماعي داخل الصف</p>
+  <div class="lvl" id="modeSolo"><div class="ic">🎯</div><div><h4>لعب فردي</h4>
+    <p>العبي لحالك، وتقدّمك ينحفظ على جهازك.</p></div></div>
+  <div class="lvl" id="modeJoin"><div class="ic">🙋‍♀️</div><div><h4>انضمام لغرفة الصف</h4>
+    <p>عندك رمز من المعلمة؟ ادخلي والعبي مع صفّك.</p></div></div>
+  <div class="lvl" id="modeTeacher"><div class="ic">👩‍🏫</div><div><h4>إنشاء غرفة (للمعلمة)</h4>
+    <p>أنشئي غرفة، وزّعي الرمز، وتابعي نتائج الطالبات مباشرة.</p></div></div>
+  <button class="btn ghost back" style="margin-top:10px">↩ رجوع</button>
+</section>
+
+<section id="s-tsetup" class="screen">
+  <h2 style="color:var(--gold);text-align:center">👩‍🏫 إعداد غرفة الصف</h2>
+  <div class="qcard">
+    <div class="topic">كلمة سر المعلمة</div>
+    <input class="nmin" id="tPass" type="password" placeholder="كلمة السر" style="max-width:none">
+    <div class="topic" style="margin-top:12px">اسم المعلمة / الصف</div>
+    <input class="nmin" id="tName" placeholder="مثال: العاشر أ" style="max-width:none" maxlength="30">
+    <div class="topic" style="margin-top:12px">المستوى</div>
+    <div class="wsopts"><button class="wso sel" id="tL0">المستوى الأول</button><button class="wso" id="tL1">المستوى الثاني</button></div>
+    <div class="topic" style="margin-top:12px">مَن يشوف النتائج؟</div>
+    <div class="wsopts"><button class="wso sel" id="tVall">👀 الكل يشوف الترتيب</button><button class="wso" id="tVteach">🔒 المعلمة فقط</button></div>
+  </div>
+  <button class="btn" id="tCreate">🚀 إنشاء الغرفة</button>
+  <button class="btn ghost back">↩ رجوع</button>
+</section>
+
+<section id="s-teacher" class="screen">
+  <h2 style="color:var(--gold);text-align:center;margin-bottom:0">👩‍🏫 لوحة المعلمة</h2>
+  <p style="text-align:center;color:var(--muted);font-size:.85rem;margin-top:2px" id="tInfo"></p>
+  <p style="text-align:center;color:#cdd3f0;font-size:.9rem;margin:0">رمز الدخول للطالبات</p>
+  <div class="code" id="tCode">------</div>
+  <div class="stat"><div><b id="tCount">0</b><span>الطالبات</span></div><div><b id="tDone">0</b><span>أنهين</span></div>
+    <div><b id="tAvg">0</b><span>متوسط النقاط</span></div></div>
+  <button class="btn" id="tStart">▶️ ابدأ اللعب للجميع</button>
+  <div id="tBoard"></div>
+  <button class="btn ghost" id="tPrint">🖨️ اطبع كشف النتائج</button>
+  <button class="btn ghost" id="tClose">🚪 إغلاق الغرفة</button>
+</section>
+
+<section id="s-join" class="screen">
+  <h2 style="color:var(--gold);text-align:center">🙋‍♀️ انضمام لغرفة الصف</h2>
+  <div class="qcard">
+    <div class="topic">رمز الغرفة (٦ أرقام)</div>
+    <input class="nmin" id="jCode" inputmode="numeric" maxlength="6" placeholder="000000" style="max-width:none;letter-spacing:8px;direction:ltr">
+    <div class="topic" style="margin-top:12px">اسمك</div>
+    <input class="nmin" id="jName" placeholder="اكتبي اسمك" maxlength="24" style="max-width:none">
+  </div>
+  <button class="btn" id="jGo">✨ دخول</button>
+  <button class="btn ghost back">↩ رجوع</button>
+</section>
+
+<section id="s-wait" class="screen">
+  <div style="text-align:center;padding-top:8vh">
+    <div style="font-size:3rem">🕯️</div>
+    <h2 style="color:var(--gold)">في انتظار المعلمة…</h2>
+    <p style="color:#cdd3f0" id="wInfo"></p>
+    <div class="note">لا تغلقي الصفحة. أول ما تبدأ المعلمة اللعب رح تفتح المغامرة تلقائياً.</div>
+    <div id="wBoard"></div>
+    <button class="btn ghost" id="wLeave">🚪 خروج من الغرفة</button>
+  </div>
+</section>
+
+<section id="s-board" class="screen">
+  <h2 style="color:var(--gold);text-align:center">🏅 ترتيب الصف</h2>
+  <div id="bBoard"></div>
+  <div class="note" id="bNote"></div>
+  <button class="btn ghost" id="bBack">↩ رجوع</button>
 </section>
 
 <section id="s-level" class="screen">
@@ -387,6 +473,7 @@ input.wsin.no{border-color:var(--red);background:#3a1414}
     </div>
     <p style="color:var(--gold);font-weight:700" id="wRank"></p>
     <button class="btn" id="toWs1">✍️ ورقة العمل الأولى</button>
+    <button class="btn ghost" id="boardBtn1">🏅 ترتيب الصف</button>
     <button class="btn ghost" id="againBtn">🗺️ الخريطة</button>
   </div>
 </section>
@@ -444,6 +531,7 @@ input.wsin.no{border-color:var(--red);background:#3a1414}
     <div class="bubble good"><div class="who"><img src="data:image/jpeg;base64,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" alt=""><span>جان فالجان</span></div>
       <div class="say">لا تستسلم! كوزيت بحاجتك 💪</div></div>
     <button class="btn red" id="retryBtn">💪 حاول مرة أخرى!</button>
+    <button class="btn ghost" id="boardBtn2">🏅 ترتيب الصف</button>
     <button class="btn ghost" id="loseMap">🗺️ الخريطة</button>
     <button class="btn ghost" id="loseHome">🏠 الرئيسية</button>
   </div>
@@ -670,7 +758,7 @@ function renderLevels(){
     b.appendChild(d);
   });
 }
-function startLevel(){startGlobal();renderMap();show('s-map');}
+function startLevel(){S.sessionPts=0;startGlobal();renderMap();show('s-map');}
 
 /* ============ MAP ============ */
 function renderMap(){
@@ -779,7 +867,7 @@ function finishStage(){
   const stars=S.right===4?3:S.right===3?2:S.right===2?1:0;
   if(stars>prog.stars[S.level][S.stage])prog.stars[S.level][S.stage]=stars;
   if(S.stagePts>prog.best[S.level][S.stage])prog.best[S.level][S.stage]=S.stagePts;
-  store.set(KEY,prog);
+  store.set(KEY,prog);S.sessionPts=(S.sessionPts||0)+S.stagePts;pushMe(false);
   SFX.star();if(stars>=2)confetti();
   $('seIcon').textContent=stars===3?'🏆':stars===2?'🌟':stars===1?'✨':'💔';
   $('seTitle').textContent=stars>0?'أكملت: '+st.title:'لم تكتمل النجوم…';
@@ -799,7 +887,7 @@ $('seMap').onclick=()=>{SFX.click();renderMap();jump('s-map')};
 
 /* ============ END ============ */
 function endGame(win,reason){
-  clearInterval(S.qTimer);stopGlobal();
+  clearInterval(S.qTimer);stopGlobal();pushMe(true);syncRoomBtns();
   if(win){
     SFX.win();confetti();setTimeout(confetti,700);
     const totalQ=STAGES.length*QPS;
@@ -832,12 +920,159 @@ $('shareBtn').onclick=function(){
   else if(navigator.clipboard){navigator.clipboard.writeText(txt+' '+location.href).then(()=>alert('تم نسخ النتيجة ✅')).catch(()=>alert(txt));}
   else alert(txt);
 };
+function openBoard(){SFX.click();renderBoardScreen();show('s-board')}
+function syncRoomBtns(){const v=RM.on?'block':'none';$('boardBtn1').style.display=v;$('boardBtn2').style.display=v;}
+$('boardBtn1').onclick=openBoard;$('boardBtn2').onclick=openBoard;
 $('againBtn').onclick=()=>{SFX.click();if(!S.running)startGlobal();renderMap();jump('s-map')};
 $('retryBtn').onclick=()=>{SFX.click();if(!S.running)startGlobal();startStage(S.stage)};
 $('loseMap').onclick=()=>{SFX.click();if(!S.running)startGlobal();renderMap();jump('s-map')};
 $('loseHome').onclick=()=>{SFX.click();goHome(true)};
 $('toLevels').onclick=()=>{SFX.click();stopGlobal();renderLevels();jump('s-level')};
 $('resetProg').onclick=()=>{if(confirm('هل تريد مسح كل التقدم؟')){prog=blank();store.set(KEY,prog);renderMap();renderLevels();}};
+
+/* ============ CLASSROOM (Firebase) ============ */
+const FIREBASE_CONFIG={apiKey:"AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",authDomain:"cursed-castle-bb43b.firebaseapp.com",
+  projectId:"cursed-castle-bb43b",storageBucket:"cursed-castle-bb43b.firebasestorage.app",
+  messagingSenderId:"458563878259",appId:"1:458563878259:web:715ce9f960b2972ccd9906"};
+const ROOMS='cosette-rooms', TPASS='amani2026';
+let RM={db:null,code:null,id:null,name:'',isTeacher:false,visible:'all',level:0,unsub:null,on:false,data:null,started:false};
+
+function fbInit(){
+  try{
+    if(typeof window.firebase==='undefined'||!window.firebase.initializeApp)return false;
+    if(!window.firebase.apps||window.firebase.apps.length===0)window.firebase.initializeApp(FIREBASE_CONFIG);
+    RM.db=window.firebase.firestore();return true;
+  }catch(e){return false}
+}
+async function waitDb(ms){
+  const end=Date.now()+(ms||8000);
+  while(!RM.db&&Date.now()<end){fbInit();if(RM.db)break;await new Promise(r=>setTimeout(r,300));}
+  return RM.db;
+}
+const genCode=()=>{let c='';for(let i=0;i<6;i++)c+=Math.floor(Math.random()*10);return c;};
+const genId=()=>'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const arNum=s=>String(s==null?'':s).replace(/[\u0660-\u0669]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x0660+48)).replace(/\D/g,'');
+
+/* ---- teacher ---- */
+$('modeSolo').onclick=()=>{SFX.click();RM.on=false;renderLevels();show('s-level')};
+$('modeJoin').onclick=()=>{SFX.click();show('s-join')};
+$('modeTeacher').onclick=()=>{SFX.click();show('s-tsetup')};
+let tLevel=0,tVis='all';
+$('tL0').onclick=()=>{tLevel=0;$('tL0').classList.add('sel');$('tL1').classList.remove('sel');SFX.click()};
+$('tL1').onclick=()=>{tLevel=1;$('tL1').classList.add('sel');$('tL0').classList.remove('sel');SFX.click()};
+$('tVall').onclick=()=>{tVis='all';$('tVall').classList.add('sel');$('tVteach').classList.remove('sel');SFX.click()};
+$('tVteach').onclick=()=>{tVis='teacher';$('tVteach').classList.add('sel');$('tVall').classList.remove('sel');SFX.click()};
+
+$('tCreate').onclick=async()=>{
+  if($('tPass').value.trim()!==TPASS){alert('كلمة السر غير صحيحة');return;}
+  const nm=$('tName').value.trim()||'صفّي';
+  $('tCreate').disabled=true;$('tCreate').textContent='🔄 جاري الإنشاء…';
+  const db=await waitDb(9000);
+  $('tCreate').disabled=false;$('tCreate').textContent='🚀 إنشاء الغرفة';
+  if(!db){alert('ما في اتصال بالإنترنت. تأكدي وحاولي مرة ثانية.');return;}
+  let code=null;
+  for(let i=0;i<5;i++){const c=genCode();try{const s=await db.collection(ROOMS).doc(c).get();if(!s.exists){code=c;break}}catch(e){}}
+  if(!code){alert('تعذّر إنشاء الغرفة، حاولي مرة ثانية.');return;}
+  RM.id=genId();RM.code=code;RM.isTeacher=true;RM.on=true;RM.visible=tVis;RM.level=tLevel;RM.name=nm;
+  try{
+    await db.collection(ROOMS).doc(code).set({
+      game:'cosette',createdAt:window.firebase.firestore.FieldValue.serverTimestamp(),
+      status:'waiting',teacherId:RM.id,teacherName:nm,level:tLevel,visible:tVis,students:{}
+    });
+  }catch(e){alert('فشل الإنشاء');return;}
+  $('tCode').textContent=code;
+  $('tInfo').textContent=nm+' • '+LEVELS[tLevel].name+' • '+(tVis==='all'?'النتائج ظاهرة للجميع':'النتائج للمعلمة فقط');
+  listenRoom();show('s-teacher');
+};
+$('tStart').onclick=async()=>{
+  if(!RM.db||!RM.code)return;SFX.click();
+  try{await RM.db.collection(ROOMS).doc(RM.code).update({status:'playing'});
+    $('tStart').textContent='✅ اللعب جارٍ…';$('tStart').disabled=true;}catch(e){alert('تعذّر البدء')}
+};
+$('tClose').onclick=async()=>{
+  if(!confirm('إغلاق الغرفة نهائياً؟'))return;
+  try{await RM.db.collection(ROOMS).doc(RM.code).update({status:'finished'})}catch(e){}
+  if(RM.unsub)RM.unsub();RM.on=false;RM.isTeacher=false;RM.code=null;goHome(true);
+};
+$('tPrint').onclick=()=>{
+  const list=sortStudents();
+  let x='<div class="ws" style="font-family:Cairo,sans-serif;padding:14px"><h2>كشف نتائج — مغامرة كوزيت النحوية</h2>'+
+    '<p style="text-align:center">'+(RM.name||'')+' — '+LEVELS[RM.level].name+' — رمز الغرفة: '+RM.code+'</p>'+
+    '<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;text-align:center">'+
+    '<tr><th>#</th><th>الاسم</th><th>النقاط</th><th>النجوم</th><th>المراحل</th><th>الحالة</th></tr>';
+  list.forEach((s,i)=>{x+='<tr><td>'+(i+1)+'</td><td>'+s.name+'</td><td>'+(s.score||0)+'</td><td>'+(s.stars||0)+'/15</td><td>'+(s.stage||0)+'/5</td><td>'+(s.done?'أنهت':'تلعب')+'</td></tr>'});
+  x+='</table><p style="text-align:center;font-size:.8rem">منصة PlayVerse — د. أماني ياسين داود</p></div>';
+  $('printArea').innerHTML=x;window.print();
+};
+
+/* ---- student ---- */
+$('jGo').onclick=async()=>{
+  const code=arNum($('jCode').value).slice(0,6), nm=$('jName').value.trim();
+  if(code.length!==6){alert('اكتبي رمز الغرفة (٦ أرقام)');return}
+  if(!nm){alert('اكتبي اسمك');return}
+  $('jGo').disabled=true;$('jGo').textContent='🔄 جاري الدخول…';
+  const db=await waitDb(9000);
+  $('jGo').disabled=false;$('jGo').textContent='✨ دخول';
+  if(!db){alert('ما في اتصال بالإنترنت');return}
+  let snap;try{snap=await db.collection(ROOMS).doc(code).get()}catch(e){alert('خطأ بالاتصال');return}
+  if(!snap.exists){alert('الرمز غير صحيح');return}
+  const d=snap.data();
+  if(d.status==='finished'){alert('هذه الغرفة مغلقة');return}
+  RM.id=genId();RM.code=code;RM.isTeacher=false;RM.on=true;RM.visible=d.visible||'all';RM.level=d.level||0;RM.name=nm;
+  try{
+    const u={};u['students.'+RM.id]={name:nm,score:0,stars:0,stage:0,done:false,at:Date.now()};
+    await db.collection(ROOMS).doc(code).update(u);
+  }catch(e){alert('تعذّر الدخول');return}
+  $('wInfo').textContent=(d.teacherName||'')+' • '+LEVELS[RM.level].name;
+  listenRoom();show('s-wait');
+};
+$('wLeave').onclick=()=>{if(RM.unsub)RM.unsub();RM.on=false;RM.code=null;goHome(true)};
+
+/* ---- sync ---- */
+function listenRoom(){
+  if(RM.unsub)RM.unsub();
+  RM.unsub=RM.db.collection(ROOMS).doc(RM.code).onSnapshot(snap=>{
+    if(!snap.exists)return;
+    RM.data=snap.data();RM.visible=RM.data.visible||'all';
+    if(RM.isTeacher)renderTeacher();
+    else{
+      if(RM.data.status==='playing'&&!RM.started){RM.started=true;S.level=RM.level;startLevel();}
+      if(document.getElementById('s-wait').classList.contains('on'))
+        $('wBoard').innerHTML=RM.visible==='all'?boardHTML():'';
+      if(document.getElementById('s-board').classList.contains('on'))renderBoardScreen();
+    }
+  },()=>{});
+}
+function sortStudents(){
+  const st=(RM.data&&RM.data.students)||{};
+  return Object.keys(st).map(k=>Object.assign({id:k},st[k])).sort((a,b)=>(b.score||0)-(a.score||0));
+}
+function boardHTML(){
+  const l=sortStudents();
+  if(!l.length)return '<div class="note">ما في طالبات بعد…</div>';
+  return l.map((s,i)=>'<div class="lbrow'+(s.id===RM.id?' me':'')+'"><div class="rk">'+(i+1)+'</div>'+
+    '<div class="nm2">'+(i===0&&s.score?'👑 ':'')+s.name+
+    '<div class="pr"><span class="dot'+(s.done?'':' off')+'"></span>'+(s.done?'أنهت المغامرة':'المرحلة '+(s.stage||0)+'/5')+' • ⭐'+(s.stars||0)+'</div></div>'+
+    '<div class="sc">'+(s.score||0)+'</div></div>').join('');
+}
+function renderTeacher(){
+  const l=sortStudents();
+  $('tCount').textContent=l.length;
+  $('tDone').textContent=l.filter(s=>s.done).length;
+  $('tAvg').textContent=l.length?Math.round(l.reduce((a,s)=>a+(s.score||0),0)/l.length):0;
+  $('tBoard').innerHTML=boardHTML();
+}
+function renderBoardScreen(){
+  if(RM.visible==='all'||RM.isTeacher){$('bBoard').innerHTML=boardHTML();$('bNote').textContent='الترتيب بيتحدّث مباشرة.';}
+  else{$('bBoard').innerHTML='';$('bNote').textContent='✅ تم إرسال نتيجتك للمعلمة. الترتيب مخفي في هذه الغرفة.';}
+}
+$('bBack').onclick=()=>{SFX.click();goBack()};
+function pushMe(done){
+  if(!RM.on||RM.isTeacher||!RM.db||!RM.code)return;
+  const u={};u['students.'+RM.id]={name:RM.name,score:S.sessionPts||0,stars:prog.stars[S.level].reduce((a,b)=>a+b,0),
+    stage:S.stage+(done?1:0),done:!!done,at:Date.now()};
+  try{RM.db.collection(ROOMS).doc(RM.code).update(u)}catch(e){}
+}
 
 /* ============ INTERACTIVE WORKSHEETS ============ */
 const WS1=[
@@ -982,8 +1217,8 @@ $('skipIntro').onclick=()=>{SFX.click();closeIntro()};
 $('unmuteIntro').onclick=()=>{const v=$('introVid');v.muted=false;v.volume=1;v.play().catch(()=>{});$('unmuteIntro').style.display='none'};
 $('goIntro').onclick=()=>{A();SFX.click();playIntro(null)};
 $('goStart').onclick=()=>{A();startMusic();SFX.click();
-  if(!introDone){introDone=true;playIntro(()=>{renderLevels();show('s-level')});}
-  else{renderLevels();show('s-level')}};
+  if(!introDone){introDone=true;playIntro(()=>show('s-mode'));}
+  else{show('s-mode')}};
 $('goChars').onclick=()=>{SFX.click();show('s-chars')};
 $('goHow').onclick=()=>{SFX.click();show('s-how')};
 $('btnSound').onclick=()=>{sfxOn=!sfxOn;$('btnSound').textContent=sfxOn?'🔊':'🔇'};
