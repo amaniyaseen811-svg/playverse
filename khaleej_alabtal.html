@@ -772,13 +772,17 @@ function exportCSV(){
 /* ================= الموسيقى ================= */
 const bgm=document.getElementById('bgm');
 bgm.src=MUSIC; bgm.volume=0.32;
-let musicOn=true, musicPrimed=false;
+/* احترام إعداد الموسيقى في منصة PlayVerse (pv_music) */
+let musicOn=true;
+try{ if(localStorage.getItem('pv_music')==='off') musicOn=false; }catch(e){}
+let musicPrimed=false;
 function primeMusic(){
   if(musicPrimed) return; musicPrimed=true;
   if(musicOn) bgm.play().catch(()=>{});
 }
 function toggleMusic(){
   musicOn=!musicOn; musicPrimed=true;
+  try{ localStorage.setItem('pv_music', musicOn?'on':'off'); }catch(e){}
   if(musicOn){ bgm.play().catch(()=>{}); } else { bgm.pause(); }
   const b=document.getElementById('musBtn');
   if(b) b.textContent = musicOn?'🎵 الموسيقى':'🔇 الموسيقى';
@@ -1259,6 +1263,8 @@ document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='En
 (function(){
   const cv=document.getElementById('coverVid');
   if(cv){ cv.src=COVERVID; cv.load(); }
+  const b=document.getElementById('musBtn');
+  if(b) b.textContent = musicOn?'🎵 الموسيقى':'🔇 الموسيقى';
 })();
 
 loadStore();
