@@ -2761,7 +2761,36 @@ updateStats();
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(function(){});
+  navigator.serviceWorker.register('sw.js').then(function(reg){
+    // تحقّق فوري من وجود نسخة أحدث
+    reg.update();
+    // إذا وصلت نسخة جديدة، فعّليها وأعيدي التحميل مرة واحدة
+    reg.addEventListener('updatefound', function(){
+      var nw = reg.installing;
+      if(!nw) return;
+      nw.addEventListener('statechange', function(){
+        if(nw.state === 'installed' && navigator.serviceWorker.controller){
+          if(!sessionStorage.getItem('pv_reloaded')){
+            sessionStorage.setItem('pv_reloaded','1');
+            location.reload();
+          }
+        }
+      });
+    });
+  }).catch(function(){});
+
+  // تنظيف كامل عند الحاجة: افتحي الرابط بإضافة ?fresh=1
+  if (location.search.indexOf('fresh=1') !== -1) {
+    navigator.serviceWorker.getRegistrations().then(function(rs){
+      rs.forEach(function(r){ r.unregister(); });
+      if (window.caches) {
+        caches.keys().then(function(ks){
+          Promise.all(ks.map(function(k){ return caches.delete(k); }))
+            .then(function(){ location.replace(location.pathname); });
+        });
+      } else { location.replace(location.pathname); }
+    });
+  }
 }
 </script>
 
