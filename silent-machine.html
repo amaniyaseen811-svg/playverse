@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الآلة الصامتة — إدارة واقتصاد / الحادي عشر التجاري</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B1F3A; --navy2:#12294A; --navy3:#17335C; --ink:#071427;
+  --gold:#C9A227; --gold2:#E4C766; --gold3:#8A6E14;
+  --cream:#EDE6D4; --cream2:#FBF6E9;
+  --ok:#3E9E6A; --no:#B4432F;
+  --r:16px; --sh:0 10px 30px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;background:var(--ink);color:var(--cream);
+  font-family:'Cairo',system-ui,'Segoe UI',Tahoma,sans-serif;
+  overflow:hidden;
+}
+button{font-family:inherit}
+#app{position:fixed;inset:0;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;
+  background:radial-gradient(120% 80% at 50% 0%,var(--navy3) 0%,var(--navy) 42%,var(--ink) 100%);}
+.screen.on{display:flex;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:scale(.99)}to{opacity:1;transform:none}}
+.pad{padding:18px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1}
+.center{align-items:center;justify-content:center;text-align:center}
+
+/* ===== شريط علوي ===== */
+.bar{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,0));position:relative;z-index:5}
+.bar h2{margin:0;font-size:15px;font-weight:600;color:var(--gold2);flex:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:42px;height:42px;flex:0 0 42px;border-radius:12px;border:1px solid rgba(201,162,39,.35);
+  background:rgba(255,255,255,.05);color:var(--gold2);font-size:19px;display:grid;place-items:center;cursor:pointer}
+.ib:active{transform:scale(.94)}
+.chip{padding:7px 12px;border-radius:999px;background:rgba(201,162,39,.14);
+  border:1px solid rgba(201,162,39,.3);font-size:13px;font-weight:700;color:var(--gold2);white-space:nowrap}
+.chip.warn{background:rgba(180,67,47,.2);border-color:rgba(180,67,47,.5);color:#F0B4A6}
+
+/* ===== الأزرار ===== */
+.btn{display:block;width:100%;margin:9px 0;padding:15px 16px;border-radius:var(--r);
+  border:1px solid rgba(201,162,39,.35);cursor:pointer;font-size:16px;font-weight:700;
+  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.02));color:var(--cream);
+  transition:transform .12s,border-color .2s,background .2s;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn.gold{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#2A1E00;border-color:var(--gold3);
+  box-shadow:0 6px 18px rgba(201,162,39,.28)}
+.btn.ghost{background:transparent;border-color:rgba(237,230,212,.22);color:var(--cream);font-weight:600}
+.btn small{display:block;font-weight:400;font-size:12.5px;opacity:.72;margin-top:3px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+
+/* ===== الغلاف ===== */
+#cover{position:absolute;inset:0;background:#000 center/cover no-repeat;opacity:.5}
+#cover::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(7,20,39,.35) 0%,rgba(7,20,39,.85) 55%,var(--ink) 100%)}
+.home-in{position:relative;z-index:2;padding:20px;display:flex;flex-direction:column;height:100%}
+.brandwrap{margin-top:auto;text-align:center;padding-bottom:14px}
+.brand{font-family:'Cairo';font-weight:800;font-size:clamp(34px,10vw,52px);color:var(--gold2);
+  letter-spacing:2px;margin:0;text-shadow:0 4px 22px rgba(0,0,0,.8)}
+.tag{font-family:'Amiri',serif;font-size:16px;color:var(--cream);opacity:.88;margin:8px 0 0}
+.rule{width:180px;height:2px;background:var(--gold);margin:12px auto;opacity:.7;border-radius:2px}
+.menu{margin-top:auto}
+.foot{text-align:center;font-size:11.5px;opacity:.5;padding:8px 0 4px}
+
+/* ===== التروس ===== */
+.gears{display:flex;gap:8px;justify-content:center;padding:6px 0}
+.gear{width:26px;height:26px;opacity:.28;transition:opacity .5s,filter .5s}
+.gear.lit{opacity:1;filter:drop-shadow(0 0 7px rgba(228,199,102,.85));animation:spin 9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== البطاقات ===== */
+.card{background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+  border:1px solid rgba(201,162,39,.25);border-radius:var(--r);padding:16px;margin:12px 0;box-shadow:var(--sh)}
+.card h3{margin:0 0 10px;color:var(--gold2);font-size:17px}
+.card p{margin:8px 0;line-height:1.85;font-size:15px}
+.card ul{margin:8px 0;padding-inline-start:20px;line-height:1.95;font-size:15px}
+.eyebrow{font-size:12px;letter-spacing:1px;color:var(--gold);opacity:.9;margin-bottom:4px}
+.stagehero{height:150px;border-radius:var(--r);background:var(--navy2) center/cover no-repeat;
+  border:1px solid rgba(201,162,39,.25);margin-bottom:2px;position:relative;overflow:hidden}
+.stagehero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(7,20,39,.8))}
+
+/* ===== السؤال ===== */
+.qhead{padding:0 16px 6px}
+.qnum{font-size:12.5px;color:var(--gold);opacity:.9}
+.qtext{font-size:18px;font-weight:600;line-height:1.75;margin:8px 0 4px}
+.opts{padding:4px 16px 16px}
+.opt{display:flex;gap:11px;align-items:flex-start;width:100%;margin:9px 0;padding:14px;
+  border-radius:14px;border:1px solid rgba(237,230,212,.18);background:rgba(255,255,255,.045);
+  color:var(--cream);font-size:15.5px;line-height:1.6;text-align:right;cursor:pointer;transition:.15s}
+.opt:active{transform:scale(.99)}
+.opt .k{flex:0 0 26px;height:26px;border-radius:8px;background:rgba(201,162,39,.2);
+  color:var(--gold2);display:grid;place-items:center;font-size:13px;font-weight:800}
+.opt.ok{border-color:var(--ok);background:rgba(62,158,106,.2)}
+.opt.no{border-color:var(--no);background:rgba(180,67,47,.2)}
+.opt.dim{opacity:.45}
+.why{margin:10px 16px 0;padding:13px;border-radius:12px;font-size:14.5px;line-height:1.8;
+  border:1px solid rgba(201,162,39,.3);background:rgba(201,162,39,.1)}
+.why b{color:var(--gold2)}
+.bottombar{padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(0deg,rgba(0,0,0,.5),transparent)}
+.tbar{height:4px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin:0 16px}
+.tfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:100%;transition:width .95s linear}
+.tfill.low{background:linear-gradient(90deg,#8C2F1E,#D9634A)}
+
+/* ===== النتيجة ===== */
+.trophy{width:120px;height:120px;margin:6px auto 0;display:block;
+  filter:drop-shadow(0 8px 26px rgba(228,199,102,.5));animation:pop .7s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.4) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
+.score{font-size:52px;font-weight:800;color:var(--gold2);margin:6px 0 0;line-height:1}
+.medals{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.medal{padding:9px 14px;border-radius:999px;font-size:13px;font-weight:700;
+  border:1px solid rgba(201,162,39,.45);background:rgba(201,162,39,.15);color:var(--gold2)}
+.medal.off{opacity:.3;filter:grayscale(1)}
+
+/* ===== القوائم ===== */
+.lb{list-style:none;margin:0;padding:0}
+.lb li{display:flex;align-items:center;gap:11px;padding:12px;border-radius:12px;margin:7px 0;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:15px}
+.lb .rank{flex:0 0 30px;height:30px;border-radius:9px;display:grid;place-items:center;
+  background:rgba(201,162,39,.2);color:var(--gold2);font-weight:800;font-size:13px}
+.lb .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .sc{font-weight:800;color:var(--gold2)}
+.lb li.me{border-color:var(--gold);background:rgba(201,162,39,.14)}
+
+input,select{width:100%;padding:14px;border-radius:12px;font-size:16px;font-family:inherit;
+  background:rgba(255,255,255,.07);border:1px solid rgba(237,230,212,.22);color:var(--cream);margin:7px 0}
+input:focus,select:focus{outline:2px solid var(--gold);border-color:transparent}
+.code{font-size:38px;font-weight:800;letter-spacing:9px;color:var(--gold2);text-align:center;
+  padding:14px;border-radius:14px;background:rgba(201,162,39,.12);border:1px dashed rgba(201,162,39,.5)}
+
+/* ===== الإيقاف اللحظي ===== */
+.veil{position:absolute;inset:0;background:rgba(4,10,20,.93);backdrop-filter:blur(6px);
+  display:none;place-items:center;z-index:40;padding:22px}
+.veil.on{display:grid}
+.veil .box{max-width:420px;width:100%;text-align:center}
+
+/* ===== الفيديو ===== */
+#introScreen{background:#000}
+#introVid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+.skip{position:absolute;top:calc(14px + env(safe-area-inset-top));inset-inline-start:14px;z-index:9;
+  padding:10px 16px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(237,230,212,.35);
+  color:var(--cream);font-size:14px;font-weight:600;cursor:pointer}
+
+.note{font-size:13px;opacity:.72;line-height:1.8}
+.tiny{font-size:12px;opacity:.6}
+.hidden{display:none !important}
+
+/* ===== أوراق العمل ===== */
+.ws{background:#fff;color:#111;border-radius:12px;padding:20px;font-size:14px;line-height:1.9}
+.ws h3{color:#0B1F3A;margin:0 0 4px}
+.ws ol{padding-inline-start:22px}
+.ws li{margin:12px 0}
+.ws .opt2{display:block;margin:3px 0 0;padding-inline-start:14px;font-size:13.5px;color:#333}
+.ws .hdr{border-bottom:2px solid #C9A227;padding-bottom:8px;margin-bottom:12px}
+@media print{
+  body{overflow:visible;background:#fff}
+  #app{position:static}
+  .screen{display:none !important;position:static}
+  .screen.on{display:block !important;background:#fff}
+  .bar,.btn,.bottombar,.noprint{display:none !important}
+  .pad{overflow:visible;padding:0}
+  .ws{border-radius:0;page-break-after:always}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ============ فيديو المقدمة ============ -->
+<section class="screen on" id="introScreen">
+  <video id="introVid" playsinline muted autoplay preload="auto">
+    <source src="assets/intro.mp4" type="video/mp4">
+  </video>
+  <button class="skip" onclick="endIntro()">تخطّي المقدمة ⟵</button>
+</section>
+
+<!-- ============ الرئيسية ============ -->
+<section class="screen" id="home">
+  <div id="cover"></div>
+  <div class="home-in">
+    <div class="brandwrap">
+      <div class="gears" id="homeGears"></div>
+      <h1 class="brand">الآلـة الصـامـتـة</h1>
+      <div class="rule"></div>
+      <p class="tag">أربعة تروس، وأربع مدارس إدارية،<br>ومصنعٌ ينتظر من يُعيده إلى الحياة</p>
+    </div>
+    <div class="menu">
+      <button class="btn gold" onclick="go('levels','solo')">ابدأ اللعب<small>فردي — تتقدّم على راحتك</small></button>
+      <div class="row">
+        <button class="btn" onclick="go('levels','class')">لعب جماعي<small>صفّ كامل بغرفة واحدة</small></button>
+        <button class="btn" onclick="go('levels','duel')">لاعب ضد لاعب<small>مبارزة بين اثنين</small></button>
+      </div>
+      <div class="row">
+        <button class="btn ghost" onclick="show('worksheets')">أوراق العمل</button>
+        <button class="btn ghost" onclick="show('teacherGate')">لوحة المعلّمة</button>
+      </div>
+      <button class="btn ghost" onclick="show('help')">كيف ألعب؟</button>
+      <a class="btn ghost" href="index.html" style="text-decoration:none;display:block">الرئيسية — بلاي فيرس</a>
+    </div>
+    <div class="foot">إدارة واقتصاد — الحادي عشر التجاري · درس المدارس الإدارية الحديثة</div>
+  </div>
+</section>
+
+<!-- ============ اختيار المستوى ============ -->
+<section class="screen" id="levels">
+  <div class="bar"><button class="ib" onclick="show('home')">›</button><h2>اختاري المستوى</h2></div>
+  <div class="pad">
+    <div class="stagehero" id="lvHero"></div>
+    <button class="btn gold" onclick="pickLevel(1)">المستوى الأول — المتدرّبة
+      <small>٢٠ سؤالاً · تلميحات متاحة · محاولتان لكل سؤال · بلا مؤقّت ضاغط</small></button>
+    <button class="btn" onclick="pickLevel(2)">المستوى الثاني — المديرة التنفيذية
+      <small>٢٠ موقفاً إدارياً · بلا تلميحات · محاولة واحدة · ٩٠ ثانية لكل موقف</small></button>
+    <div class="card">
+      <div class="eyebrow">قبل أن تبدئي</div>
+      <p class="note">قبل أسئلة كل مدرسة تظهر بطاقة معلومات قصيرة. اقرئيها بتمعّن — كل سؤال بعدها مبنيٌّ عليها،
+        ولن تحتاجي إلى حفظ شيء، بل إلى فهم متى تُستعمل كل مدرسة.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ الاسم والغرفة ============ -->
+<section class="screen" id="join">
+  <div class="bar"><button class="ib" onclick="show('levels')">›</button><h2 id="joinTitle">اللعب الجماعي</h2></div>
+  <div class="pad">
+    <div class="card">
+      <div class="eyebrow">الخطوة الأولى</div>
+      <h3>ما اسمك؟</h3>
+      <input id="pname" maxlength="18" placeholder="اكتبي اسمك هنا" autocomplete="off">
+    </div>
+    <button class="btn gold" onclick="createRoom()">إنشاء غرفة جديدة<small>ستحصلين على رمز تشاركينه مع البقية</small></button>
+    <div class="card">
+      <div class="eyebrow">أو</div>
+      <h3>انضمّي إلى غرفة</h3>
+      <input id="rcode" maxlength="5" placeholder="رمز الغرفة" style="text-align:center;letter-spacing:6px;font-size:24px;font-weight:800" inputmode="text" autocomplete="off">
+      <button class="btn" onclick="joinRoom()">دخول الغرفة</button>
+    </div>
+    <p class="note" id="netNote"></p>
+  </div>
+</section>
+
+<!-- ============ غرفة الانتظار ============ -->
+<section class="screen" id="lobby">
+  <div class="bar"><button class="ib" onclick="leaveRoom()">›</button><h2>غرفة الانتظار</h2>
+    <span class="chip" id="lobbyMode">—</span></div>
+  <div class="pad">
+    <div class="eyebrow" style="text-align:center">شاركي هذا الرمز</div>
+    <div class="code" id="lobbyCode">—</div>
+    <p class="note" style="text-align:center" id="lobbyHint">في انتظار انضمام اللاعبين…</p>
+    <h3 style="color:var(--gold2);font-size:16px">اللاعبون <span id="pcount">(0)</span></h3>
+    <ul class="lb" id="lobbyList"></ul>
+  </div>
+  <div class="bottombar">
+    <button class="btn gold" id="startBtn" onclick="startRoom()">ابدأوا اللعب</button>
+  </div>
+</section>
+
+<!-- ============ بطاقة المعلومات ============ -->
+<section class="screen" id="info">
+  <div class="bar"><button class="ib" onclick="quitToHome()">›</button><h2 id="infoTitle">معلومات المرحلة</h2>
+    <div class="gears" id="infoGears"></div></div>
+  <div class="pad">
+    <div class="stagehero" id="infoHero"></div>
+    <div class="card">
+      <div class="eyebrow" id="infoEyebrow">المرحلة</div>
+      <h3 id="infoH"></h3>
+      <div id="infoBody"></div>
+    </div>
+    <div class="card" id="infoStoryCard">
+      <div class="eyebrow">من القصة</div>
+      <p id="infoStory" style="font-family:'Amiri',serif;font-size:16px"></p>
+    </div>
+  </div>
+  <div class="bottombar"><button class="btn gold" onclick="startStageQuestions()">فهمت — إلى الأسئلة</button></div>
+</section>
+
+<!-- ============ الأسئلة ============ -->
+<section class="screen" id="quiz">
+  <div class="bar">
+    <button class="ib" onclick="confirmQuit()">›</button>
+    <h2 id="qStage">—</h2>
+    <span class="chip" id="qScore">٠</span>
+    <button class="ib" onclick="togglePause()" id="pauseBtn">❙❙</button>
+  </div>
+  <div class="tbar"><div class="tfill" id="tfill"></div></div>
+  <div class="gears" id="quizGears"></div>
+  <div class="pad" style="padding-top:4px">
+    <div class="qhead">
+      <div class="qnum" id="qNum"></div>
+      <div class="qtext" id="qText"></div>
+    </div>
+    <div class="opts" id="qOpts"></div>
+    <div class="why hidden" id="qWhy"></div>
+    <div id="duelBar" class="hidden"><ul class="lb" id="duelList"></ul></div>
+  </div>
+  <div class="bottombar">
+    <div class="row">
+      <button class="btn ghost hidden" id="hintBtn" onclick="useHint()">تلميح من عمّ راشد (<span id="hintN">٣</span>)</button>
+      <button class="btn gold hidden" id="nextBtn" onclick="nextQuestion()">التالي</button>
+    </div>
+  </div>
+  <div class="veil" id="pauseVeil">
+    <div class="box">
+      <div class="gears" id="pauseGears"></div>
+      <h2 style="color:var(--gold2)">إيقاف مؤقّت</h2>
+      <p class="note">المؤقّت متوقّف. خذي نفَساً ثم أكملي.</p>
+      <button class="btn gold" onclick="togglePause()">متابعة اللعب</button>
+      <button class="btn ghost" onclick="confirmQuit()">الخروج إلى الرئيسية</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ النتيجة ============ -->
+<section class="screen" id="result">
+  <div class="bar"><button class="ib" onclick="show('home')">›</button><h2>النتيجة</h2></div>
+  <div class="pad center">
+    <div id="trophyBox"></div>
+    <div class="score" id="rScore">٠</div>
+    <div class="tiny" id="rOutOf"></div>
+    <h3 id="rTitle" style="color:var(--gold2);margin:10px 0 2px"></h3>
+    <p class="note" id="rMsg" style="max-width:420px;margin:0 auto"></p>
+    <div class="medals" id="rMedals"></div>
+    <div class="card" style="text-align:right">
+      <div class="eyebrow">التفصيل حسب المدارس</div>
+      <ul class="lb" id="rBreak"></ul>
+    </div>
+    <div class="card" style="text-align:right" id="rRoomCard">
+      <div class="eyebrow">ترتيب الغرفة</div>
+      <ul class="lb" id="rRoom"></ul>
+    </div>
+    <button class="btn gold" onclick="reviewMistakes()">مراجعة أخطائي</button>
+    <button class="btn" onclick="restartSame()">إعادة نفس المستوى</button>
+    <button class="btn ghost" onclick="show('home')">الشاشة الرئيسية</button>
+  </div>
+</section>
+
+<!-- ============ المراجعة ============ -->
+<section class="screen" id="review">
+  <div class="bar"><button class="ib" onclick="show('result')">›</button><h2>مراجعة الأخطاء</h2></div>
+  <div class="pad" id="reviewBody"></div>
+</section>
+
+<!-- ============ لوحة المعلّمة ============ -->
+<section class="screen" id="teacherGate">
+  <div class="bar"><button class="ib" onclick="show('home')">›</button><h2>لوحة المعلّمة</h2></div>
+  <div class="pad">
+    <div class="card">
+      <h3>كلمة المرور</h3>
+      <p class="note">هذه اللوحة للاطّلاع على النتائج فقط — لا تُعدّل أي شيء في اللعبة.</p>
+      <input id="tpass" type="password" placeholder="كلمة المرور" autocomplete="off">
+      <button class="btn gold" onclick="teacherLogin()">دخول</button>
+      <p class="note" id="tErr" style="color:#F0B4A6"></p>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="teacher">
+  <div class="bar"><button class="ib" onclick="show('home')">›</button><h2>نتائج الغرف</h2>
+    <button class="ib" onclick="loadRooms()">⟳</button></div>
+  <div class="pad">
+    <div class="card">
+      <h3>متابعة غرفة بالرمز</h3>
+      <input id="tcode" maxlength="5" placeholder="رمز الغرفة" style="text-align:center;letter-spacing:6px;font-size:22px;font-weight:800">
+      <button class="btn" onclick="watchRoom()">عرض النتائج مباشرة</button>
+    </div>
+    <div id="tLive" class="hidden">
+      <h3 style="color:var(--gold2);font-size:16px">غرفة <span id="tLiveCode"></span> — <span id="tLiveMeta"></span></h3>
+      <ul class="lb" id="tLiveList"></ul>
+      <button class="btn ghost" onclick="stopWatch()">إيقاف المتابعة</button>
+    </div>
+    <h3 style="color:var(--gold2);font-size:16px">آخر الغرف</h3>
+    <ul class="lb" id="tRooms"></ul>
+    <p class="note" id="tNote"></p>
+  </div>
+</section>
+
+<!-- ============ أوراق العمل ============ -->
+<section class="screen" id="worksheets">
+  <div class="bar noprint"><button class="ib" onclick="show('home')">›</button><h2>أوراق العمل</h2>
+    <button class="ib" onclick="window.print()">🖨</button></div>
+  <div class="pad">
+    <p class="note noprint">ثلاث أوراق جاهزة للطباعة: أسئلة المستوى الأول، مواقف المستوى الثاني، ومفتاح الإجابات.
+      اضغطي أيقونة الطابعة في الأعلى.</p>
+    <div id="wsBody"></div>
+  </div>
+</section>
+
+<!-- ============ التعليمات ============ -->
+<section class="screen" id="help">
+  <div class="bar"><button class="ib" onclick="show('home')">›</button><h2>كيف ألعب؟</h2></div>
+  <div class="pad">
+    <div class="card"><h3>الفكرة</h3>
+      <p>مصنع «نُوفا» توقّف منذ عشرين عاماً. في قلبه آلةٌ أمّ بأربعة تروسٍ ذهبية، كلُّ ترسٍ يمثّل مدرسةً إداريةً حديثة.
+        لا تُصلَح الآلة بالمفكّ، بل بالفكرة الإدارية الصحيحة.</p></div>
+    <div class="card"><h3>التروس الأربعة</h3>
+      <ul>
+        <li>ترس الموقف — المدرسة الموقفية</li>
+        <li>ترس النظام — مدرسة النظم</li>
+        <li>ترس الهدف — الإدارة بالأهداف</li>
+        <li>ترس الولاء — المدرسة اليابانية Z</li>
+      </ul>
+      <p class="note">يضيء الترس في أعلى الشاشة كلما أتممتِ أسئلة مدرسته.</p></div>
+    <div class="card"><h3>المستويان</h3>
+      <p><b>المتدرّبة:</b> أسئلة تمييز وتصنيف، ثلاث تلميحات، ومحاولتان لكل سؤال.</p>
+      <p><b>المديرة التنفيذية:</b> مواقف إدارية مركّبة، محاولة واحدة، وتسعون ثانية لكل موقف، مع نقاط إضافية على السرعة.</p></div>
+    <div class="card"><h3>أنماط اللعب</h3>
+      <p><b>فردي:</b> تلعبين وحدك.</p>
+      <p><b>جماعي:</b> تُنشئ إحداكنّ غرفةً وتشارك رمزها، فيرى الجميع الترتيب لحظةً بلحظة.</p>
+      <p><b>لاعب ضد لاعب:</b> غرفة لاثنتين فقط، ونتيجة الخصم أمامك طوال اللعب.</p></div>
+    <div class="card"><h3>الأزرار</h3>
+      <p>زرّ ❙❙ يوقف المؤقّت مؤقتاً. زرّ › في أعلى اليمين يرجعك خطوةً إلى الوراء.</p></div>
+  </div>
+</section>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+/* =========================================================
+   الآلة الصامتة — لعبة تعليمية
+   إدارة واقتصاد · الحادي عشر التجاري · المدارس الإدارية الحديثة
+   ========================================================= */
+
+/* ---------- ١) إعداد فايربيس ---------- */
+/*  الصقي هنا نفس بيانات مشروعك المستخدمة في ألعاب بلاي فيرس  */
+const firebaseConfig = {
+  apiKey: "ضعي_المفتاح_هنا",
+  authDomain: "cursed-castle-bb43b.firebaseapp.com",
+  projectId: "cursed-castle-bb43b",
+  storageBucket: "cursed-castle-bb43b.appspot.com",
+  messagingSenderId: "ضعي_الرقم_هنا",
+  appId: "ضعي_المعرّف_هنا"
+};
+const TEACHER_PASS = "amani2026";
+const COL = "sm_rooms";
+
+let db = null, netOK = false;
+try {
+  if (firebase && !firebaseConfig.apiKey.includes("ضعي")) {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    netOK = true;
+  }
+} catch (e) { netOK = false; }
+
+/* ---------- ٢) الأصول ---------- */
+const A = p => "assets/" + p;
+const STAGE_BG = ["sm_bg_s1.jpg", "sm_bg_s2.jpg", "sm_bg_s3.jpg", "sm_bg_s4.jpg"];
+
+/* ---------- ٣) المحتوى ---------- */
+const STAGES = [
+  {
+    key: "situ", name: "ترس المَوقِف", school: "المدرسة الموقفية",
+    story: "ثلاثة أشخاصٍ جامدين كالتماثيل، وفي يد جُمان أداةٌ واحدةٌ مكتوبٌ عليها «أوامر صارمة». تستعملها مع الثلاثة: سامي ينجح، أمّ خالد تغضب، وليث يصمت. يهتزّ الترس ثم يتوقّف.",
+    info: [
+      "لا يوجد أسلوبٌ إداريٌّ واحد صالحٌ لكل المواقف؛ الأسلوب الأمثل يتحدّد بحسب الموقف.",
+      "متغيّرات الموقف: طبيعة المهمة ودرجة إلحاحها · مستوى نضج العاملين وخبرتهم · البيئة الخارجية والمنافسة · حجم المنظمة والتقنية المستخدمة.",
+      "الأسلوب التوجيهي مع قليل الخبرة، والتفويضي مع الخبير الموثوق، والمشارك مع صاحب الأفكار.",
+      "المدير الناجح يغيّر أسلوبه مع تغيّر الموقف ومع نضج الموظف نفسه عبر الزمن."
+    ]
+  },
+  {
+    key: "sys", name: "ترس النِّظام", school: "مدرسة النظم",
+    story: "أنابيبُ ضوئيةٌ زرقاء تسري من باب المصنع إلى مستودع الشحن، مقطوعةً في ثلاثة مواضع. وعلى الأرض أنبوبٌ رابعٌ مهجورٌ مغطّى بالغبار… لم يلمسه أحدٌ منذ عشرين سنة.",
+    info: [
+      "المنظمة نظامٌ مفتوح يتفاعل مع بيئته أخذاً وعطاءً، لا نظامٌ منعزل.",
+      "عناصر النظام: المدخلات ← العمليات ← المخرجات ← التغذية الراجعة التي تعود لتصحيح المسار.",
+      "الأقسام (إنتاج، تسويق، مالية) نظمٌ فرعية، وخللُ واحدٍ منها ينتقل أثره إلى النظام كله.",
+      "التآزر: أداء الكل أكبر من مجموع أداء الأجزاء منفردة.",
+      "بلا تغذيةٍ راجعة يظلّ النظام يكرّر خطأه إلى ما لا نهاية."
+    ]
+  },
+  {
+    key: "mbo", name: "ترس الهَدف", school: "الإدارة بالأهداف",
+    story: "لوحٌ زجاجيٌّ ضخمٌ فارغ. تكتب جُمان: «بيع ألف قطعة — أمرٌ نهائي»، فينطفئ اللوح ويخرج الموظفون. تعيد المحاولة فتسأل كلاًّ منهم: «كم تستطيع أن تبيع؟» فيضيء اللوح ذهبياً بأرقامٍ كتبوها بأيديهم.",
+    info: [
+      "صاحب الفكرة: بيتر دراكر. جوهرها: يُوضع الهدف بالمشاركة والاتفاق المشترك بين الرئيس والمرؤوس.",
+      "خطواتها: تحديد الأهداف العامة للمنظمة ← تحديد أهداف الأقسام والأفراد بالمشاركة ← وضع خطط العمل والموارد ← التنفيذ والمتابعة بالرقابة الذاتية ← تقييم الأداء والتغذية الراجعة والمكافأة.",
+      "الهدف السليم: محدَّد، قابل للقياس، واقعي، ومرتبط بزمن.",
+      "الرقابة فيها ذاتية لأن الموظف يقيس نفسه بهدفٍ شارك في صياغته.",
+      "من عيوبها: تستغرق وقتاً في التفاوض، وقد تُغلّب الأهداف الكمّية قصيرة الأجل على النوعية."
+    ]
+  },
+  {
+    key: "zed", name: "ترس الوَلاء", school: "المدرسة اليابانية — نظرية Z",
+    story: "من النافذة يظهر مصنع «أوميغا»: كلُّ عاملٍ داخل مكعّبٍ زجاجيٍّ منفصل تحت كاميرا. وفي نُوفا صورةٌ قديمة: العمال جالسون في حلقةٍ على الأرض، وفي وسطهم قطعةٌ معطوبة، وكلٌّ منهم يكتب اقتراحاً.",
+    info: [
+      "صاحبها: وليام أوتشي، وتقوم على الثقة والمهارة والمسؤولية الجماعية.",
+      "خصائصها: التوظيف طويل الأمد · القرار الجماعي بالتوافق · المسؤولية الجماعية · التقييم والترقية المتدرّجان · الرقابة الذاتية غير الرسمية · المسار الوظيفي غير المتخصّص · الاهتمام الشامل بالعامل وأسرته.",
+      "حلقة الجودة: مجموعةٌ صغيرة من العاملين في المجال نفسه يجتمعون طوعاً بانتظام لتحديد مشكلات العمل وتحليلها واقتراح حلولها.",
+      "كايزن: التحسين المستمر بخطواتٍ صغيرةٍ يومية بدل التغيير الكبير المفاجئ."
+    ]
+  }
+];
+
+/* أسئلة المستوى الأول — تمييز وتصنيف وفهم */
+const L1 = [
+  { s:0, q:"ما الفكرة التي تقوم عليها المدرسة الموقفية؟",
+    o:["لا يوجد أسلوبٌ إداريٌّ واحد صالحٌ لكل المواقف","الأسلوب الديمقراطي هو الأفضل دائماً","القرار الفردي أسرع فيجب اعتماده","الموظفون كسالى بطبعهم"], a:0,
+    h:"فكّري في الأداة الواحدة التي فشلت مع اثنين ونجحت مع واحد.",
+    w:"جوهر المدرسة الموقفية أن الأسلوب الأمثل يتحدّد بحسب متغيّرات الموقف، لا بقاعدةٍ ثابتة." },
+  { s:0, q:"سامي عاملٌ في أول يومٍ له ولا يعرف موقع زرّ التشغيل. أيّ أسلوبٍ يناسبه؟",
+    o:["تفويضٌ كامل","أسلوبٌ توجيهي بتعليماتٍ دقيقة ومتابعة","تركه ليكتشف بنفسه","أسلوبٌ مشاركٌ في اتخاذ القرار"], a:1,
+    h:"من لا يعرف الطريق يحتاج من يدلّه خطوةً خطوة.",
+    w:"قليل الخبرة يحتاج توجيهاً واضحاً ومتابعةً لصيقة حتى ينضج." },
+  { s:0, q:"أمّ خالد مهندسةٌ بخبرة عشرين سنة وتعرف الآلة بصوتها. أيّ أسلوبٍ يناسبها؟",
+    o:["أوامر صارمة ومتابعة كل دقيقة","التفويض والثقة بلا تدخّل","منعها من الاقتراب من الآلة","تدريبها من جديد على الأساسيات"], a:1,
+    h:"الخبرة العالية تُهان بالمتابعة اللصيقة.",
+    w:"مع النضج والخبرة العالية يكون التفويض هو الأسلوب الأنسب." },
+  { s:0, q:"ليثٌ مبدعٌ عنده أفكارٌ كثيرة ويكره أن يُملى عليه. أيّ أسلوبٍ يناسبه؟",
+    o:["الأسلوب التوجيهي الآمِر","الأسلوب المشارك الذي يفسح لأفكاره","تجاهل أفكاره تماماً","نقله إلى قسمٍ آخر"], a:1,
+    h:"من عنده ما يقوله يحتاج من يستمع.",
+    w:"المبدع يحتاج مساحةً للمشاركة في القرار حتى يبقى منتجاً وملتزماً." },
+  { s:0, q:"أيٌّ مما يلي يُعدّ متغيّراً موقفياً يغيّر أسلوب المدير؟",
+    o:["لون طلاء جدران المصنع","مستوى نضج العاملين وخبرتهم","عدد النوافذ في الصالة","اسم المورّد"], a:1,
+    h:"المتغيّر الموقفي شيءٌ يؤثر فعلاً في طريقة إنجاز العمل.",
+    w:"من أبرز المتغيّرات: نضج العاملين، طبيعة المهمة، البيئة، وحجم المنظمة والتقنية." },
+
+  { s:1, q:"القطن الخام والعمّال ورأس المال والآلات… إلامَ تنتمي في مدرسة النظم؟",
+    o:["المخرجات","المدخلات","العمليات","التغذية الراجعة"], a:1,
+    h:"هي ما يدخل إلى المصنع قبل أن يُصنع شيء.",
+    w:"المدخلات هي الموارد الداخلة إلى النظام: بشرية ومادية ومالية ومعلوماتية." },
+  { s:1, q:"الغَزل والنَّسج والصِّباغة والتغليف… إلامَ تنتمي؟",
+    o:["المدخلات","العمليات","المخرجات","البيئة الخارجية"], a:1,
+    h:"هي ما يحدث للمواد بعد دخولها.",
+    w:"العمليات هي أنشطة تحويل المدخلات إلى مخرجات." },
+  { s:1, q:"شكوى عميلٍ وتقرير الجودة الأسبوعي… إلامَ ينتميان؟",
+    o:["التغذية الراجعة","المدخلات","العمليات","المخرجات"], a:0,
+    h:"هي المعلومة العائدة التي تخبرنا: هل نجحنا؟",
+    w:"التغذية الراجعة هي المعلومات العائدة لتصحيح المدخلات والعمليات." },
+  { s:1, q:"ما الترتيب الصحيح لمسار النظام؟",
+    o:["عمليات ← مدخلات ← مخرجات ← تغذية راجعة","مدخلات ← عمليات ← مخرجات ← تغذية راجعة","مخرجات ← عمليات ← مدخلات ← تغذية راجعة","مدخلات ← مخرجات ← عمليات ← تغذية راجعة"], a:1,
+    h:"ابدئي بما يدخل، ثم ما يحدث له، ثم ما يخرج.",
+    w:"المسار: مدخلات ← عمليات ← مخرجات ← تغذية راجعة تعود إلى البداية." },
+  { s:1, q:"تقول مدرسة النظم إن المنظمة نظامٌ…",
+    o:["مغلقٌ منعزلٌ عن بيئته","مفتوحٌ يتفاعل مع بيئته أخذاً وعطاءً","ثابتٌ لا يتغيّر","فرديٌّ لا أقسام فيه"], a:1,
+    h:"هل يستطيع المصنع أن يعيش بلا مورّدين ولا عملاء؟",
+    w:"المنظمة نظامٌ مفتوح يؤثّر في بيئته ويتأثر بها، ولا يمكنه عزل نفسه عنها." },
+
+  { s:2, q:"من صاحب فكرة الإدارة بالأهداف؟",
+    o:["وليام أوتشي","بيتر دراكر","فريدريك تايلور","هنري فايول"], a:1,
+    h:"هو نفسه من يُلقَّب بأبي الإدارة الحديثة.",
+    w:"بيتر دراكر هو من قدّم الإدارة بالأهداف (MBO)." },
+  { s:2, q:"ما الخطوة الأولى في الإدارة بالأهداف؟",
+    o:["تقييم الأداء ومكافأة المتميزين","تحديد الأهداف العامة للمنظمة من الإدارة العليا","وضع خطط العمل والموارد","المتابعة الدورية للتنفيذ"], a:1,
+    h:"لا يمكن تحديد هدف قسمٍ قبل معرفة هدف المنظمة كلها.",
+    w:"تبدأ الدورة بأهداف المنظمة العامة، ثم تتفرّع إلى أهداف الأقسام والأفراد." },
+  { s:2, q:"ما الكلمة المفتاحية التي تميّز الإدارة بالأهداف عن غيرها؟",
+    o:["الأمر والطاعة","المشاركة والاتفاق المشترك","السرعة في التنفيذ","تقليل عدد الموظفين"], a:1,
+    h:"لماذا انطفأ اللوح في المحاولة الأولى وأضاء في الثانية؟",
+    w:"الهدف يُصاغ بالاتفاق بين الرئيس والمرؤوس، فيولد الالتزام من الاقتناع لا من الأمر." },
+  { s:2, q:"ما نوع الرقابة السائدة في الإدارة بالأهداف؟",
+    o:["رقابةٌ ذاتية من الموظف نفسه","رقابةٌ خارجيةٌ لصيقة من الرئيس","رقابةٌ بالكاميرات","لا رقابة إطلاقاً"], a:0,
+    h:"من يضع هدفه بنفسه، من يراقبه؟",
+    w:"لأن الموظف شارك في وضع الهدف، فهو يقيس أداءه بنفسه: رقابةٌ ذاتية." },
+  { s:2, q:"ما الخطوة الأخيرة في دورة الإدارة بالأهداف؟",
+    o:["تحديد أهداف الأفراد","وضع خطط العمل","تقييم الأداء ومقارنته بالأهداف ثم التغذية الراجعة","تعيين موظفين جدد"], a:2,
+    h:"ما الذي يربط نهاية الدورة ببدايتها؟",
+    w:"التقييم والتغذية الراجعة والمكافأة، ومنها تبدأ دورةٌ جديدة." },
+
+  { s:3, q:"من صاحب نظرية Z؟",
+    o:["دوجلاس ماكجريجور","وليام أوتشي","إلتون مايو","ماكس فيبر"], a:1,
+    h:"اسمه مقترنٌ دائماً بالإدارة اليابانية.",
+    w:"وليام أوتشي هو صاحب نظرية Z التي مزجت بين الإدارتين اليابانية والأمريكية." },
+  { s:3, q:"أيٌّ مما يلي من خصائص نظرية Z؟",
+    o:["عقودٌ قصيرةٌ وفصلٌ سريع","التوظيف طويل الأمد","رقابةٌ صارمةٌ بالكاميرات","حصر العامل في مهمةٍ واحدة مدى الحياة"], a:1,
+    h:"ما الذي يجعل العامل يشعر بالأمان فيبقى؟",
+    w:"من أبرز خصائصها: التوظيف طويل الأمد، والقرار الجماعي، والرقابة الذاتية، والاهتمام الشامل بالعامل." },
+  { s:3, q:"ما المقصود بحلقة الجودة؟",
+    o:["اجتماعٌ إجباريٌّ للمديرين فقط","مجموعةٌ صغيرةٌ من العاملين تجتمع طوعاً لتحليل مشكلات العمل واقتراح حلولها","قسمٌ للرقابة على العمال","دائرةٌ لفحص المنتجات فقط"], a:1,
+    h:"من الذي كان جالساً في الحلقة على الأرض؟",
+    w:"حلقة الجودة مجموعةٌ صغيرة من العاملين في المجال نفسه يجتمعون طوعاً بانتظام لحل مشكلات عملهم." },
+  { s:3, q:"ماذا يعني «كايزن»؟",
+    o:["التغيير الجذري المفاجئ","التحسين المستمر بخطواتٍ صغيرةٍ يومية","إيقاف الإنتاج للصيانة","مضاعفة عدد العمّال"], a:1,
+    h:"واحدٌ بالمئة كل شهر… ماذا يصير بعد سنة؟",
+    w:"كايزن فلسفةٌ يابانية تقوم على تحسيناتٍ صغيرةٍ متراكمة تفوق أثر أي حلٍّ مفاجئ." },
+  { s:3, q:"كيف يُتّخذ القرار في نظرية Z؟",
+    o:["قرارٌ فرديٌّ من المدير وحده","قرارٌ جماعيٌّ بالتوافق","بالقرعة","بالتصويت السرّي للمساهمين"], a:1,
+    h:"لماذا كان كلُّ عاملٍ يكتب اقتراحاً على ورقة؟",
+    w:"القرار الجماعي بالتوافق يبطئ اتخاذ القرار لكنه يسرّع تنفيذه لأن الجميع مقتنع به." }
+];
+
+/* أسئلة المستوى الثاني — مواقف وتحليل وقرار */
+const L2 = [
+  { s:0, q:"الساعة الثالثة فجراً: دخانٌ يتسرّب من مستودع الأصباغ، وأمامك ثلاثون ثانيةً لإخلائه. أيّ أسلوبٍ تختارين؟",
+    o:["مشاركٌ: أجمع الفريق للتشاور","توجيهيٌّ آمِر: أوامر واضحة فورية","تفويضيٌّ: أترك كلَّ عاملٍ يقرّر","أؤجّل القرار حتى الصباح"], a:1,
+    w:"الأزمة والوقت الضاغط لا يحتملان النقاش؛ الموقف هنا يفرض الأسلوب التوجيهي رغم أنه ليس الأفضل دائماً." },
+  { s:0, q:"بعد احتواء الحريق، غيّر العميل المواصفات ولديك ستّ ساعاتٍ وفريقٌ خبيرٌ ومصمّمٌ مبدع. ماذا تختارين؟",
+    o:["أوامر صارمة لتوفير الوقت","أسلوبٌ مشاركٌ يستثمر خبرة الفريق وإبداعه","إلغاء الطلبية","تسليم العمل كما هو"], a:1,
+    w:"خبرةٌ عالية + حاجةٌ إلى حلٍّ إبداعي = أسلوبٌ مشاركٌ أو تفويضي، والموقف هو الذي غيّر الأسلوب." },
+  { s:0, q:"سامي الذي كان جديداً صار بعد سنتين من أمهر العاملين. ماذا تفعلين بأسلوبك معه؟",
+    o:["أبقى على الأسلوب التوجيهي نفسه","أنتقل تدريجياً من التوجيه إلى التفويض","أزيد الرقابة عليه","أنقله إلى قسمٍ آخر"], a:1,
+    w:"نضج الموظف متغيّرٌ موقفي؛ ارتفاعه يستدعي انتقالاً من التوجيه إلى التفويض." },
+  { s:0, q:"يقول سيف الرقيب: «عندي دليل إجراءاتٍ من أربعمئة صفحة يصلح لكل الشركات». بمَ تردّين؟",
+    o:["دليلٌ ممتاز، سنعتمده كما هو","الدليل الجامد يتجاهل اختلاف المتغيّرات الموقفية بين شركةٍ وأخرى","المشكلة أن صفحاته كثيرة","الأدلة المكتوبة لا فائدة منها إطلاقاً"], a:1,
+    w:"المدرسة الموقفية ترفض الوصفة الواحدة الصالحة لكل زمانٍ ومكان، لأن المتغيّرات تختلف." },
+  { s:0, q:"قسمٌ فيه فريقٌ ناضجٌ ومهمّةٌ روتينيةٌ واضحة وبيئةٌ مستقرة. ما الأنسب؟",
+    o:["متابعةٌ لصيقةٌ يومية","تفويضٌ واسعٌ مع متابعةٍ بالنتائج","إعادة تدريب الفريق من الصفر","تغيير المهمة كلياً"], a:1,
+    w:"النضج العالي مع المهمة الواضحة يجعل التفويض هو الأكفأ، وتُقاس النتائج لا الخطوات." },
+
+  { s:1, q:"خرج ألف قميص، ثلاثمئةٌ منها بلونٍ باهت. الأدلة: فاتورة صبغةٍ أرخص بأربعين بالمئة، سجلّ حرارةٍ سليم، وتقرير جودةٍ لم يُفتح منذ ٣٢ يوماً. أين الخلل؟",
+    o:["في العمليات فقط","في المدخلات وفي التغذية الراجعة معاً","في المخرجات فقط","لا يوجد خلل، الأمر طبيعي"], a:1,
+    w:"الصبغة الرديئة خللٌ في المدخلات، والتقرير غير المقروء تعطّلٌ في التغذية الراجعة؛ أما العمليات فسليمةٌ بدليل سجلّ الحرارة." },
+  { s:1, q:"لماذا لا يكفي إصلاح قسم المشتريات وحده لحلّ مشكلة العيب؟",
+    o:["لأن التآزر يعني أن أداء الكل أكبر من مجموع الأجزاء، وخلل نظامٍ فرعي ينتقل إلى النظام كله","لأن قسم المشتريات غير مهم","لأن الإصلاح مكلّف","لأن العمال يرفضون التغيير"], a:0,
+    w:"في مدرسة النظم لا يُعالَج جزءٌ بمعزلٍ عن الكل؛ النظم الفرعية متشابكة والتآزر يربطها." },
+  { s:1, q:"ارتفع سعر الصبغة المستوردة بسبب أزمةٍ عالمية. ماذا يثبت هذا؟",
+    o:["أن المصنع نظامٌ مغلق","أن المنظمة نظامٌ مفتوح يتأثر ببيئته الخارجية","أن العمال مقصّرون","أن التغذية الراجعة غير ضرورية"], a:1,
+    w:"تأثّر المنظمة بمتغيّرات خارجةٍ عن سيطرتها دليلٌ على أنها نظامٌ مفتوح." },
+  { s:1, q:"يقترح سيف: «احذفوا قسم الجودة، إنه يستهلك ميزانيةً بلا إنتاج». ما ردّك بلغة مدرسة النظم؟",
+    o:["اقتراحٌ سليم، سنوفّر المال","قسم الجودة قناة التغذية الراجعة، وحذفه يحوّل النظام المفتوح إلى نظامٍ أعمى","نخفّض عدد موظفيه إلى النصف","ندمجه مع قسم المبيعات"], a:1,
+    w:"التغذية الراجعة ليست ترفاً؛ بدونها يفقد النظام قدرته على تصحيح نفسه." },
+  { s:1, q:"أيّ تصميمٍ للتغذية الراجعة يمنع تكرار مشكلة الصبغة؟",
+    o:["اجتماعٌ سنويٌّ لمراجعة الجودة","فحص عيّنةٍ من كل شحنةٍ عند الاستلام + تقريرٌ يوميٌّ لمدير الإنتاج + إيقافٌ تلقائي عند تجاوز العيب ٢٪","الاعتماد على شكاوى العملاء وحدها","زيادة عدد العمّال في خط الصباغة"], a:1,
+    w:"التغذية الراجعة الفعّالة سريعةٌ ودوريةٌ ومرتبطةٌ بإجراءٍ تصحيحيٍّ واضح." },
+
+  { s:2, q:"حوّلي الهدف الغامض «نريد أن نبيع أكثر» إلى هدفٍ إداريٍّ سليم.",
+    o:["نبذل جهداً أكبر في المبيعات","زيادة مبيعات القميص القطني ٢٠٪ خلال الربع الأول عبر فتح منفذَي بيعٍ جديدين","نكون الأفضل في السوق","نضاعف الأرباح قريباً"], a:1,
+    w:"الهدف السليم محدَّدٌ وقابلٌ للقياس وواقعيٌّ ومرتبطٌ بزمن." },
+  { s:2, q:"موظفٌ يقول: «الهدف مستحيل، لن أوقّع عليه». ماذا تفعلين وفق الإدارة بالأهداف؟",
+    o:["أفرض الهدف وأحذّره من الفصل","أتفاوض معه وأعيد صياغة الهدف بالمشاركة حتى يقتنع ويلتزم","أتجاهله وأعطي الهدف لغيره","أخفّض الهدف لكل الموظفين"], a:1,
+    w:"الالتزام في MBO يولد من الاتفاق؛ فرض الهدف يُفقده أهم خصائصه." },
+  { s:2, q:"ما الفرق بين الرقابة في الإدارة التقليدية والرقابة في الإدارة بالأهداف؟",
+    o:["لا فرق بينهما","التقليدية خارجيةٌ لصيقة من الرئيس، وفي MBO ذاتيةٌ لأن الموظف شارك في وضع هدفه","التقليدية ذاتية والأخرى خارجية","كلتاهما تعتمد على الكاميرات"], a:1,
+    w:"المشاركة في وضع الهدف هي التي تنقل الرقابة من خارج الموظف إلى داخله." },
+  { s:2, q:"أيٌّ مما يلي عيبٌ حقيقيٌّ في الإدارة بالأهداف؟",
+    o:["تُضعف التزام الموظفين","تستغرق وقتاً وجهداً في التفاوض وقد تُغلّب الأهداف الكمّية قصيرة الأجل","تمنع قياس الأداء","تلغي دور الإدارة العليا"], a:1,
+    w:"من أبرز الانتقادات: طول مرحلة الاتفاق، والتركيز على ما يسهل قياسه على حساب الجودة والجوانب بعيدة الأجل." },
+  { s:2, q:"حقّق قسم المبيعات ٩٥٪ من هدفه وقسم الإنتاج ٦٠٪. بمَ تبدئين وفق الخطوة الخامسة؟",
+    o:["أعاقب مدير الإنتاج فوراً","أحلّل أسباب الانحراف قبل المحاسبة، ثم أعدّل الأهداف أو الموارد وأكافئ المتميّز","أخفّض أهداف الجميع","أتجاهل الفرق بين القسمين"], a:1,
+    w:"تقييم الأداء في MBO تشخيصٌ يقود إلى تصحيح المسار، لا محاسبةٌ عمياء." },
+
+  { s:3, q:"اثنا عشر بالمئة من الإنتاج معيب. يقترح سيف فصل ثلاثة عمّال. ما القرار وفق نظرية Z؟",
+    o:["فصلهم فوراً لأنه أسرع","تشكيل حلقة جودةٍ من العاملين أنفسهم لتحليل السبب واقتراح الحل","إيقاف الخط شهراً كاملاً","تخفيض رواتب القسم كله"], a:1,
+    w:"الفصل يخفض العيب مؤقتاً ثم يعود؛ حلقة الجودة تعالج السبب الجذري وتُبقي الأثر." },
+  { s:3, q:"ما التكوين السليم لحلقة الجودة؟",
+    o:["كلُّ موظفي المصنع إجبارياً","من خمسةٍ إلى عشرةٍ من العاملين في الخط نفسه بمشاركةٍ طوعيةٍ واجتماعٍ دوريٍّ قصير","المديرون فقط","لجنةٌ من خارج المصنع"], a:1,
+    w:"الحلقة صغيرةٌ وطوعيةٌ ومنتظمة، ومن داخل الخط نفسه لأن أهلها أدرى بمشكلاتها." },
+  { s:3, q:"تعرض أوميغا على أمهر عاملةٍ لديك ضِعف راتبها. ما الذي يجعلها تبقى وفق نظرية Z؟",
+    o:["عقدٌ قانونيٌّ يمنعها من الانتقال","الأمان الوظيفي والانتماء والثقة وشعورها بأنها شريكةٌ في القرار","تهديدها بعدم إعطائها شهادة خبرة","لا شيء، المال يحسم دائماً"], a:1,
+    w:"نظرية Z تشتري الولاء بالأمان والانتماء والمشاركة، لا بالراتب وحده." },
+  { s:3, q:"قارني بين نظرية Z والنظرية X في أسلوب الرقابة.",
+    o:["كلتاهما رقابةٌ صارمة","Z رقابةٌ ذاتيةٌ غير رسمية، وX رقابةٌ صارمةٌ خارجية","Z رقابةٌ صارمة، وX ذاتية","لا رقابة في كلتيهما"], a:1,
+    w:"نظرية X ترى الإنسان متهرّباً فتشدّد الرقابة، وZ ترى فيه مسؤولاً موثوقاً فتعتمد الرقابة الذاتية." },
+  { s:3, q:"اقترحتِ بأسلوب كايزن تحسيناً يخفض العيب ١٪ شهرياً فقط. ما الحكم على هذا القرار؟",
+    o:["ضعيفٌ جداً ولا يستحق العناء","سليم؛ الأثر التراكمي بعد اثني عشر شهراً يفوق أثر أي حلٍّ مفاجئٍ واحد","يجب استبداله بحلٍّ جذريٍّ فوري","لا علاقة له بالجودة"], a:1,
+    w:"قوة كايزن في التراكم والاستمرارية، لا في حجم الخطوة الواحدة." }
+];
+
+/* ---------- ٤) الحالة ---------- */
+const S = {
+  mode:"solo", level:1, stage:0, qi:0, idx:0, score:0, correct:0,
+  bank:[], answers:[], tries:0, hints:3, paused:false,
+  tLeft:0, tMax:90, timer:null, room:null, pid:null, name:"", isHost:false,
+  unsubRoom:null, unsubPlayers:null, watchUnsub:null
+};
+const AR = n => String(n).replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[+d]);
+const $ = id => document.getElementById(id);
+const GEAR_SVG = '<svg class="gear" viewBox="0 0 24 24" fill="none" stroke="#E4C766" stroke-width="1.6"><circle cx="12" cy="12" r="3.2"/><path d="M12 1.8v3M12 19.2v3M1.8 12h3M19.2 12h3M4.8 4.8l2.1 2.1M17.1 17.1l2.1 2.1M19.2 4.8l-2.1 2.1M6.9 17.1l-2.1 2.1"/><circle cx="12" cy="12" r="8.4" stroke-dasharray="2.2 2.2"/></svg>';
+
+function gearsHTML(lit){ let h=""; for(let i=0;i<4;i++) h += GEAR_SVG.replace('class="gear"', 'class="gear'+(i<lit?' lit':'')+'"'); return h; }
+function paintGears(lit){
+  ["quizGears","infoGears","pauseGears"].forEach(id => { const e=$(id); if(e) e.innerHTML = gearsHTML(lit); });
+}
+
+/* ---------- ٥) التنقل ---------- */
+let stack = [];
+function show(id, push=true){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
+  $(id).classList.add("on");
+  if(push && stack[stack.length-1] !== id) stack.push(id);
+  if(id === "home"){ stopTimer(); detachRoom(); stack = ["home"]; }
+  window.scrollTo(0,0);
+  const p = $(id).querySelector(".pad"); if(p) p.scrollTop = 0;
+}
+function go(id, mode){ S.mode = mode || S.mode; show(id); }
+
+/* ---------- ٦) المقدمة والغلاف ---------- */
+(function initCover(){
+  const c = $("cover");
+  const img = new Image();
+  img.onload = () => { c.style.backgroundImage = `url(${A("sm_cover_v.jpg")})`; };
+  img.src = A("sm_cover_v.jpg");
+  $("homeGears").innerHTML = gearsHTML(4);
+  $("lvHero").style.backgroundImage = `url(${A("sm_bg_map.jpg")})`;
+})();
+let introDone = false;
+function endIntro(){
+  if(introDone) return; introDone = true;
+  try{ $("introVid").pause(); }catch(e){}
+  show("home");
+}
+(function introSetup(){
+  const v = $("introVid");
+  v.addEventListener("ended", endIntro);
+  v.addEventListener("error", () => setTimeout(endIntro, 400));
+  const p = v.play();
+  if(p && p.catch) p.catch(() => setTimeout(endIntro, 600));
+  setTimeout(() => { if(!introDone && (v.readyState < 2)) endIntro(); }, 2500);
+})();
+
+/* ---------- ٧) بدء اللعب ---------- */
+function pickLevel(lv){
+  S.level = lv;
+  S.bank = (lv === 1 ? L1 : L2).slice();
+  S.tMax = (lv === 1 ? 45 : 90);
+  S.hints = (lv === 1 ? 3 : 0);
+  if(S.mode === "solo"){ beginGame(); }
+  else{
+    $("joinTitle").textContent = S.mode === "duel" ? "لاعب ضد لاعب" : "اللعب الجماعي";
+    $("netNote").textContent = netOK ? "" :
+      "الاتصال بالخادم غير مُعدّ بعد. الصقي بيانات فايربيس في أعلى ملف اللعبة لتفعيل اللعب الجماعي، أو العبي فردياً الآن.";
+    show("join");
+  }
+}
+function beginGame(){
+  S.stage = 0; S.idx = 0; S.score = 0; S.correct = 0; S.answers = [];
+  S.hints = (S.level === 1 ? 3 : 0);
+  openStageInfo(0);
+}
+function openStageInfo(st){
+  S.stage = st;
+  const g = STAGES[st];
+  $("infoTitle").textContent = g.name;
+  $("infoEyebrow").textContent = "المرحلة " + AR(st+1) + " من ٤";
+  $("infoH").textContent = g.school;
+  $("infoBody").innerHTML = "<ul>" + g.info.map(x => "<li>"+x+"</li>").join("") + "</ul>";
+  $("infoStory").textContent = g.story;
+  $("infoHero").style.backgroundImage = `url(${A(STAGE_BG[st])})`;
+  paintGears(st);
+  show("info");
+}
+function startStageQuestions(){ show("quiz"); loadQuestion(); }
+
+/* ---------- ٨) الأسئلة ---------- */
+function stageQuestions(st){ return S.bank.filter(q => q.s === st); }
+function loadQuestion(){
+  const qs = stageQuestions(S.stage);
+  const q = qs[S.idx];
+  S.tries = 0;
+  $("qStage").textContent = STAGES[S.stage].name;
+  $("qScore").textContent = AR(S.score);
+  $("qNum").textContent = "سؤال " + AR(S.idx+1) + " من " + AR(qs.length) + " · " + STAGES[S.stage].school;
+  $("qText").textContent = q.q;
+  $("qWhy").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+  $("hintBtn").classList.toggle("hidden", S.level !== 1 || S.hints <= 0);
+  $("hintN").textContent = AR(S.hints);
+  paintGears(S.stage);
+  const keys = ["أ","ب","ج","د"];
+  $("qOpts").innerHTML = q.o.map((t,i) =>
+    `<button class="opt" data-i="${i}" onclick="answer(${i})"><span class="k">${keys[i]}</span><span>${t}</span></button>`
+  ).join("");
+  startTimer();
+}
+function startTimer(){
+  stopTimer();
+  S.tLeft = S.tMax;
+  $("tfill").style.width = "100%";
+  $("tfill").classList.remove("low");
+  S.timer = setInterval(() => {
+    if(S.paused) return;
+    S.tLeft--;
+    const pct = Math.max(0, S.tLeft / S.tMax * 100);
+    $("tfill").style.width = pct + "%";
+    $("tfill").classList.toggle("low", pct < 25);
+    if(S.tLeft <= 0){ stopTimer(); answer(-1); }
+  }, 1000);
+}
+function stopTimer(){ if(S.timer){ clearInterval(S.timer); S.timer = null; } }
+
+function answer(i){
+  const qs = stageQuestions(S.stage);
+  const q = qs[S.idx];
+  const btns = [...document.querySelectorAll("#qOpts .opt")];
+  if(btns.length && btns[0].disabled) return;
+  const right = (i === q.a);
+
+  if(S.level === 1 && !right && i >= 0 && S.tries === 0){
+    S.tries = 1;
+    btns[i].classList.add("no","dim"); btns[i].disabled = true;
+    return;
+  }
+  stopTimer();
+  btns.forEach(b => { b.disabled = true; });
+  btns[q.a].classList.add("ok");
+  if(i >= 0 && !right) btns[i].classList.add("no");
+
+  let gained = 0;
+  if(right){
+    S.correct++;
+    if(S.level === 1) gained = (S.tries === 0 ? 5 : 3);
+    else{ gained = 10; if(S.tLeft > S.tMax*0.5) gained += 2; }
+    S.score += gained;
+  }
+  S.answers.push({ st:S.stage, q:q.q, opts:q.o, a:q.a, my:i, ok:right, w:q.w });
+  $("qScore").textContent = AR(S.score);
+  $("qWhy").innerHTML = (right ? "<b>إجابةٌ صحيحة" + (gained ? " · +" + AR(gained) + " نقطة" : "") + "</b><br>"
+    : (i < 0 ? "<b>انتهى الوقت</b><br>" : "<b>الإجابة الصحيحة هي: " + q.o[q.a] + "</b><br>")) + q.w;
+  $("qWhy").classList.remove("hidden");
+  $("nextBtn").classList.remove("hidden");
+  $("hintBtn").classList.add("hidden");
+  pushScore();
+}
+function useHint(){
+  if(S.hints <= 0) return;
+  S.hints--;
+  $("hintN").textContent = AR(S.hints);
+  const q = stageQuestions(S.stage)[S.idx];
+  $("qWhy").innerHTML = "<b>عمّ راشد يهمس:</b><br>" + (q.h || "اقرئي بطاقة المعلومات مرةً أخرى، الجواب فيها.");
+  $("qWhy").classList.remove("hidden");
+  if(S.hints <= 0) $("hintBtn").classList.add("hidden");
+}
+function nextQuestion(){
+  const qs = stageQuestions(S.stage);
+  if(S.idx < qs.length - 1){ S.idx++; loadQuestion(); return; }
+  if(S.stage < 3){ S.idx = 0; openStageInfo(S.stage + 1); return; }
+  finish();
+}
+
+/* ---------- ٩) الإيقاف والخروج ---------- */
+function togglePause(){
+  S.paused = !S.paused;
+  $("pauseVeil").classList.toggle("on", S.paused);
+  $("pauseBtn").textContent = S.paused ? "▶" : "❙❙";
+  if(S.paused) paintGears(S.stage);
+}
+function confirmQuit(){
+  if(!S.paused){ togglePause(); }
+  if(confirm("هل تريدين الخروج؟ ستفقدين تقدّمك في هذه الجولة.")){
+    S.paused = false; $("pauseVeil").classList.remove("on"); $("pauseBtn").textContent = "❙❙";
+    quitToHome();
+  }
+}
+function quitToHome(){ stopTimer(); detachRoom(); show("home"); }
+
+/* ---------- ١٠) النتيجة ---------- */
+const TROPHY = `<svg class="trophy" viewBox="0 0 64 64" fill="none">
+<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#F0DA96"/><stop offset="1" stop-color="#B8912A"/></linearGradient></defs>
+<path d="M20 8h24v14a12 12 0 0 1-24 0V8z" fill="url(#g1)"/>
+<path d="M20 12h-6a8 8 0 0 0 8 8M44 12h6a8 8 0 0 1-8 8" stroke="#C9A227" stroke-width="2.4"/>
+<path d="M28 34h8v8h-8z" fill="#B8912A"/><path d="M20 48h24v6H20z" fill="url(#g1)"/>
+<path d="M24 42h16v6H24z" fill="#C9A227"/>
+<circle cx="32" cy="18" r="4.5" fill="#0B1F3A" opacity=".35"/></svg>`;
+function finish(){
+  stopTimer(); detachRoomListenersOnly();
+  const max = S.level === 1 ? 100 : 240;
+  const pct = Math.round(S.score / max * 100);
+  $("trophyBox").innerHTML = pct >= 60 ? TROPHY : "";
+  $("rScore").textContent = AR(S.score);
+  $("rOutOf").textContent = "من أصل " + AR(max) + " نقطة · إجاباتٌ صحيحة: " + AR(S.correct) + " من ٢٠";
+  let title, msg;
+  if(pct >= 85){ title = "دارت الآلة!"; msg = "أتقنتِ المدارس الأربع. الجدّ نوفل كان سيفخر بك."; }
+  else if(pct >= 70){ title = "ثلاثة تروسٍ تدور"; msg = "قريبةٌ جداً. راجعي المدرسة التي تعثّرتِ فيها ثم أعيدي المحاولة."; }
+  else if(pct >= 50){ title = "الآلة تهتزّ"; msg = "الأساس موجود، والباقي فهمُ متى تُستعمل كل مدرسة."; }
+  else{ title = "الآلة ما زالت صامتة"; msg = "أعيدي قراءة بطاقات المعلومات، ثم جرّبي من جديد. لا أحد يُصلح مصنعاً من أول محاولة."; }
+  $("rTitle").textContent = title; $("rMsg").textContent = msg;
+
+  const badge = (S.level === 2 && pct >= 85);
+  $("rMedals").innerHTML = [
+    ["الكأس الذهبي", pct >= 85],
+    ["ميدالية الإتقان", pct >= 70],
+    ["وسام المثابرة", S.correct >= 10],
+    ["شارة «مديرة نُوفا»", badge]
+  ].map(([t,on]) => `<span class="medal${on ? "" : " off"}">${t}</span>`).join("");
+
+  const rows = STAGES.map((g,i) => {
+    const a = S.answers.filter(x => x.st === i);
+    const c = a.filter(x => x.ok).length;
+    return `<li><span class="rank">${AR(c)}/${AR(a.length)}</span><span class="nm">${g.school}</span>
+      <span class="sc">${a.length ? Math.round(c/a.length*100) + "٪" : "—"}</span></li>`;
+  }).join("");
+  $("rBreak").innerHTML = rows;
+
+  if(S.room && netOK){ $("rRoomCard").classList.remove("hidden"); listenRoomScores("rRoom"); }
+  else $("rRoomCard").classList.add("hidden");
+  pushScore(true);
+  show("result");
+}
+function reviewMistakes(){
+  const bad = S.answers.filter(x => !x.ok);
+  $("reviewBody").innerHTML = bad.length ? bad.map(x => `
+    <div class="card">
+      <div class="eyebrow">${STAGES[x.st].school}</div>
+      <p style="font-weight:600">${x.q}</p>
+      <p style="color:#F0B4A6">إجابتك: ${x.my >= 0 ? x.opts[x.my] : "لم تُجيبي — انتهى الوقت"}</p>
+      <p style="color:#9FDCBB">الصحيحة: ${x.opts[x.a]}</p>
+      <p class="note">${x.w}</p>
+    </div>`).join("")
+    : `<div class="card center"><h3>لا أخطاء</h3><p class="note">أجبتِ عن كل الأسئلة إجابةً صحيحة.</p></div>`;
+  show("review");
+}
+function restartSame(){ S.room = null; beginGame(); }
+
+/* ---------- ١١) الغرف (فايربيس) ---------- */
+function code5(){ const L = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s = ""; for(let i=0;i<5;i++) s += L[Math.floor(Math.random()*L.length)]; return s; }
+function needNet(){
+  if(netOK) return true;
+  alert("اللعب الجماعي يحتاج إلى إعداد فايربيس. الصقي بيانات مشروعك في أعلى ملف اللعبة.");
+  return false;
+}
+async function createRoom(){
+  const nm = ($("pname").value || "").trim();
+  if(!nm) return alert("اكتبي اسمك أولاً.");
+  if(!needNet()) return;
+  S.name = nm; S.isHost = true;
+  const c = code5();
+  await db.collection(COL).doc(c).set({
+    mode:S.mode, level:S.level, status:"lobby", host:nm,
+    max: S.mode === "duel" ? 2 : 60,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  S.room = c;
+  await addMe();
+  enterLobby();
+}
+async function joinRoom(){
+  const nm = ($("pname").value || "").trim();
+  const c = ($("rcode").value || "").trim().toUpperCase();
+  if(!nm) return alert("اكتبي اسمك أولاً.");
+  if(c.length !== 5) return alert("رمز الغرفة خمسة أحرف.");
+  if(!needNet()) return;
+  const doc = await db.collection(COL).doc(c).get();
+  if(!doc.exists) return alert("لا توجد غرفة بهذا الرمز.");
+  const d = doc.data();
+  const ps = await db.collection(COL).doc(c).collection("players").get();
+  if(ps.size >= (d.max || 60)) return alert("الغرفة ممتلئة.");
+  S.name = nm; S.room = c; S.isHost = false;
+  S.mode = d.mode; S.level = d.level;
+  S.bank = (S.level === 1 ? L1 : L2).slice();
+  S.tMax = (S.level === 1 ? 45 : 90);
+  await addMe();
+  enterLobby();
+}
+async function addMe(){
+  const ref = db.collection(COL).doc(S.room).collection("players").doc();
+  S.pid = ref.id;
+  await ref.set({ name:S.name, score:0, correct:0, done:false, at:Date.now() });
+}
+function enterLobby(){
+  $("lobbyCode").textContent = S.room;
+  $("lobbyMode").textContent = S.mode === "duel" ? "مبارزة" : "جماعي";
+  $("lobbyHint").textContent = S.isHost ? "شاركي الرمز، ثم اضغطي «ابدأوا اللعب»." : "في انتظار أن تبدأ صاحبة الغرفة…";
+  $("startBtn").style.display = S.isHost ? "block" : "none";
+  const rd = db.collection(COL).doc(S.room);
+  S.unsubPlayers = rd.collection("players").orderBy("at").onSnapshot(sn => {
+    const arr = []; sn.forEach(d => arr.push({ id:d.id, ...d.data() }));
+    $("pcount").textContent = "(" + AR(arr.length) + ")";
+    $("lobbyList").innerHTML = arr.map((p,i) =>
+      `<li class="${p.id === S.pid ? "me" : ""}"><span class="rank">${AR(i+1)}</span><span class="nm">${p.name}</span></li>`).join("");
+  });
+  S.unsubRoom = rd.onSnapshot(d => {
+    if(!d.exists) return;
+    if(d.data().status === "playing" && $("lobby").classList.contains("on")) beginGame();
+  });
+  show("lobby");
+}
+async function startRoom(){
+  if(!S.room) return;
+  await db.collection(COL).doc(S.room).update({ status:"playing", startedAt:Date.now() });
+}
+function pushScore(done){
+  if(!S.room || !netOK || !S.pid) return;
+  db.collection(COL).doc(S.room).collection("players").doc(S.pid)
+    .update({ score:S.score, correct:S.correct, done: !!done, at:Date.now() }).catch(()=>{});
+}
+function listenRoomScores(targetId){
+  if(!S.room || !netOK) return;
+  db.collection(COL).doc(S.room).collection("players").orderBy("score","desc")
+    .onSnapshot(sn => {
+      const arr = []; sn.forEach(d => arr.push({ id:d.id, ...d.data() }));
+      const el = $(targetId); if(!el) return;
+      el.innerHTML = arr.map((p,i) =>
+        `<li class="${p.id === S.pid ? "me" : ""}"><span class="rank">${AR(i+1)}</span>
+         <span class="nm">${p.name}${p.done ? " ✓" : ""}</span><span class="sc">${AR(p.score||0)}</span></li>`).join("");
+    });
+}
+function leaveRoom(){ detachRoom(); S.room = null; S.pid = null; show("levels"); }
+function detachRoomListenersOnly(){
+  if(S.unsubRoom){ S.unsubRoom(); S.unsubRoom = null; }
+  if(S.unsubPlayers){ S.unsubPlayers(); S.unsubPlayers = null; }
+}
+function detachRoom(){ detachRoomListenersOnly(); }
+
+/* شريط الخصم في وضع المبارزة */
+setInterval(() => {
+  if(S.mode === "duel" && S.room && $("quiz").classList.contains("on")){
+    $("duelBar").classList.remove("hidden");
+    if(!$("duelList").dataset.on){ $("duelList").dataset.on = "1"; listenRoomScores("duelList"); }
+  }
+}, 1200);
+
+/* ---------- ١٢) لوحة المعلّمة ---------- */
+function teacherLogin(){
+  if($("tpass").value === TEACHER_PASS){ $("tErr").textContent = ""; show("teacher"); loadRooms(); }
+  else $("tErr").textContent = "كلمة المرور غير صحيحة.";
+}
+async function loadRooms(){
+  if(!netOK){ $("tNote").textContent = "الاتصال بالخادم غير مُعدّ، لذلك لا تظهر نتائج محفوظة."; return; }
+  $("tNote").textContent = "";
+  const sn = await db.collection(COL).orderBy("createdAt","desc").limit(20).get();
+  const rows = [];
+  sn.forEach(d => {
+    const r = d.data();
+    rows.push(`<li><span class="rank">${d.id}</span>
+      <span class="nm">${r.mode === "duel" ? "مبارزة" : "جماعي"} · مستوى ${AR(r.level||1)} · ${r.host||""}</span>
+      <span class="sc" style="cursor:pointer" onclick="watchRoom('${d.id}')">عرض</span></li>`);
+  });
+  $("tRooms").innerHTML = rows.join("") || `<li><span class="nm">لا توجد غرف بعد.</span></li>`;
+}
+function watchRoom(c){
+  const code = (c || $("tcode").value || "").trim().toUpperCase();
+  if(code.length !== 5 || !netOK) return;
+  stopWatch();
+  $("tLive").classList.remove("hidden");
+  $("tLiveCode").textContent = code;
+  db.collection(COL).doc(code).get().then(d => {
+    const r = d.data() || {};
+    $("tLiveMeta").textContent = (r.mode === "duel" ? "مبارزة" : "جماعي") + " · مستوى " + AR(r.level || 1);
+  });
+  S.watchUnsub = db.collection(COL).doc(code).collection("players").orderBy("score","desc")
+    .onSnapshot(sn => {
+      const rows = []; let i = 0;
+      sn.forEach(d => { const p = d.data(); i++;
+        rows.push(`<li><span class="rank">${AR(i)}</span><span class="nm">${p.name}${p.done ? " · أنهت" : " · تلعب"}</span>
+          <span class="sc">${AR(p.score||0)}</span></li>`); });
+      $("tLiveList").innerHTML = rows.join("") || `<li><span class="nm">لم ينضمّ أحدٌ بعد.</span></li>`;
+    });
+}
+function stopWatch(){ if(S.watchUnsub){ S.watchUnsub(); S.watchUnsub = null; } $("tLive").classList.add("hidden"); }
+
+/* ---------- ١٣) أوراق العمل ---------- */
+(function buildWorksheets(){
+  const keys = ["أ","ب","ج","د"];
+  const sheet = (title, sub, bank) => `
+    <div class="ws">
+      <div class="hdr"><h3>${title}</h3><div style="font-size:12.5px;color:#555">${sub}</div></div>
+      <div style="font-size:12.5px;color:#555;margin-bottom:10px">
+        الاسم: ......................................... &nbsp;&nbsp; الصف: ................ &nbsp;&nbsp; التاريخ: ..................</div>
+      <ol>${bank.map(q => `<li><b>${q.q}</b>${q.o.map((t,i) =>
+        `<span class="opt2">( &nbsp; ) ${keys[i]} — ${t}</span>`).join("")}</li>`).join("")}</ol>
+    </div>`;
+  const answers = (title, bank) => `
+    <div class="ws">
+      <div class="hdr"><h3>${title}</h3><div style="font-size:12.5px;color:#555">للمعلّمة فقط</div></div>
+      <ol>${bank.map(q => `<li><b>${keys[q.a]} — ${q.o[q.a]}</b><span class="opt2">${q.w}</span></li>`).join("")}</ol>
+    </div>`;
+  $("wsBody").innerHTML =
+    sheet("ورقة عمل ١ — المستوى الأول: المتدرّبة", "المدارس الإدارية الحديثة · الحادي عشر التجاري", L1) +
+    sheet("ورقة عمل ٢ — المستوى الثاني: المديرة التنفيذية", "مواقف إدارية تحليلية", L2) +
+    answers("مفتاح إجابات المستوى الأول", L1) +
+    answers("مفتاح إجابات المستوى الثاني", L2);
+})();
+
+/* ---------- ١٤) الرجوع بزر الجهاز ---------- */
+history.pushState({}, "");
+window.addEventListener("popstate", () => {
+  history.pushState({}, "");
+  const cur = [...document.querySelectorAll(".screen")].find(s => s.classList.contains("on"));
+  if(!cur || cur.id === "home" || cur.id === "introScreen") return;
+  if(cur.id === "quiz"){ confirmQuit(); return; }
+  const back = { levels:"home", join:"levels", lobby:"levels", info:"home", result:"home",
+                 review:"result", teacher:"home", teacherGate:"home", worksheets:"home", help:"home" };
+  show(back[cur.id] || "home");
+});
+</script>
+</body>
+</html>
