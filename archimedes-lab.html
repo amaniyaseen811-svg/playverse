@@ -271,7 +271,7 @@ body{background:#fff}main{padding:0}}
 </div>
 
 <main>
-<section id="s-lang" class="screen"><div class="card center">
+<section id="s-lang" class="screen" style="display:none"><div class="card center">
   <div style="font-size:44px">🌐</div><h2 id="langH">اختاري اللغة</h2>
   <div class="langgrid" id="langGrid"></div></div></section>
 
@@ -288,14 +288,16 @@ body{background:#fff}main{padding:0}}
   <button class="btn ghost sm" onclick="go('s-teacher')" data-t="tcBtn">دخول المعلّمة</button>
 </div></section>
 
-<section id="s-video" class="screen"><div class="card">
+<section id="s-video" class="screen" style="display:none"><div class="card">
   <div class="eyebrow" data-t="vidEye">مقدّمة المغامرة</div>
-  <div id="vwrap"><video id="introV" playsinline controls preload="metadata"></video></div>
-  <div id="vmiss" class="tiny center" style="display:none;margin-top:10px" data-t="vidMissing"></div>
+  <div id="vwrap"><video id="introV" playsinline controls preload="metadata" webkit-playsinline></video></div>
+  <div id="vmiss" style="display:none;margin-top:12px;padding:12px;border-radius:11px;
+    background:rgba(217,83,63,.14);border:1px solid rgba(217,83,63,.4);color:#ffcabf;
+    font-size:14px;line-height:1.9;text-align:center" data-t="vidMissing"></div>
   <button class="btn" onclick="afterVideo()" data-t="skipVideo">تخطّي الفيديو ▶</button>
 </div></section>
 
-<section id="s-story" class="screen"><div class="card">
+<section id="s-story" class="screen" style="display:none"><div class="card">
   <div class="eyebrow" id="stEye"></div>
   <div id="stimg"></div>
   <div id="narr"></div>
@@ -303,7 +305,7 @@ body{background:#fff}main{padding:0}}
   <button class="btn ghost sm" onclick="skipStory()" data-t="skipStory">تخطّي المقدّمة</button>
 </div></section>
 
-<section id="s-info" class="screen"><div class="card">
+<section id="s-info" class="screen" style="display:none"><div class="card">
   <div class="eyebrow" id="inEye"></div>
   <h2 id="inTitle"></h2>
   <div id="inBody"></div>
@@ -313,14 +315,14 @@ body{background:#fff}main{padding:0}}
   <button class="btn ghost sm" onclick="endInfo()" data-t="skipInfo">تخطّي</button>
 </div></section>
 
-<section id="s-map" class="screen"><div class="card center">
+<section id="s-map" class="screen" style="display:none"><div class="card center">
   <div class="eyebrow" data-t="mapEye">خريطة البيت</div>
   <img id="mapImg" class="infoimg" alt="">
   <p id="mapTxt" class="tiny"></p>
   <button class="btn" onclick="go('s-setup')" data-t="next2">تابع</button>
 </div></section>
 
-<section id="s-setup" class="screen"><div class="card">
+<section id="s-setup" class="screen" style="display:none"><div class="card">
   <div class="eyebrow" data-t="setEye">قبل أن تطرقي الباب</div>
   <h2 data-t="lvlH">اختاري المستوى</h2>
   <div id="lvlPick"></div>
@@ -331,14 +333,14 @@ body{background:#fff}main{padding:0}}
   <button class="btn ghost sm" onclick="goHome()" data-t="home">الشاشة الرئيسية</button>
 </div></section>
 
-<section id="s-floor" class="screen"><div class="card center">
+<section id="s-floor" class="screen" style="display:none"><div class="card center">
   <div id="flIcon" style="font-size:56px">🪜</div>
   <div class="eyebrow" id="flEye"></div><h2 id="flTitle"></h2><p id="flText"></p>
   <div class="codes" id="flCodes"></div>
   <button class="btn" id="flBtn" onclick="enterFloor()"></button>
 </div></section>
 
-<section id="s-quiz" class="screen"><div class="card">
+<section id="s-quiz" class="screen" style="display:none"><div class="card">
   <div id="turnBar" class="turnbar" style="display:none"></div>
   <div class="qhead"><span class="floor" id="qFloor"></span><span id="qNum"></span></div>
   <div class="qtext" id="qText"></div>
@@ -347,7 +349,7 @@ body{background:#fff}main{padding:0}}
   <button class="btn" id="qNext" style="display:none" onclick="nextQ()"></button>
 </div></section>
 
-<section id="s-lock" class="screen"><div class="card center">
+<section id="s-lock" class="screen" style="display:none"><div class="card center">
   <div style="font-size:52px">🔐</div>
   <div class="eyebrow" data-t="lkEye">التحدي الأخير</div>
   <h2 data-t="lkH">الصندوق الرئيسي</h2>
@@ -358,14 +360,14 @@ body{background:#fff}main{padding:0}}
   <div class="fb" id="lkFb"></div>
 </div></section>
 
-<section id="s-over" class="screen"><div class="card center">
+<section id="s-over" class="screen" style="display:none"><div class="card center">
   <div style="font-size:60px">🕯️</div>
   <h2 id="ovT"></h2><p id="ovMsg"></p>
   <button class="btn" onclick="restartGame()" data-t="restart">ابدئي من جديد</button>
   <button class="btn ghost sm" onclick="goHome()" data-t="home">الشاشة الرئيسية</button>
 </div></section>
 
-<section id="s-win" class="screen"><div class="card center">
+<section id="s-win" class="screen" style="display:none"><div class="card center">
   <div id="trophy">🏆</div>
   <div class="eyebrow" data-t="winEye">الباب مفتوح</div>
   <h2 id="winName"></h2>
@@ -380,20 +382,20 @@ body{background:#fff}main{padding:0}}
   <button class="btn ghost sm" onclick="goHome()" data-t="home">الشاشة الرئيسية</button>
 </div></section>
 
-<section id="s-reward" class="screen"><div class="card center">
+<section id="s-reward" class="screen" style="display:none"><div class="card center">
   <div class="eyebrow" data-t="rewardT">جوائزك</div>
   <div class="rewardwrap" id="rewardBox"></div>
   <p id="genieMsg" class="tiny" style="font-family:'Amiri',serif;font-size:15px;color:var(--amber)"></p>
   <button class="btn ghost sm" onclick="go('s-win')" data-t="back">رجوع</button>
 </div></section>
 
-<section id="s-board" class="screen"><div class="card">
+<section id="s-board" class="screen" style="display:none"><div class="card">
   <div class="eyebrow" data-t="bdEye">مشاركة الصف</div><h2 data-t="bdH">🏆 لوحة النتائج</h2>
   <div id="bdBody" class="scroll"></div>
   <button class="btn ghost sm" onclick="go('s-win')" data-t="back">رجوع</button>
 </div></section>
 
-<section id="s-teacher" class="screen"><div class="card">
+<section id="s-teacher" class="screen" style="display:none"><div class="card">
   <div class="eyebrow" data-t="tcEye">لوحة المعلّمة</div><h2 data-t="tcH">نتائج الطالبات</h2>
   <div id="tcLogin"><label data-t="lPw">كلمة المرور</label>
     <input type="password" id="tcPw" placeholder="••••••••">
@@ -409,7 +411,7 @@ body{background:#fff}main{padding:0}}
     <button class="btn ghost sm noprint" onclick="goHome()" data-t="exit">خروج</button></div>
 </div></section>
 
-<section id="s-work" class="screen">
+<section id="s-work" class="screen" style="display:none">
   <div class="ws" id="wsBox"></div>
   <div class="noprint" style="margin-top:12px">
     <div class="row"><button class="btn sm" onclick="window.print()" data-t="print">طباعة</button>
@@ -501,8 +503,8 @@ var wsBack='s-gate', wsKind='n', keyOn=false, hist=[];
 function go(id,noHist){
   var cur=document.querySelector('.screen.active');
   if(cur&&!noHist&&cur.id!==id)hist.push(cur.id);
-  each('.screen',function(s){s.classList.remove('active')});
-  $(id).classList.add('active');
+  each('.screen',function(s){s.classList.remove('active');s.style.display='none'});
+  var el=$(id);el.classList.add('active');el.style.display='block';
   var play=['s-quiz','s-floor','s-lock'].indexOf(id)>=0;
   $('bar').classList.toggle('on',play);
   document.querySelector('main').classList.toggle('barred',play);
@@ -658,15 +660,23 @@ function buildDeck(){
 
 /* ---------- تدفّق البداية ---------- */
 function startIntro(){
-  sfx('go');startBgm();
+  sfx('go');
   var v=$('introV');
-  v.src='arch-intro.mp4';
-  v.onerror=function(){$('vmiss').style.display='block'};
+  $('vmiss').style.display='none';
   go('s-video');
-  v.play().catch(function(){});
   v.onended=afterVideo;
+  v.onerror=videoFail;
+  v.oncanplay=function(){v.play().catch(function(){})};
+  try{v.setAttribute('src','arch-intro.mp4');v.load();}catch(e){videoFail();return}
+  // لو ما بدأ التحميل خلال 6 ثوانٍ نعتبره مفقوداً
+  setTimeout(function(){if(v.readyState===0)videoFail()},6000);
+}
+function videoFail(){
+  var m=$('vmiss');if(!m)return;
+  m.textContent=T('vidMissing');m.style.display='block';
 }
 function afterVideo(){var v=$('introV');try{v.pause()}catch(e){}
+ startBgm();
  scIdx=0;go('s-story');playScene();}
 
 /* ---------- القصة ---------- */
