@@ -583,8 +583,8 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
       footEl.appendChild(h);
     }
 
-    /* الكتابة الحرة — تظهر فقط إذا فتحتها المعلمة */
-    if (S.free) {
+    /* الكتابة الحرة — المعلمة دائمًا، والطالبات فقط إذا فتحتها المعلمة */
+    if (S.free || S.role === 'teacher') {
       var wrap = el('div', 'pvc-write');
       var inp = el('input');
       inp.placeholder = t().write; inp.maxLength = 120;
@@ -811,6 +811,8 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
   /* ============ طبقة الغرفة المستقلة (تعمل بأي لعبة) ============ */
   var launchBtn = null, dlg = null;
   var LS_ROOM = 'pv_room', LS_NAME = 'pv_name', LS_ROLE = 'pv_role';
+  var LS_TROOM = 'pv_teacher_room';      /* غرفة المعلمة المحفوظة */
+  var TEACHER_PASS = 'amani2026';
 
   function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
@@ -846,28 +848,46 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     dlg.dir = isRTL() ? 'rtl' : 'ltr';
     var box = el('div', 'pvc-box');
 
-    /* لو الغرفة شغّالة: عرض الحالة + زر خروج */
+    /* ===== داخل غرفة بالفعل ===== */
     if (S.room && S.name) {
       box.appendChild(el('h4', null, '🏫 غرفة الصف'));
       box.appendChild(el('div', 'pvc-code', esc(S.room)));
       box.appendChild(el('p', null,
-        (S.role === 'teacher' ? '👩‍🏫 أنتِ المعلمة' : '👤 ' + esc(S.name)) +
-        ' — الطلاب بيدخلوا بهذا الكود'));
-      var bOut = el('button', 'pvc-b gh', 'خروج من الغرفة');
-      bOut.onclick = function () {
-        lsDel(LS_ROOM); lsDel(LS_ROLE);
-        stop(); S.room = ''; S.role = 'student';
-        closeDialog();
-      };
-      var bC = el('button', 'pvc-b', 'إغلاق');
-      bC.onclick = closeDialog;
-      box.appendChild(bOut); box.appendChild(bC);
+        S.role === 'teacher'
+          ? '👩‍🏫 أنتِ المعلمة — أعطي هذا الكود للطالبات'
+          : '👤 ' + esc(S.name)));
+
+      if (S.role === 'teacher') {
+        var bLeave = el('button', 'pvc-b gh', 'إغلاق اللوحة (الغرفة تبقى محفوظة)');
+        bLeave.onclick = closeDialog;
+        var bDel = el('button', 'pvc-b gh', '🗑️ حذف الغرفة نهائيًا');
+        bDel.style.color = 'var(--red,#e2504a)';
+        bDel.onclick = function () {
+          if (!confirm('حذف الغرفة؟ الطالبات لن يستطعن الدخول بهذا الكود بعد الآن.')) return;
+          lsDel(LS_ROOM); lsDel(LS_ROLE); lsDel(LS_TROOM);
+          stop(); S.room = ''; S.role = 'student';
+          closeDialog();
+        };
+        box.appendChild(bLeave); box.appendChild(bDel);
+      } else {
+        var bOut = el('button', 'pvc-b gh', 'خروج من الغرفة');
+        bOut.onclick = function () {
+          lsDel(LS_ROOM); lsDel(LS_ROLE);
+          stop(); S.room = ''; S.role = 'student';
+          closeDialog();
+        };
+        var bC = el('button', 'pvc-b', 'إغلاق');
+        bC.onclick = closeDialog;
+        box.appendChild(bOut); box.appendChild(bC);
+      }
+
       dlg.innerHTML = ''; dlg.appendChild(box); dlg.classList.add('on');
       return;
     }
 
+    /* ===== شاشة الدخول ===== */
     box.appendChild(el('h4', null, '🏫 غرفة الصف'));
-    box.appendChild(el('p', null, 'اكتبي اسمك، بعدها أنشئي غرفة (للمعلمة) أو انضمي بكود (للطالبة).'));
+    box.appendChild(el('p', null, 'اكتبي اسمك وكود الغرفة الذي أعطتك إياه المعلمة.'));
 
     var nIn = el('input', 'pvc-in'); nIn.placeholder = 'الاسم'; nIn.maxLength = 24;
     nIn.value = guessName();
@@ -880,18 +900,10 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
       return v;
     }
 
-    var bHost = el('button', 'pvc-b', '👩‍🏫 إنشاء غرفة (للمعلمة)');
-    bHost.onclick = function () {
-      var v = name(); if (!v) return;
-      var code = String(Math.floor(100000 + Math.random() * 900000));
-      lsSet(LS_NAME, v); lsSet(LS_ROOM, code); lsSet(LS_ROLE, 'teacher');
-      begin(code, v, 'teacher'); closeDialog(); openDialog();
-    };
-
+    /* انضمام — الطريق الأساسي للطالبات */
     var cIn = el('input', 'pvc-in');
     cIn.placeholder = 'كود الغرفة (٦ أرقام)'; cIn.inputMode = 'numeric'; cIn.maxLength = 6;
-
-    var bJoin = el('button', 'pvc-b alt', '👤 انضمام (للطالبة)');
+    var bJoin = el('button', 'pvc-b alt', '👤 انضمام');
     bJoin.onclick = function () {
       var v = name(); if (!v) return;
       var c = cIn.value.trim();
@@ -899,13 +911,36 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
       lsSet(LS_NAME, v); lsSet(LS_ROOM, c); lsSet(LS_ROLE, 'student');
       begin(c, v, 'student'); closeDialog();
     };
+    box.appendChild(cIn); box.appendChild(bJoin);
+
+    /* قسم المعلمة — محمي بكلمة السر */
+    var sep = el('div', 'pvc-h3', '— للمعلمة فقط —');
+    sep.style.textAlign = 'center'; sep.style.marginTop = '14px';
+    box.appendChild(sep);
+
+    var bT = el('button', 'pvc-b gh', '👩‍🏫 دخول المعلمة');
+    bT.onclick = function () {
+      var v = name(); if (!v) return;
+      var pw = prompt('كلمة سر المعلمة:');
+      if (pw !== TEACHER_PASS) { if (pw !== null) toast('كلمة السر غير صحيحة'); return; }
+
+      var saved = lsGet(LS_TROOM);
+      var code = saved;
+      if (saved) {
+        if (!confirm('لديك غرفة محفوظة بالكود ' + saved + '\n\nموافق = المتابعة بنفس الغرفة\nإلغاء = إنشاء غرفة جديدة')) {
+          code = '';
+        }
+      }
+      if (!code) code = String(Math.floor(100000 + Math.random() * 900000));
+
+      lsSet(LS_NAME, v); lsSet(LS_ROOM, code);
+      lsSet(LS_ROLE, 'teacher'); lsSet(LS_TROOM, code);
+      begin(code, v, 'teacher'); closeDialog(); openDialog();
+    };
+    box.appendChild(bT);
 
     var bX = el('button', 'pvc-b gh', 'إلغاء');
     bX.onclick = closeDialog;
-
-    box.appendChild(bHost);
-    box.appendChild(cIn);
-    box.appendChild(bJoin);
     box.appendChild(bX);
 
     dlg.innerHTML = ''; dlg.appendChild(box); dlg.classList.add('on');
@@ -924,7 +959,10 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
   function auto() {
     if (!fab) buildUI();
     buildLauncher();
-    var r = lsGet(LS_ROOM), n = lsGet(LS_NAME), ro = lsGet(LS_ROLE) || 'student';
+    var n = lsGet(LS_NAME), ro = lsGet(LS_ROLE) || 'student';
+    /* غرفة المعلمة المحفوظة لها الأولوية دائمًا */
+    var tr = lsGet(LS_TROOM);
+    var r = (ro === 'teacher' && tr) ? tr : lsGet(LS_ROOM);
     if (r && n) begin(r, n, ro);
   }
 
