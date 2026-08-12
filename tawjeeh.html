@@ -250,6 +250,894 @@ body.shared .opt{font-size:21px;padding:18px 20px}
 body.shared .turnbar{font-size:25px}
 </style>
 </head>
+<!-- ===== PlayVerse Chat + Room (mudmaj) ===== -->
+<script>
+/* =========================================================
+   PlayVerse Chat  —  playverse-chat.js
+   دردشة صفّية آمنة لمنصة PlayVerse
+   ---------------------------------------------------------
+   • رسائل جاهزة فقط (لا كتابة حرة إطلاقًا) + إيموجي طائرة
+   • زر "ارفعي إيدك" ✋
+   • لوحة تحكم كاملة للمعلمة: كتم / مسح / إغلاق الشات
+   • فلتر كلمات ممنوعة (يُطبَّق على أسماء الطلاب)
+   • 8 لغات — يتبع لغة المنصة تلقائيًا (pv_lang)
+   • يعمل على الفايربيس نفسه، بدون أي إعداد إضافي
+   ---------------------------------------------------------
+   هذا الملف مدمج داخل اللعبة ويعمل تلقائيًا بلا أي إعداد.
+   ========================================================= */
+(function () {
+  'use strict';
+  if (window.PVChat) return;
+
+  /* ============ إعدادات الفايربيس (نفس مشروع المنصة) ============ */
+  var FB_CONFIG = {
+    apiKey: "AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",
+    authDomain: "cursed-castle-bb43b.firebaseapp.com",
+    projectId: "cursed-castle-bb43b",
+    storageBucket: "cursed-castle-bb43b.firebasestorage.app",
+    messagingSenderId: "458563878259",
+    appId: "1:458563878259:web:715ce9f960b2972ccd9906"
+  };
+  var SDK = 'https://www.gstatic.com/firebasejs/10.12.0/';
+
+  /* ============ الإيموجي ============ */
+  var EMOJI = ['👏', '😀', '🥳', '🤩', '😮', '🤔', '😕', '😢',
+             '😭', '😡', '🎉', '🔥', '🌟', '❤️', '👍', '🙌'];
+
+  /* ============ العبارات الجاهزة (12 للطالب / 10 للمعلمة) ============ */
+  var T = {
+    ar: {
+      chat: 'الدردشة', msgs: 'رسائل', emoji: 'تفاعل', hand: 'ارفعي إيدك ✋',
+      teacher: 'لوحة المعلمة', mute: 'كتم', unmute: 'فك الكتم', clear: 'مسح الشات',
+      closeChat: 'إغلاق الشات', openChat: 'فتح الشات', isClosed: 'الشات مغلق من المعلمة',
+      isMuted: 'تم كتمك مؤقتًا', hands: 'أيادٍ مرفوعة', none: 'لا يوجد',
+      filter: 'الكلمات الممنوعة', addWord: 'أضيفي كلمة', save: 'حفظ',
+      badName: 'الاسم غير مناسب، اختاري اسمًا آخر', slow: 'انتظري لحظة…',
+      cleared: 'تم مسح الشات', saved: 'تم الحفظ', teacherTag: 'المعلمة',
+      confirmClear: 'مسح كل الرسائل؟',
+      freeOn: 'الكتابة الحرة: مفتوحة', freeOff: 'الكتابة الحرة: مغلقة',
+      write: 'اكتبي رسالة…', sendBtn: 'إرسال', tooLong: 'الرسالة طويلة',
+      badWord: 'في كلمة غير مناسبة', noNum: 'ممنوع إرسال أرقام طويلة',
+      ph: ['يلا نبدأ! 🚀', 'جاهزة ✋', 'أحسنت! 👏', 'بحتاج مساعدة 🙋', 'ممكن نعيد؟ 🔁',
+        'فهمت ✅', 'ما فهمت ❓', 'لحظة من فضلك ⏳', 'فريقنا رائع! 🌟',
+        'حظ موفق للجميع 🍀', 'شكرًا 🌸', 'مع السلامة 👋'],
+      tph: ['نبدأ الآن 🚀', 'ركّزوا معي 👀', 'أحسنتم جميعًا 👏', 'بقيت دقيقة ⏱',
+        'الهدوء من فضلكم 🤫', 'أعيدوا المحاولة 🔁', 'إجابة صحيحة ✅',
+        'راجعوا السؤال ❓', 'استراحة قصيرة ☕', 'انتهى الوقت 🏁']
+    },
+    en: {
+      chat: 'Chat', msgs: 'Messages', emoji: 'React', hand: 'Raise hand ✋',
+      teacher: 'Teacher panel', mute: 'Mute', unmute: 'Unmute', clear: 'Clear chat',
+      closeChat: 'Close chat', openChat: 'Open chat', isClosed: 'Chat closed by teacher',
+      isMuted: 'You are muted', hands: 'Raised hands', none: 'None',
+      filter: 'Blocked words', addWord: 'Add a word', save: 'Save',
+      badName: 'That name is not allowed, pick another', slow: 'Please wait…',
+      cleared: 'Chat cleared', saved: 'Saved', teacherTag: 'Teacher',
+      confirmClear: 'Delete all messages?',
+      freeOn: 'Free typing: ON', freeOff: 'Free typing: OFF',
+      write: 'Write a message…', sendBtn: 'Send', tooLong: 'Message too long',
+      badWord: 'Inappropriate word', noNum: 'Long numbers not allowed',
+      ph: ["Let's start! 🚀", "I'm ready ✋", 'Well done! 👏', 'I need help 🙋', 'Can we repeat? 🔁',
+        'Got it ✅', "I don't get it ❓", 'One moment ⏳', 'Great team! 🌟',
+        'Good luck everyone 🍀', 'Thank you 🌸', 'Bye 👋'],
+      tph: ['Starting now 🚀', 'Eyes on me 👀', 'Well done all 👏', 'One minute left ⏱',
+        'Quiet please 🤫', 'Try again 🔁', 'Correct ✅', 'Re-read the question ❓',
+        'Short break ☕', "Time's up 🏁"]
+    },
+    fr: {
+      chat: 'Discussion', msgs: 'Messages', emoji: 'Réagir', hand: 'Lever la main ✋',
+      teacher: 'Panneau enseignant', mute: 'Muet', unmute: 'Réactiver', clear: 'Effacer',
+      closeChat: 'Fermer', openChat: 'Ouvrir', isClosed: 'Discussion fermée',
+      isMuted: 'Vous êtes en sourdine', hands: 'Mains levées', none: 'Aucune',
+      filter: 'Mots interdits', addWord: 'Ajouter un mot', save: 'Enregistrer',
+      badName: 'Nom non autorisé', slow: 'Patientez…', cleared: 'Effacé', saved: 'Enregistré',
+      teacherTag: 'Enseignante', confirmClear: 'Tout supprimer ?',
+      ph: ['On commence ! 🚀', 'Je suis prête ✋', 'Bravo ! 👏', "J'ai besoin d'aide 🙋",
+        'On répète ? 🔁', "J'ai compris ✅", 'Je ne comprends pas ❓', 'Un instant ⏳',
+        'Super équipe ! 🌟', 'Bonne chance 🍀', 'Merci 🌸', 'Au revoir 👋'],
+      tph: ['On commence 🚀', 'Regardez-moi 👀', 'Bravo à tous 👏', 'Une minute ⏱',
+        'Silence 🤫', 'Réessayez 🔁', 'Correct ✅', 'Relisez la question ❓',
+        'Petite pause ☕', 'Temps écoulé 🏁']
+    },
+    es: {
+      chat: 'Chat', msgs: 'Mensajes', emoji: 'Reaccionar', hand: 'Levantar la mano ✋',
+      teacher: 'Panel docente', mute: 'Silenciar', unmute: 'Activar', clear: 'Borrar chat',
+      closeChat: 'Cerrar chat', openChat: 'Abrir chat', isClosed: 'Chat cerrado',
+      isMuted: 'Estás silenciada', hands: 'Manos levantadas', none: 'Ninguna',
+      filter: 'Palabras bloqueadas', addWord: 'Añadir palabra', save: 'Guardar',
+      badName: 'Nombre no permitido', slow: 'Espera…', cleared: 'Chat borrado', saved: 'Guardado',
+      teacherTag: 'Maestra', confirmClear: '¿Borrar todo?',
+      ph: ['¡Empecemos! 🚀', 'Lista ✋', '¡Muy bien! 👏', 'Necesito ayuda 🙋',
+        '¿Repetimos? 🔁', 'Entendido ✅', 'No entiendo ❓', 'Un momento ⏳',
+        '¡Gran equipo! 🌟', 'Suerte a todos 🍀', 'Gracias 🌸', 'Adiós 👋'],
+      tph: ['Empezamos 🚀', 'Atención 👀', 'Bien hecho 👏', 'Un minuto ⏱',
+        'Silencio 🤫', 'Inténtalo de nuevo 🔁', 'Correcto ✅', 'Lee la pregunta ❓',
+        'Descanso ☕', 'Se acabó el tiempo 🏁']
+    },
+    sv: {
+      chat: 'Chatt', msgs: 'Meddelanden', emoji: 'Reagera', hand: 'Räck upp handen ✋',
+      teacher: 'Lärarpanel', mute: 'Tysta', unmute: 'Slå på', clear: 'Rensa chatt',
+      closeChat: 'Stäng chatt', openChat: 'Öppna chatt', isClosed: 'Chatten är stängd',
+      isMuted: 'Du är tystad', hands: 'Uppräckta händer', none: 'Inga',
+      filter: 'Blockerade ord', addWord: 'Lägg till ord', save: 'Spara',
+      badName: 'Namnet är inte tillåtet', slow: 'Vänta…', cleared: 'Rensat', saved: 'Sparat',
+      teacherTag: 'Lärare', confirmClear: 'Radera allt?',
+      ph: ['Nu kör vi! 🚀', 'Jag är redo ✋', 'Bra jobbat! 👏', 'Jag behöver hjälp 🙋',
+        'Kan vi ta om? 🔁', 'Jag förstår ✅', 'Jag förstår inte ❓', 'Ett ögonblick ⏳',
+        'Bra lag! 🌟', 'Lycka till 🍀', 'Tack 🌸', 'Hej då 👋'],
+      tph: ['Vi börjar 🚀', 'Titta hit 👀', 'Bra jobbat allihop 👏', 'En minut kvar ⏱',
+        'Tyst tack 🤫', 'Försök igen 🔁', 'Rätt ✅', 'Läs frågan igen ❓',
+        'Kort paus ☕', 'Tiden är slut 🏁']
+    },
+    ru: {
+      chat: 'Чат', msgs: 'Сообщения', emoji: 'Реакция', hand: 'Поднять руку ✋',
+      teacher: 'Панель учителя', mute: 'Заглушить', unmute: 'Включить', clear: 'Очистить чат',
+      closeChat: 'Закрыть чат', openChat: 'Открыть чат', isClosed: 'Чат закрыт',
+      isMuted: 'Вы заглушены', hands: 'Поднятые руки', none: 'Нет',
+      filter: 'Запрещённые слова', addWord: 'Добавить слово', save: 'Сохранить',
+      badName: 'Имя недопустимо', slow: 'Подождите…', cleared: 'Очищено', saved: 'Сохранено',
+      teacherTag: 'Учитель', confirmClear: 'Удалить всё?',
+      ph: ['Начинаем! 🚀', 'Я готова ✋', 'Молодец! 👏', 'Мне нужна помощь 🙋',
+        'Повторим? 🔁', 'Поняла ✅', 'Не поняла ❓', 'Минутку ⏳',
+        'Отличная команда! 🌟', 'Удачи всем 🍀', 'Спасибо 🌸', 'Пока 👋'],
+      tph: ['Начинаем 🚀', 'Внимание 👀', 'Молодцы 👏', 'Осталась минута ⏱',
+        'Тишина 🤫', 'Попробуйте снова 🔁', 'Верно ✅', 'Перечитайте вопрос ❓',
+        'Перерыв ☕', 'Время вышло 🏁']
+    },
+    zh: {
+      chat: '聊天', msgs: '消息', emoji: '表情', hand: '举手 ✋',
+      teacher: '教师面板', mute: '禁言', unmute: '解除禁言', clear: '清空聊天',
+      closeChat: '关闭聊天', openChat: '开启聊天', isClosed: '聊天已关闭',
+      isMuted: '你已被禁言', hands: '举手名单', none: '无',
+      filter: '禁用词', addWord: '添加词语', save: '保存',
+      badName: '该名字不被允许', slow: '请稍候…', cleared: '已清空', saved: '已保存',
+      teacherTag: '老师', confirmClear: '删除全部消息？',
+      ph: ['开始吧！🚀', '我准备好了 ✋', '做得好！👏', '我需要帮助 🙋',
+        '可以再来一次吗？🔁', '我明白了 ✅', '我不明白 ❓', '请稍等 ⏳',
+        '我们的团队很棒！🌟', '祝大家好运 🍀', '谢谢 🌸', '再见 👋'],
+      tph: ['现在开始 🚀', '看这里 👀', '大家做得好 👏', '还有一分钟 ⏱',
+        '请安静 🤫', '再试一次 🔁', '正确 ✅', '重读题目 ❓',
+        '短暂休息 ☕', '时间到 🏁']
+    },
+    hi: {
+      chat: 'चैट', msgs: 'संदेश', emoji: 'प्रतिक्रिया', hand: 'हाथ उठाएँ ✋',
+      teacher: 'शिक्षक पैनल', mute: 'म्यूट', unmute: 'अनम्यूट', clear: 'चैट साफ़ करें',
+      closeChat: 'चैट बंद करें', openChat: 'चैट खोलें', isClosed: 'चैट बंद है',
+      isMuted: 'आप म्यूट हैं', hands: 'उठे हुए हाथ', none: 'कोई नहीं',
+      filter: 'प्रतिबंधित शब्द', addWord: 'शब्द जोड़ें', save: 'सहेजें',
+      badName: 'यह नाम स्वीकार्य नहीं', slow: 'कृपया रुकें…', cleared: 'साफ़ हो गया', saved: 'सहेजा गया',
+      teacherTag: 'शिक्षिका', confirmClear: 'सभी संदेश हटाएँ?',
+      ph: ['चलो शुरू करें! 🚀', 'मैं तैयार हूँ ✋', 'शाबाश! 👏', 'मुझे मदद चाहिए 🙋',
+        'क्या दोहरा सकते हैं? 🔁', 'समझ गई ✅', 'समझ नहीं आया ❓', 'एक पल ⏳',
+        'हमारी टीम बढ़िया है! 🌟', 'सबको शुभकामनाएँ 🍀', 'धन्यवाद 🌸', 'अलविदा 👋'],
+      tph: ['अब शुरू करते हैं 🚀', 'मेरी ओर देखें 👀', 'सब बढ़िया 👏', 'एक मिनट बाकी ⏱',
+        'कृपया शांत रहें 🤫', 'फिर कोशिश करें 🔁', 'सही ✅', 'प्रश्न दोबारा पढ़ें ❓',
+        'छोटा विराम ☕', 'समय समाप्त 🏁']
+    }
+  };
+
+  /* ============ قائمة الكلمات الممنوعة الأوّلية ============
+     المعلمة تقدر تزيد/تشيل من لوحة التحكم بدون رفع الملف من جديد.
+     الكلمات القصيرة (٣ أحرف أو أقل) تُطابَق ككلمة كاملة فقط،
+     عشان ما تمنع كلمات بريئة مثل "كسر" أو "مكسور".            */
+  var BASE_WORDS = [
+    'كلب', 'حمار', 'غبي', 'احمق', 'تافه', 'حقير', 'وسخ', 'خنزير',
+    'زباله', 'قذر', 'سافل', 'متخلف', 'بهيمه', 'لعنه', 'يلعن',
+    'كس', 'طيز', 'خرا', 'عرص', 'شرموط', 'منيوك', 'زق', 'زبي',
+    'fuck', 'shit', 'bitch', 'idiot', 'stupid', 'ugly', 'dumb'
+  ];
+
+  /* ============ أدوات ============ */
+  function lang() {
+    var c = 'ar';
+    try { c = localStorage.getItem('pv_lang') || 'ar'; } catch (e) { }
+    return T[c] ? c : 'ar';
+  }
+  function t() {
+    var o = T[lang()] || T.ar;
+    /* مفاتيح الكتابة الحرة قد تكون غير مترجمة في كل اللغات */
+    var k = ['freeOn','freeOff','write','sendBtn','tooLong','badWord','noNum'];
+    for (var i = 0; i < k.length; i++) if (!o[k[i]]) o[k[i]] = T.en[k[i]];
+    return o;
+  }
+  function isRTL() { var c = lang(); return c === 'ar' || c === 'he' || c === 'fa'; }
+
+  /* تطبيع النص العربي: تشكيل، مدّ، ألف/همزة، ة/ه، ى/ي، أرقام بدل حروف */
+  function norm(s) {
+    if (!s) return '';
+    s = String(s).toLowerCase();
+    s = s.replace(/[\u064B-\u065F\u0670\u0640]/g, '');      // تشكيل + المدّ ـ
+    s = s.replace(/[أإآا]/g, 'ا').replace(/ة/g, 'ه')
+      .replace(/[ىي]/g, 'ي').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي');
+    s = s.replace(/3/g, 'ع').replace(/7/g, 'ح').replace(/5/g, 'خ')
+      .replace(/9/g, 'ص').replace(/8/g, 'ق').replace(/2/g, 'ا').replace(/6/g, 'ط');
+    s = s.replace(/[^\p{L}\p{N}]+/gu, ' ').replace(/\s+/g, ' ').trim();
+    return s;
+  }
+
+  var wordList = BASE_WORDS.slice();
+
+  function isBad(text) {
+    var n = norm(text);
+    if (!n) return false;
+    var tokens = n.split(' ');
+    for (var i = 0; i < wordList.length; i++) {
+      var w = norm(wordList[i]);
+      if (!w) continue;
+      if (w.length <= 3) {                       // كلمة قصيرة → مطابقة تامة
+        if (tokens.indexOf(w) !== -1) return true;
+      } else {                                    // كلمة طويلة → تضمين
+        if (n.indexOf(w) !== -1) return true;
+      }
+    }
+    return false;
+  }
+
+  /* ============ الفايربيس (تطبيق مُسمّى حتى لا يتعارض مع اللعبة) ============ */
+  var FB = null, fbPromise = null;
+  function initFB() {
+    if (FB) return Promise.resolve(FB);
+    if (fbPromise) return fbPromise;
+    fbPromise = (async function () {
+      try {
+        var a = await import(SDK + 'firebase-app.js');
+        var f = await import(SDK + 'firebase-firestore.js');
+        var app;
+        try { app = a.getApp('pvchat'); }
+        catch (e) { app = a.initializeApp(FB_CONFIG, 'pvchat'); }
+        FB = Object.assign({ db: f.getFirestore(app) }, f);
+        return FB;
+      } catch (e) { console.warn('[PVChat] Firebase off', e); return null; }
+    })();
+    return fbPromise;
+  }
+
+  /* ============ الحالة ============ */
+  var S = {
+    room: '', name: '', role: 'student',
+    open: true, free: false, muted: [], hands: [],
+    msgs: [], unread: 0, panelOpen: false,
+    lastSend: 0, started: false, unsubMsgs: null, unsubRoom: null
+  };
+
+  /* ============ الواجهة ============ */
+  var CSS = `
+.pvc-fab{position:fixed;bottom:16px;inset-inline-start:16px;z-index:99990;
+  width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;font-size:24px;
+  background:linear-gradient(180deg,var(--gold2,#f6d976),var(--gold,#e0b73c));
+  color:#20180a;box-shadow:0 8px 22px rgba(0,0,0,.35);display:none;
+  align-items:center;justify-content:center;transition:transform .15s}
+.pvc-fab:active{transform:scale(.93)}
+.pvc-badge{position:absolute;top:-4px;inset-inline-end:-4px;min-width:20px;height:20px;
+  border-radius:10px;background:var(--red,#e2504a);color:#fff;font-size:12px;font-weight:800;
+  display:none;align-items:center;justify-content:center;padding:0 5px}
+.pvc-panel{position:fixed;bottom:0;inset-inline-start:0;z-index:99991;
+  width:min(380px,100%);max-height:min(74vh,560px);display:none;flex-direction:column;
+  background:var(--navy2,#0f2350);color:var(--ink,#eaf0ff);
+  border:1.5px solid var(--line,rgba(224,183,60,.28));border-bottom:0;
+  border-radius:18px 18px 0 0;box-shadow:0 -10px 34px rgba(0,0,0,.45);
+  font-family:inherit;overflow:hidden}
+.pvc-panel.on{display:flex}
+.pvc-head{display:flex;align-items:center;gap:8px;padding:10px 12px;
+  border-bottom:1px solid var(--line,rgba(255,255,255,.12));flex:0 0 auto}
+.pvc-head b{flex:1;font-size:16px;color:var(--gold,#e0b73c)}
+.pvc-x{background:transparent;border:0;color:inherit;font-size:22px;cursor:pointer;line-height:1;padding:2px 6px}
+.pvc-tabs{display:flex;gap:6px;padding:8px 10px 0;flex:0 0 auto}
+.pvc-tab{flex:1;padding:8px;border-radius:10px;border:1px solid var(--line,rgba(255,255,255,.15));
+  background:transparent;color:inherit;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.pvc-tab.on{background:var(--gold,#e0b73c);color:#20180a;border-color:transparent}
+.pvc-body{flex:1 1 auto;overflow-y:auto;padding:10px 12px;min-height:120px}
+.pvc-msg{margin:6px 0;font-size:14px;line-height:1.5}
+.pvc-msg .who{color:var(--gold,#e0b73c);font-weight:800}
+.pvc-msg.t .who{color:var(--teal,#2ec6b6)}
+.pvc-msg.hand{color:var(--teal,#2ec6b6);font-weight:700}
+.pvc-empty{opacity:.6;font-size:13px;text-align:center;padding:18px 0}
+.pvc-foot{flex:0 0 auto;border-top:1px solid var(--line,rgba(255,255,255,.12));
+  padding:8px 10px 12px;max-height:190px;overflow-y:auto}
+.pvc-chips{display:flex;flex-wrap:wrap;gap:6px}
+.pvc-chip{padding:8px 10px;border-radius:12px;cursor:pointer;font:inherit;font-size:13px;
+  font-weight:700;border:1px solid var(--line,rgba(255,255,255,.2));
+  background:var(--card,rgba(255,255,255,.06));color:inherit}
+.pvc-chip:active{transform:scale(.95)}
+.pvc-emo{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pvc-emo button{font-size:24px;padding:8px 0;border-radius:12px;cursor:pointer;
+  border:1px solid var(--line,rgba(255,255,255,.15));background:var(--card,rgba(255,255,255,.06))}
+.pvc-hand{width:100%;margin-top:8px;padding:10px;border-radius:12px;border:0;cursor:pointer;
+  font:inherit;font-weight:800;background:var(--teal,#2ec6b6);color:#04231f}
+.pvc-note{font-size:12px;opacity:.75;text-align:center;padding:6px 0}
+.pvc-tools{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.pvc-tools button{flex:1 1 46%;padding:9px;border-radius:10px;border:1px solid var(--line,rgba(255,255,255,.2));
+  background:var(--card,rgba(255,255,255,.06));color:inherit;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.pvc-list{display:flex;flex-direction:column;gap:5px}
+.pvc-row{display:flex;align-items:center;gap:8px;font-size:13px;
+  background:var(--card,rgba(255,255,255,.05));padding:7px 9px;border-radius:10px}
+.pvc-row span{flex:1}
+.pvc-row button{padding:5px 9px;border-radius:8px;border:0;cursor:pointer;font:inherit;
+  font-size:12px;font-weight:700;background:var(--gold,#e0b73c);color:#20180a}
+.pvc-in{width:100%;padding:9px;border-radius:10px;font:inherit;font-size:14px;text-align:inherit;
+  border:1px solid var(--line,rgba(255,255,255,.2));background:rgba(0,0,0,.28);color:inherit;margin:4px 0}
+.pvc-h3{font-size:13px;font-weight:800;color:var(--gold,#e0b73c);margin:10px 0 4px}
+.pvc-fly{position:fixed;z-index:99989;font-size:34px;pointer-events:none;
+  animation:pvcFly 2.1s ease-out forwards}
+@keyframes pvcFly{0%{transform:translateY(0) scale(.5);opacity:0}
+  15%{transform:translateY(-20px) scale(1.15);opacity:1}
+  100%{transform:translateY(-190px) scale(.9);opacity:0}}
+.pvc-toast{position:fixed;bottom:84px;inset-inline-start:16px;z-index:99992;
+  background:rgba(0,0,0,.85);color:#fff;padding:9px 14px;border-radius:12px;font-size:13px;
+  font-family:inherit;opacity:0;transition:opacity .25s}
+.pvc-toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.pvc-fly{animation-duration:.01ms}}
+.pvc-launch{position:fixed;bottom:82px;inset-inline-start:16px;z-index:99990;
+  width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;font-size:24px;
+  background:var(--navy2,#0f2350);color:var(--gold,#e0b73c);
+  border:1.5px solid var(--line,rgba(224,183,60,.35));
+  box-shadow:0 8px 22px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}
+.pvc-launch:active{transform:scale(.93)}
+.pvc-dlg{position:fixed;inset:0;z-index:99995;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.62);padding:18px;font-family:inherit}
+.pvc-dlg.on{display:flex}
+.pvc-box{width:min(360px,100%);background:var(--navy2,#0f2350);color:var(--ink,#eaf0ff);
+  border:1.5px solid var(--line,rgba(224,183,60,.28));border-radius:18px;padding:16px;
+  box-shadow:0 16px 44px rgba(0,0,0,.5);max-height:88vh;overflow-y:auto}
+.pvc-box h4{margin:0 0 4px;font-size:17px;color:var(--gold,#e0b73c)}
+.pvc-box p{margin:0 0 10px;font-size:12.5px;opacity:.8;line-height:1.6}
+.pvc-b{width:100%;padding:12px;border-radius:12px;border:0;cursor:pointer;margin-top:8px;
+  font:inherit;font-weight:800;font-size:15px;
+  background:linear-gradient(180deg,var(--gold2,#f6d976),var(--gold,#e0b73c));color:#20180a}
+.pvc-b.alt{background:var(--teal,#2ec6b6);color:#04231f}
+.pvc-b.gh{background:transparent;color:inherit;border:1px solid var(--line,rgba(255,255,255,.25));font-weight:700}
+.pvc-write{display:flex;gap:6px;margin-top:8px}
+.pvc-write input{flex:1;padding:10px;border-radius:12px;font:inherit;font-size:14px;
+  border:1px solid var(--line,rgba(255,255,255,.2));background:rgba(0,0,0,.28);color:inherit;
+  text-align:inherit}
+.pvc-write button{padding:10px 14px;border-radius:12px;border:0;cursor:pointer;font:inherit;
+  font-weight:800;background:var(--gold,#e0b73c);color:#20180a}
+.pvc-code{text-align:center;font-size:30px;font-weight:900;letter-spacing:5px;
+  color:var(--gold,#e0b73c);padding:10px 0}
+`;
+
+  var fab, badge, panel, headTitle, bodyEl, footEl, tabsEl, toastEl;
+  var tab = 'msgs';
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  function toast(msg) {
+    if (!toastEl) { toastEl = el('div', 'pvc-toast'); document.body.appendChild(toastEl); }
+    toastEl.textContent = msg;
+    toastEl.classList.add('on');
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(function () { toastEl.classList.remove('on'); }, 2200);
+  }
+
+  function buildUI() {
+    var st = el('style'); st.textContent = CSS; document.head.appendChild(st);
+
+    fab = el('button', 'pvc-fab', '💬');
+    badge = el('span', 'pvc-badge', '0');
+    fab.appendChild(badge);
+    fab.onclick = togglePanel;
+    document.body.appendChild(fab);
+
+    panel = el('div', 'pvc-panel');
+    panel.dir = isRTL() ? 'rtl' : 'ltr';
+
+    var head = el('div', 'pvc-head');
+    headTitle = el('b', null, t().chat);
+    var x = el('button', 'pvc-x', '✕'); x.onclick = togglePanel;
+    head.appendChild(headTitle); head.appendChild(x);
+
+    tabsEl = el('div', 'pvc-tabs');
+    bodyEl = el('div', 'pvc-body');
+    footEl = el('div', 'pvc-foot');
+
+    panel.appendChild(head); panel.appendChild(tabsEl);
+    panel.appendChild(bodyEl); panel.appendChild(footEl);
+    document.body.appendChild(panel);
+
+    renderTabs();
+    renderFoot();
+    renderBody();
+  }
+
+  function renderTabs() {
+    tabsEl.innerHTML = '';
+    var list = [['msgs', t().msgs], ['emoji', t().emoji]];
+    if (S.role === 'teacher') list.push(['teacher', t().teacher]);
+    list.forEach(function (p) {
+      var b = el('button', 'pvc-tab' + (tab === p[0] ? ' on' : ''), p[1]);
+      b.onclick = function () { tab = p[0]; renderTabs(); renderBody(); renderFoot(); };
+      tabsEl.appendChild(b);
+    });
+  }
+
+  function togglePanel() {
+    S.panelOpen = !S.panelOpen;
+    panel.classList.toggle('on', S.panelOpen);
+    if (S.panelOpen) { S.unread = 0; updateBadge(); renderBody(); }
+  }
+
+  function updateBadge() {
+    badge.style.display = S.unread > 0 ? 'flex' : 'none';
+    badge.textContent = S.unread > 9 ? '9+' : String(S.unread);
+  }
+
+  /* ---------- عرض الرسائل ---------- */
+  function msgText(m) {
+    var L = T[lang()];
+    if (typeof m.x === 'string') return m.x;
+    if (m.p === -1) return '✋ ' + (L.hand.replace(' ✋', ''));
+    if (typeof m.e === 'number') return EMOJI[m.e] || '•';
+    var arr = (m.r === 't') ? L.tph : L.ph;
+    return arr[m.p] != null ? arr[m.p] : '…';
+  }
+
+  function renderBody() {
+    if (tab === 'teacher') return renderTeacher();
+    bodyEl.innerHTML = '';
+    var list = S.msgs.filter(function (m) { return typeof m.e !== 'number'; });
+    if (!list.length) { bodyEl.appendChild(el('div', 'pvc-empty', '—')); return; }
+    list.forEach(function (m) {
+      var cls = 'pvc-msg' + (m.r === 't' ? ' t' : '') + (m.p === -1 ? ' hand' : '');
+      var who = m.r === 't' ? t().teacherTag : esc(m.n);
+      bodyEl.appendChild(el('div', cls, '<span class="who">' + who + ':</span> ' + esc(msgText(m))));
+    });
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+
+  /* ---------- أسفل اللوحة ---------- */
+  function renderFoot() {
+    footEl.innerHTML = '';
+    if (tab === 'teacher') return;
+
+    if (!S.open && S.role !== 'teacher') {
+      footEl.appendChild(el('div', 'pvc-note', t().isClosed)); return;
+    }
+    if (S.muted.indexOf(S.name) !== -1 && S.role !== 'teacher') {
+      footEl.appendChild(el('div', 'pvc-note', t().isMuted)); return;
+    }
+
+    if (tab === 'emoji') {
+      var grid = el('div', 'pvc-emo');
+      EMOJI.forEach(function (e, i) {
+        var b = el('button', null, e);
+        b.onclick = function () { send({ e: i }); };
+        grid.appendChild(b);
+      });
+      footEl.appendChild(grid);
+      return;
+    }
+
+    var chips = el('div', 'pvc-chips');
+    var arr = (S.role === 'teacher') ? t().tph : t().ph;
+    arr.forEach(function (txt, i) {
+      var b = el('button', 'pvc-chip', txt);
+      b.onclick = function () { send({ p: i }); };
+      chips.appendChild(b);
+    });
+    footEl.appendChild(chips);
+
+    if (S.role !== 'teacher') {
+      var h = el('button', 'pvc-hand', t().hand);
+      h.onclick = function () { send({ p: -1 }); };
+      footEl.appendChild(h);
+    }
+
+    /* الكتابة الحرة — تظهر فقط إذا فتحتها المعلمة */
+    if (S.free) {
+      var wrap = el('div', 'pvc-write');
+      var inp = el('input');
+      inp.placeholder = t().write; inp.maxLength = 120;
+      var bs = el('button', null, t().sendBtn);
+      function doSend() {
+        var v = inp.value.trim();
+        if (!v) return;
+        if (v.length > 120) { toast(t().tooLong); return; }
+        if (isBad(v)) { toast(t().badWord); return; }
+        if (/\d[\s.\-]?\d[\s.\-]?\d[\s.\-]?\d[\s.\-]?\d[\s.\-]?\d/.test(v)) { toast(t().noNum); return; }
+        inp.value = '';
+        send({ x: v });
+      }
+      bs.onclick = doSend;
+      inp.onkeydown = function (e) { if (e.key === 'Enter') doSend(); };
+      wrap.appendChild(inp); wrap.appendChild(bs);
+      footEl.appendChild(wrap);
+    }
+  }
+
+  /* ---------- لوحة المعلمة ---------- */
+  function renderTeacher() {
+    bodyEl.innerHTML = '';
+    footEl.innerHTML = '';
+
+    var tools = el('div', 'pvc-tools');
+    var bClose = el('button', null, S.open ? t().closeChat : t().openChat);
+    bClose.onclick = function () { setRoom({ open: !S.open }); };
+    var bClear = el('button', null, t().clear);
+    bClear.onclick = function () { if (confirm(t().confirmClear)) clearMsgs(); };
+    var bFree = el('button', null, S.free ? '✏️ ' + t().freeOn : '🔒 ' + t().freeOff);
+    if (S.free) { bFree.style.background = 'var(--teal,#2ec6b6)'; bFree.style.color = '#04231f'; }
+    bFree.onclick = function () { setRoom({ free: !S.free }); };
+    tools.appendChild(bClose); tools.appendChild(bClear); tools.appendChild(bFree);
+    bodyEl.appendChild(tools);
+
+    /* أيادٍ مرفوعة */
+    bodyEl.appendChild(el('div', 'pvc-h3', t().hands));
+    var hands = [];
+    S.msgs.forEach(function (m) { if (m.p === -1 && hands.indexOf(m.n) === -1) hands.push(m.n); });
+    if (!hands.length) bodyEl.appendChild(el('div', 'pvc-note', t().none));
+    else {
+      var hl = el('div', 'pvc-list');
+      hands.forEach(function (n) { hl.appendChild(el('div', 'pvc-row', '<span>✋ ' + esc(n) + '</span>')); });
+      bodyEl.appendChild(hl);
+    }
+
+    /* الطلاب + الكتم */
+    var names = [];
+    S.msgs.forEach(function (m) {
+      if (m.r !== 't' && m.n && names.indexOf(m.n) === -1) names.push(m.n);
+    });
+    S.muted.forEach(function (n) { if (names.indexOf(n) === -1) names.push(n); });
+    if (names.length) {
+      bodyEl.appendChild(el('div', 'pvc-h3', '👥'));
+      var ul = el('div', 'pvc-list');
+      names.forEach(function (n) {
+        var row = el('div', 'pvc-row', '<span>' + esc(n) + '</span>');
+        var isM = S.muted.indexOf(n) !== -1;
+        var b = el('button', null, isM ? t().unmute : t().mute);
+        b.onclick = function () {
+          var m = S.muted.slice();
+          if (isM) m = m.filter(function (x) { return x !== n; }); else m.push(n);
+          setRoom({ muted: m });
+        };
+        row.appendChild(b); ul.appendChild(row);
+      });
+      bodyEl.appendChild(ul);
+    }
+
+    /* الكلمات الممنوعة */
+    bodyEl.appendChild(el('div', 'pvc-h3', t().filter));
+    var inp = el('input', 'pvc-in'); inp.placeholder = t().addWord;
+    var save = el('button', 'pvc-hand', t().save);
+    save.style.background = 'var(--gold,#e0b73c)'; save.style.color = '#20180a';
+    save.onclick = function () {
+      var v = inp.value.trim(); if (!v) return;
+      if (wordList.indexOf(v) === -1) wordList.push(v);
+      inp.value = ''; saveWords(); renderTeacher();
+    };
+    bodyEl.appendChild(inp); bodyEl.appendChild(save);
+
+    var wl = el('div', 'pvc-list'); wl.style.marginTop = '8px';
+    wordList.forEach(function (w) {
+      var row = el('div', 'pvc-row', '<span>' + esc(w) + '</span>');
+      var b = el('button', null, '✕');
+      b.onclick = function () {
+        wordList = wordList.filter(function (x) { return x !== w; });
+        saveWords(); renderTeacher();
+      };
+      row.appendChild(b); wl.appendChild(row);
+    });
+    bodyEl.appendChild(wl);
+  }
+
+  /* ============ الإيموجي الطائرة ============ */
+  function fly(i) {
+    var e = el('div', 'pvc-fly', EMOJI[i] || '✨');
+    e.style.insetInlineStart = (10 + Math.random() * 70) + '%';
+    e.style.bottom = '90px';
+    document.body.appendChild(e);
+    setTimeout(function () { e.remove(); }, 2200);
+  }
+
+  /* ============ فايربيس: قراءة/كتابة ============ */
+  function roomRef(f) { return f.doc(f.db, 'pv_rooms', S.room); }
+  function msgsRef(f) { return f.collection(f.db, 'pv_rooms', S.room, 'msgs'); }
+
+  async function send(payload) {
+    if (!S.room || !S.name) return;
+    if (!S.open && S.role !== 'teacher') { toast(t().isClosed); return; }
+    if (S.muted.indexOf(S.name) !== -1 && S.role !== 'teacher') { toast(t().isMuted); return; }
+    var now = Date.now();
+    if (now - S.lastSend < 1500) { toast(t().slow); return; }
+    S.lastSend = now;
+
+    if (typeof payload.e === 'number') fly(payload.e);   // عرض فوري عند المُرسِل
+
+    var f = await initFB(); if (!f) return;
+    var doc = {
+      n: String(S.name).slice(0, 24),
+      r: S.role === 'teacher' ? 't' : 's',
+      ts: now
+    };
+    if (typeof payload.x === 'string') doc.x = payload.x.slice(0, 120);
+    else if (typeof payload.e === 'number') doc.e = payload.e;
+    else doc.p = payload.p;
+    try { await f.addDoc(msgsRef(f), doc); } catch (e) { console.warn('[PVChat] send', e); }
+  }
+
+  async function setRoom(patch) {
+    var f = await initFB(); if (!f) return;
+    try {
+      await f.setDoc(roomRef(f), Object.assign({ open: S.open, free: S.free, muted: S.muted }, patch), { merge: true });
+    } catch (e) { console.warn('[PVChat] room', e); }
+  }
+
+  async function clearMsgs() {
+    var f = await initFB(); if (!f) return;
+    try {
+      var snap = await f.getDocs(msgsRef(f));
+      var jobs = []; snap.forEach(function (d) { jobs.push(f.deleteDoc(d.ref)); });
+      await Promise.all(jobs);
+      toast(t().cleared);
+    } catch (e) { console.warn('[PVChat] clear', e); }
+  }
+
+  async function loadWords() {
+    var f = await initFB(); if (!f) return;
+    try {
+      var d = await f.getDoc(f.doc(f.db, 'pv_config', 'filter'));
+      if (d.exists() && Array.isArray(d.data().list)) {
+        var extra = d.data().list;
+        wordList = BASE_WORDS.concat(extra.filter(function (w) {
+          return BASE_WORDS.indexOf(w) === -1;
+        }));
+      }
+    } catch (e) { }
+  }
+
+  async function saveWords() {
+    var f = await initFB(); if (!f) return;
+    try {
+      await f.setDoc(f.doc(f.db, 'pv_config', 'filter'), { list: wordList }, { merge: true });
+      toast(t().saved);
+    } catch (e) { console.warn('[PVChat] words', e); }
+  }
+
+  /* ============ التشغيل ============ */
+  async function start() {
+    if (S.started) return;
+    S.started = true;
+    var f = await initFB(); if (!f) return;
+
+    await loadWords();
+
+    /* حالة الغرفة */
+    S.unsubRoom = f.onSnapshot(roomRef(f), function (d) {
+      var v = d.exists() ? d.data() : {};
+      S.open = v.open !== false;
+      S.free = v.free === true;          /* الافتراضي: مغلقة */
+      S.muted = Array.isArray(v.muted) ? v.muted : [];
+      renderFoot();
+      if (tab === 'teacher') renderTeacher();
+    }, function () { });
+
+    /* المعلمة تنشئ مستند الغرفة أول مرة */
+    if (S.role === 'teacher') setRoom({ open: true, free: S.free === true });
+
+    /* الرسائل */
+    var q = f.query(msgsRef(f), f.orderBy('ts', 'desc'), f.limit(40));
+    var first = true;
+    S.unsubMsgs = f.onSnapshot(q, function (snap) {
+      var arr = []; snap.forEach(function (d) { arr.push(d.data()); });
+      arr.reverse();
+
+      if (!first) {
+        snap.docChanges().forEach(function (ch) {
+          if (ch.type !== 'added') return;
+          var m = ch.doc.data();
+          if (m.n === S.name) return;                       // لا نكرر رسائلنا
+          if (typeof m.e === 'number') fly(m.e);
+          else if (!S.panelOpen) { S.unread++; updateBadge(); }
+        });
+      }
+      first = false;
+      S.msgs = arr;
+      if (S.panelOpen) renderBody();
+      if (tab === 'teacher') renderTeacher();
+    }, function () { });
+
+    fab.style.display = 'flex';
+  }
+
+  function stop() {
+    if (S.unsubMsgs) { S.unsubMsgs(); S.unsubMsgs = null; }
+    if (S.unsubRoom) { S.unsubRoom(); S.unsubRoom = null; }
+    S.started = false; S.msgs = []; S.unread = 0;
+    if (fab) { fab.style.display = 'none'; updateBadge(); }
+    if (panel) { panel.classList.remove('on'); S.panelOpen = false; }
+  }
+
+
+  /* ============ طبقة الغرفة المستقلة (تعمل بأي لعبة) ============ */
+  var launchBtn = null, dlg = null;
+  var LS_ROOM = 'pv_room', LS_NAME = 'pv_name', LS_ROLE = 'pv_role';
+
+  function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) { } }
+
+  /* يحاول التقاط اسم اللاعب من اللعبة نفسها إن وُجد */
+  function guessName() {
+    var c = ['playerName', 'elmName', 'pvName', 'userName'];
+    for (var i = 0; i < c.length; i++) {
+      try { if (typeof window[c[i]] === 'string' && window[c[i]].length > 1) return window[c[i]]; } catch (e) { }
+    }
+    try { if (window.G && typeof G.name === 'string' && G.name.length > 1) return G.name; } catch (e) { }
+    return lsGet(LS_NAME);
+  }
+
+  function buildLauncher() {
+    if (launchBtn) return;
+    if (!document.body) return;
+    launchBtn = el('button', 'pvc-launch', '🏫');
+    launchBtn.title = 'غرفة الصف';
+    launchBtn.onclick = openDialog;
+    document.body.appendChild(launchBtn);
+
+    dlg = el('div', 'pvc-dlg');
+    dlg.onclick = function (e) { if (e.target === dlg) closeDialog(); };
+    document.body.appendChild(dlg);
+  }
+
+  function closeDialog() { if (dlg) dlg.classList.remove('on'); }
+
+  function openDialog() {
+    if (!dlg) return;
+    dlg.dir = isRTL() ? 'rtl' : 'ltr';
+    var box = el('div', 'pvc-box');
+
+    /* لو الغرفة شغّالة: عرض الحالة + زر خروج */
+    if (S.room && S.name) {
+      box.appendChild(el('h4', null, '🏫 غرفة الصف'));
+      box.appendChild(el('div', 'pvc-code', esc(S.room)));
+      box.appendChild(el('p', null,
+        (S.role === 'teacher' ? '👩‍🏫 أنتِ المعلمة' : '👤 ' + esc(S.name)) +
+        ' — الطلاب بيدخلوا بهذا الكود'));
+      var bOut = el('button', 'pvc-b gh', 'خروج من الغرفة');
+      bOut.onclick = function () {
+        lsDel(LS_ROOM); lsDel(LS_ROLE);
+        stop(); S.room = ''; S.role = 'student';
+        closeDialog();
+      };
+      var bC = el('button', 'pvc-b', 'إغلاق');
+      bC.onclick = closeDialog;
+      box.appendChild(bOut); box.appendChild(bC);
+      dlg.innerHTML = ''; dlg.appendChild(box); dlg.classList.add('on');
+      return;
+    }
+
+    box.appendChild(el('h4', null, '🏫 غرفة الصف'));
+    box.appendChild(el('p', null, 'اكتبي اسمك، بعدها أنشئي غرفة (للمعلمة) أو انضمي بكود (للطالبة).'));
+
+    var nIn = el('input', 'pvc-in'); nIn.placeholder = 'الاسم'; nIn.maxLength = 24;
+    nIn.value = guessName();
+    box.appendChild(nIn);
+
+    function name() {
+      var v = nIn.value.trim();
+      if (v.length < 2) { toast('اكتبي اسمك'); return null; }
+      if (isBad(v)) { toast(t().badName); return null; }
+      return v;
+    }
+
+    var bHost = el('button', 'pvc-b', '👩‍🏫 إنشاء غرفة (للمعلمة)');
+    bHost.onclick = function () {
+      var v = name(); if (!v) return;
+      var code = String(Math.floor(100000 + Math.random() * 900000));
+      lsSet(LS_NAME, v); lsSet(LS_ROOM, code); lsSet(LS_ROLE, 'teacher');
+      begin(code, v, 'teacher'); closeDialog(); openDialog();
+    };
+
+    var cIn = el('input', 'pvc-in');
+    cIn.placeholder = 'كود الغرفة (٦ أرقام)'; cIn.inputMode = 'numeric'; cIn.maxLength = 6;
+
+    var bJoin = el('button', 'pvc-b alt', '👤 انضمام (للطالبة)');
+    bJoin.onclick = function () {
+      var v = name(); if (!v) return;
+      var c = cIn.value.trim();
+      if (!/^\d{6}$/.test(c)) { toast('اكتبي كود من ٦ أرقام'); return; }
+      lsSet(LS_NAME, v); lsSet(LS_ROOM, c); lsSet(LS_ROLE, 'student');
+      begin(c, v, 'student'); closeDialog();
+    };
+
+    var bX = el('button', 'pvc-b gh', 'إلغاء');
+    bX.onclick = closeDialog;
+
+    box.appendChild(bHost);
+    box.appendChild(cIn);
+    box.appendChild(bJoin);
+    box.appendChild(bX);
+
+    dlg.innerHTML = ''; dlg.appendChild(box); dlg.classList.add('on');
+    setTimeout(function () { if (!nIn.value) nIn.focus(); }, 60);
+  }
+
+  function begin(room, name, role) {
+    if (!fab) buildUI();
+    stop();
+    S.room = room; S.name = name; S.role = role || 'student';
+    renderTabs(); renderFoot();
+    start();
+  }
+
+  /* تشغيل تلقائي: زر الغرفة يظهر بأي لعبة، ولو في غرفة محفوظة بيكمل عليها */
+  function auto() {
+    if (!fab) buildUI();
+    buildLauncher();
+    var r = lsGet(LS_ROOM), n = lsGet(LS_NAME), ro = lsGet(LS_ROLE) || 'student';
+    if (r && n) begin(r, n, ro);
+  }
+
+  /* ============ الواجهة البرمجية ============ */
+  window.PVChat = {
+    /* PVChat.attach(G) — يراقب حالة اللعبة ويشغّل الشات تلقائيًا */
+    attach: function (G) {
+      if (!G || window.PVChat._attached) return;
+      window.PVChat._attached = true;
+      if (!fab) buildUI();
+      var lastKey = '';
+      setInterval(function () {
+        var room = G.room || '';
+        var role = (G.mode === 'host') ? 'teacher' : 'student';
+        // في وضع "host" المعلمة ما بتدخل اسم، فبنعطيها اسمًا داخليًا
+        var name = G.name || (role === 'teacher' ? 'teacher' : '');
+        var key = room + '|' + name + '|' + role;
+        if (key === lastKey) return;
+        lastKey = key;
+        stop();
+        if (room && name) {
+          S.room = room; S.name = name; S.role = role;
+          renderTabs(); renderFoot();
+          start();
+        }
+      }, 800);
+    },
+
+    /* PVChat.badName('...') — true إذا الاسم فيه كلمة ممنوعة */
+    badName: function (n) { return isBad(n); },
+
+    /* رسالة التنبيه الجاهزة عند رفض الاسم */
+    badNameMsg: function () { return t().badName; },
+
+    /* تشغيل يدوي بدون attach */
+    startWith: function (room, name, role) {
+      if (!fab) buildUI();
+      stop(); S.room = room; S.name = name; S.role = role || 'student';
+      renderTabs(); renderFoot(); start();
+    },
+
+    stop: stop,
+    words: function () { return wordList.slice(); },
+
+    /* PVChat.auto() — للألعاب اللي ما فيها وضع غرفة صف */
+    auto: auto,
+    openRoom: openDialog
+  };
+
+  /* حمّل قائمة الكلمات مبكرًا حتى يعمل badName قبل بدء اللعب */
+  initFB().then(function () { loadWords(); });
+
+  /* تشغيل تلقائي إذا اللعبة ما نادت attach() خلال ثانيتين */
+  function bootAuto() {
+    setTimeout(function () { if (!window.PVChat._attached) auto(); }, 1500);
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', bootAuto);
+  else bootAuto();
+})();
+
+</script>
+
 <body>
 <div class="wrap">
 <!-- ============ 1. START ============ -->
