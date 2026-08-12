@@ -576,7 +576,7 @@ const AR=n=>lang==='ar'?String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]):St
 function go(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo({top:0,behavior:'smooth'});}
 
 /* صوت بسيط بدون ملفات */
-let sndOn=localStorage.getItem('pv_music')!=='off',AC=null;
+let sndOn=(localStorage.getItem('pv_thread_snd')||(localStorage.getItem('pv_music')==='off'?'off':'on'))!=='off',AC=null;
 function tone(f,d,type){if(!sndOn)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
  const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.value=f;
  g.gain.setValueAtTime(.001,AC.currentTime);g.gain.exponentialRampToValueAtTime(.16,AC.currentTime+.02);
@@ -585,7 +585,7 @@ function tone(f,d,type){if(!sndOn)return;try{AC=AC||new (window.AudioContext||wi
 const sGood=()=>{tone(660,.12);setTimeout(()=>tone(880,.22),110);};
 const sBad=()=>tone(190,.28,'square');
 const sTap=()=>tone(520,.05,'triangle');
-function toggleSound(){sndOn=!sndOn;localStorage.setItem('pv_music',sndOn?'on':'off');
+function toggleSound(){sndOn=!sndOn;localStorage.setItem('pv_thread_snd',sndOn?'on':'off');
  const b=$('sndBtn');if(b)b.textContent=sndOn?'♪':'✕';
  const c=$('sndBtn2');if(c)c.textContent=sndOn?'♪ الموسيقى تعمل':'✕ الصوت مكتوم';
  if(sndOn)musicStart();else musicStop();}
