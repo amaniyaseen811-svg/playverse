@@ -3350,6 +3350,7 @@ function showDefeatThenReset() {
   defeatScreen.classList.remove('hidden');
   setTimeout(() => {
     defeatScreen.classList.add('hidden');
+    busy = false; // مهم: نُطفئ قفل الحركة وإلا يرجع restartCurrentStage مبكرًا ولا تُعاد المرحلة
     restartCurrentStage();
   }, 2400);
 }
@@ -3923,6 +3924,7 @@ function startStageTimer() {
     if (stageTimeLeft <= 0) {
       stopStageTimer();
       alert('⏰ انتهى الوقت! سنعيد هذه المرحلة من بدايتها.');
+      busy = false; // نضمن عدم بقاء قفل الحركة مفعّلًا حتى تُعاد المرحلة فعليًا
       restartCurrentStage();
     }
   }, 1000);
