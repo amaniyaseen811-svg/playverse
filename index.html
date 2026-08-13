@@ -2736,6 +2736,32 @@ function startAnimCovers(){
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) kickAll(); });
 })();
 
+/* ==== إيقاف الموسيقى عند الخروج من التطبيق واستئنافها عند الرجوع ==== */
+(function(){
+  var wasPlaying = [];
+  function pauseAll(){
+    wasPlaying = [];
+    var media = document.querySelectorAll('audio, video');
+    for (var i = 0; i < media.length; i++){
+      var m = media[i];
+      if (m && !m.paused){
+        wasPlaying.push(m);
+        try { m.pause(); } catch(e){}
+      }
+    }
+  }
+  function resumeAll(){
+    for (var i = 0; i < wasPlaying.length; i++){
+      try { var pr = wasPlaying[i].play(); if (pr && pr.catch) pr.catch(function(){}); } catch(e){}
+    }
+    wasPlaying = [];
+  }
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) pauseAll(); else resumeAll();
+  });
+  window.addEventListener('pagehide', pauseAll);
+})();
+
 // Render filter chips
 function renderFilters() {
   var wrap = document.getElementById('filterWrap');
