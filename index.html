@@ -2759,7 +2759,12 @@ function startAnimCovers(){
   document.addEventListener('visibilitychange', function(){
     if (document.hidden) pauseAll(); else resumeAll();
   });
+  // إيقاف فوري لحظة الخروج (بعض المتصفحات تتأخر بحدث visibilitychange)
+  window.addEventListener('blur', pauseAll);
   window.addEventListener('pagehide', pauseAll);
+  window.addEventListener('freeze', pauseAll);
+  // استئناف عند الرجوع
+  window.addEventListener('focus', resumeAll);
 })();
 
 // Render filter chips
