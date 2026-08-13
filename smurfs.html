@@ -743,8 +743,11 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
   }
 
   /* ============ فايربيس: قراءة/كتابة ============ */
-  function roomRef(f) { return f.doc(f.db, 'pv_rooms', S.room); }
-  function msgsRef(f) { return f.collection(f.db, 'pv_rooms', S.room, 'msgs'); }
+  /* معرّف اللعبة من اسم الملف → كل لعبة شات مستقل */
+  function pvGameId(){ try{ var p=(location.pathname||'').split('/').pop()||''; p=p.replace(/\.html?$/i,'').toLowerCase().replace(/[^a-z0-9_-]/g,''); return p||'game'; }catch(e){ return 'game'; } }
+  function pvRoomKey(){ return S.room + '__' + pvGameId(); }
+  function roomRef(f) { return f.doc(f.db, 'pv_rooms', pvRoomKey()); }
+  function msgsRef(f) { return f.collection(f.db, 'pv_rooms', pvRoomKey(), 'msgs'); }
 
   async function send(payload) {
     if (!S.room || !S.name) return;
@@ -1155,6 +1158,8 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
   var audioOK = false;     /* سمح المتصفح بتشغيل الصوت */
   var raised = false;
   var started = false;
+  var fbConnected = false;  /* صار وصول فعلي لفايربيس */
+  var musicMuted = false;   /* كتم يدوي لموسيقى اللعبة */
 
   var unsubCtrl = null, unsubLive = null, unsubHands = null, unsubSpkQ = null;
   var liveHbTimer = null, pruneTimer = null;
@@ -1205,13 +1210,23 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
   }
 
   /* ============ مراجع Firestore ============ */
-  function ctrlRef(f) { return f.doc(f.db, 'pv_mic', MY.room); }
-  function liveCol(f) { return f.collection(f.db, 'pv_mic', MY.room, 'live'); }
-  function liveRef(f, id) { return f.doc(f.db, 'pv_mic', MY.room, 'live', id); }
-  function handsCol(f) { return f.collection(f.db, 'pv_mic', MY.room, 'hands'); }
-  function handRef(f, id) { return f.doc(f.db, 'pv_mic', MY.room, 'hands', id); }
-  function pairsCol(f) { return f.collection(f.db, 'pv_mic', MY.room, 'pairs'); }
-  function pairRef(f, spk, lis) { return f.doc(f.db, 'pv_mic', MY.room, 'pairs', spk + '__' + lis); }
+  /* معرّف اللعبة من اسم الملف → كل لعبة غرفتها المستقلة */
+  function gid() {
+    try {
+      var p = (location.pathname || '').split('/').pop() || '';
+      p = p.replace(/\.html?$/i, '').toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      return p || 'game';
+    } catch (e) { return 'game'; }
+  }
+  function RK() { return MY.room + '__' + gid(); }   /* مفتاح الغرفة الخاص بهذه اللعبة */
+
+  function ctrlRef(f) { return f.doc(f.db, 'pv_mic', RK()); }
+  function liveCol(f) { return f.collection(f.db, 'pv_mic', RK(), 'live'); }
+  function liveRef(f, id) { return f.doc(f.db, 'pv_mic', RK(), 'live', id); }
+  function handsCol(f) { return f.collection(f.db, 'pv_mic', RK(), 'hands'); }
+  function handRef(f, id) { return f.doc(f.db, 'pv_mic', RK(), 'hands', id); }
+  function pairsCol(f) { return f.collection(f.db, 'pv_mic', RK(), 'pairs'); }
+  function pairRef(f, spk, lis) { return f.doc(f.db, 'pv_mic', RK(), 'pairs', spk + '__' + lis); }
 
   /* ============ الواجهة ============ */
   var CSS = `
@@ -1317,6 +1332,7 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     dot.textContent = String(n.length);
     if (n.length) { pill.style.display = 'block'; pill.textContent = '🎤 ' + TX('يتحدث الآن: ', 'Speaking: ') + n.join('، '); }
     else { pill.style.display = 'none'; }
+    applyMusic();
   }
 
   /* ============ الأدوار ============ */
@@ -1329,8 +1345,21 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
   function render() {
     if (!panelOpen || !bodyEl) return;
     bodyEl.innerHTML = '';
+    diagLine();
     if (MY.role === 'teacher') renderTeacher();
     else renderStudent();
+  }
+
+  /* سطر فحص: رقم الغرفة + الدور + حالة الاتصال + العدّادات */
+  function diagLine() {
+    var conn = fbConnected ? '🟢 متصل' : '⚪ ينتظر…';
+    var role = MY.role === 'teacher' ? 'معلمة' : 'طالبة';
+    var extra = MY.role === 'teacher' ? (' · طلبات: ' + Object.keys(handMap).length) : '';
+    var d = el('div', 'pvm-note',
+      'الغرفة: <b style="color:#7fd0ff;font-size:15px">' + esc(MY.room || '—') + '</b> · ' + role + ' · ' + conn +
+      ' · أصوات: ' + Object.keys(liveMap).length + extra);
+    d.style.cssText += ';font-size:11.5px;border:1px dashed rgba(120,200,255,.45);border-radius:8px;margin-bottom:8px;padding:6px';
+    bodyEl.appendChild(d);
   }
 
   function renderStudent() {
@@ -1356,6 +1385,7 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     var names = speakerNames();
     bodyEl.appendChild(el('div', 'pvm-h3', '🎤 ' + TX('يتحدث الآن', 'Speaking now')));
     bodyEl.appendChild(el('div', 'pvm-note', names.length ? names.join('، ') : TX('لا أحد', 'Nobody')));
+    bodyEl.appendChild(musicBtn());
     if (!audioOK) {
       var ba = el('button', 'pvm-b', '🔊 ' + TX('تشغيل الصوت', 'Enable sound'));
       ba.onclick = enableAudio; bodyEl.appendChild(ba);
@@ -1417,6 +1447,7 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     var ca = el('button', 'pvm-b pvm-closeall', '🔇 ' + TX('إغلاق كل المايكات', 'Close all mics'));
     ca.onclick = closeAll; bodyEl.appendChild(ca);
 
+    bodyEl.appendChild(musicBtn());
     if (!audioOK) {
       var ba = el('button', 'pvm-b', '🔊 ' + TX('تشغيل الصوت', 'Enable sound'));
       ba.onclick = enableAudio; bodyEl.appendChild(ba);
@@ -1467,6 +1498,22 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     raised = false; render();
     var f = await initFB(); if (!f) return;
     try { await f.deleteDoc(handRef(f, MY.id)); } catch (e) { }
+  }
+
+  /* ============ موسيقى اللعبة: كتم يدوي + هدوء تلقائي عند الكلام ============ */
+  function anySpeaking() { return live || Object.keys(liveMap).length > 0; }
+  function applyMusic() {
+    try {
+      if (window.bgMusic) window.bgMusic.muted = (musicMuted || anySpeaking());
+    } catch (e) { }
+  }
+  function musicBtn() {
+    var b = el('button', 'pvm-b', musicMuted
+      ? ('🔇 ' + TX('الموسيقى مكتومة — اضغطي للتشغيل', 'Music muted — tap to play'))
+      : ('🎵 ' + TX('كتم موسيقى اللعبة', 'Mute game music')));
+    if (musicMuted) { b.style.background = '#e2504a'; b.style.color = '#fff'; b.style.border = '0'; }
+    b.onclick = function () { musicMuted = !musicMuted; applyMusic(); render(); };
+    return b;
   }
 
   /* ============ الصوت ============ */
@@ -1692,6 +1739,7 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     }
 
     unsubCtrl = f.onSnapshot(ctrlRef(f), function (d) {
+      fbConnected = true;
       var v = d.exists() ? d.data() : {};
       ctrl.on = v.on !== false;
       ctrl.micMax = Math.max(1, Math.min(8, v.micMax || 1));
@@ -1704,6 +1752,7 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     }, function () { });
 
     unsubLive = f.onSnapshot(liveCol(f), function (snap) {
+      fbConnected = true;
       var m = {};
       snap.forEach(function (docu) { m[docu.id] = docu.data() || {}; });
       liveMap = m;
@@ -1781,6 +1830,7 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
     buildUI();
     poll();
     setInterval(poll, 1200);
+    setInterval(function () { applyMusic(); if (panelOpen) render(); }, 2000);  /* تحديث + كتم الموسيقى */
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else setTimeout(boot, 300);
