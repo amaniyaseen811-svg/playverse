@@ -1098,6 +1098,696 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
 
 </script>
 
+<!-- ===== PlayVerse Mic (PVMic) — إضافة المايك، تعمل فوق PVChat ===== -->
+<script>
+/* =========================================================
+   PlayVerse Mic  —  playverse-mic  (PVMic)
+   مايك صوتي مباشر لمنصة PlayVerse — يعمل فوق PVChat لا بدلها
+   ---------------------------------------------------------
+   • المعلمة تفتح/تغلق مايك أي طالبة (افتراضي مايك واحد، حتى 8)
+   • الطالبات الباقيات يستمعن فقط
+   • رفع اليد للمايك، وإغلاق كل المايكات بضغطة
+   • WebRTC مباشر (نظير-لنظير) + Firestore للإشارة فقط
+   • بدون تسجيل صوت، بدون خدمات مدفوعة، بدون حساب جديد
+   • تصميم موفّر: لا نبضات دورية للطالبات المستمعات، حتى لا
+     تستهلك حصة الفايربيس المجانية. الكتابة تحدث فقط عند
+     رفع اليد أو فتح مايك فعليًا.
+   • عربي RTL، يعمل على iPhone Safari وويندوز
+   ========================================================= */
+(function () {
+  'use strict';
+  if (window.PVMic) return;
+
+  var FB_CONFIG = {
+    apiKey: "AIzaSyADxQ7-3UDxYD3VTOoVrn7d6516_5bqd5Y",
+    authDomain: "cursed-castle-bb43b.firebaseapp.com",
+    projectId: "cursed-castle-bb43b",
+    storageBucket: "cursed-castle-bb43b.firebasestorage.app",
+    messagingSenderId: "458563878259",
+    appId: "1:458563878259:web:715ce9f960b2972ccd9906"
+  };
+  var SDK = 'https://www.gstatic.com/firebasejs/10.12.0/';
+
+  /* خوادم الشبكة: STUN مجانية + محاولة TURN احتياطية (أفضل جهد) */
+  var ICE = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun.cloudflare.com:3478' },
+      { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+    ]
+  };
+
+  var LIVE_TTL = 40000;    /* اعتبار مايك متحدث معطّلًا لو انقطع تحديثه */
+  var LIVE_HB = 18000;     /* تحديث نبضة المتحدث فقط (عددهم قليل) */
+
+  /* ============ الحالة ============ */
+  var MY = { id: '', name: '', role: 'student', room: '' };
+  var ctrl = { on: true, micMax: 1, speakers: [], names: {} };
+  var liveMap = {};        /* id -> {name, role, ts} : المتحدثون فعليًا الآن */
+  var handMap = {};        /* id -> {name} : رافعات اليد (تراها المعلمة فقط) */
+  var lisConns = {};       /* speakerId -> conn (أنا مستمعة له) */
+  var spkConns = {};       /* listenerId -> conn (أنا متحدثة وهو يستمع لي) */
+  var localStream = null;
+  var live = false;        /* أبثّ صوتي الآن */
+  var audioOK = false;     /* سمح المتصفح بتشغيل الصوت */
+  var raised = false;
+  var started = false;
+
+  var unsubCtrl = null, unsubLive = null, unsubHands = null, unsubSpkQ = null;
+  var liveHbTimer = null, pruneTimer = null;
+
+  var FB = null, fbP = null;
+  function initFB() {
+    if (FB) return Promise.resolve(FB);
+    if (fbP) return fbP;
+    fbP = (async function () {
+      try {
+        var a = await import(SDK + 'firebase-app.js');
+        var f = await import(SDK + 'firebase-firestore.js');
+        var app;
+        try { app = a.getApp('pvmic'); }
+        catch (e) { app = a.initializeApp(FB_CONFIG, 'pvmic'); }
+        FB = Object.assign({ db: f.getFirestore(app) }, f);
+        return FB;
+      } catch (e) { console.warn('[PVMic] Firebase off', e); return null; }
+    })();
+    return fbP;
+  }
+
+  /* ============ أدوات ============ */
+  function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  function lang() { try { return localStorage.getItem('pv_lang') || 'ar'; } catch (e) { return 'ar'; } }
+  function isRTL() { var c = lang(); return c === 'ar' || c === 'he' || c === 'fa'; }
+  var AR = lang() !== 'en';
+  function TX(ar, en) { return AR ? ar : en; }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  function myMicId() {
+    var v = lsGet('pv_mic_id');
+    if (!v) {
+      v = 'm' + Math.floor(Math.random() * 1e9).toString(36) + Date.now().toString(36).slice(-4);
+      lsSet('pv_mic_id', v);
+    }
+    return v;
+  }
+
+  /* ============ مراجع Firestore ============ */
+  function ctrlRef(f) { return f.doc(f.db, 'pv_mic', MY.room); }
+  function liveCol(f) { return f.collection(f.db, 'pv_mic', MY.room, 'live'); }
+  function liveRef(f, id) { return f.doc(f.db, 'pv_mic', MY.room, 'live', id); }
+  function handsCol(f) { return f.collection(f.db, 'pv_mic', MY.room, 'hands'); }
+  function handRef(f, id) { return f.doc(f.db, 'pv_mic', MY.room, 'hands', id); }
+  function pairsCol(f) { return f.collection(f.db, 'pv_mic', MY.room, 'pairs'); }
+  function pairRef(f, spk, lis) { return f.doc(f.db, 'pv_mic', MY.room, 'pairs', spk + '__' + lis); }
+
+  /* ============ الواجهة ============ */
+  var CSS = `
+.pvm-fab{position:fixed;bottom:148px;inset-inline-start:16px;z-index:99990;
+  width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;font-size:24px;
+  background:var(--navy2,#0f2350);color:#fff;border:1.5px solid rgba(120,200,255,.5);
+  box-shadow:0 8px 22px rgba(0,0,0,.35);display:none;align-items:center;justify-content:center}
+.pvm-fab.live{background:linear-gradient(180deg,#ff6b6b,#e2504a);border-color:#ffb3b3;animation:pvmPulse 1.4s infinite}
+.pvm-fab:active{transform:scale(.93)}
+@keyframes pvmPulse{0%{box-shadow:0 0 0 0 rgba(226,80,74,.55)}100%{box-shadow:0 0 0 15px rgba(226,80,74,0)}}
+.pvm-dot{position:absolute;top:-3px;inset-inline-end:-3px;min-width:18px;height:18px;border-radius:9px;
+  background:#2ec6b6;color:#04231f;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;padding:0 4px}
+.pvm-pill{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:99993;
+  background:rgba(6,12,34,.9);color:#eaf6ff;border:1px solid rgba(120,200,255,.45);border-radius:20px;
+  padding:7px 14px;font-family:inherit;font-size:13px;font-weight:700;display:none;max-width:92vw;
+  box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.pvm-panel{position:fixed;bottom:0;inset-inline-end:0;z-index:99991;width:min(380px,100%);
+  max-height:min(76vh,580px);display:none;flex-direction:column;background:var(--navy2,#0f2350);
+  color:var(--ink,#eaf0ff);border:1.5px solid rgba(120,200,255,.35);border-bottom:0;
+  border-radius:18px 18px 0 0;box-shadow:0 -10px 34px rgba(0,0,0,.45);font-family:inherit;overflow:hidden}
+.pvm-panel.on{display:flex}
+.pvm-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.12);flex:0 0 auto}
+.pvm-head b{flex:1;font-size:16px;color:#7fd0ff}
+.pvm-x{background:transparent;border:0;color:inherit;font-size:22px;cursor:pointer;line-height:1;padding:2px 6px}
+.pvm-body{flex:1 1 auto;overflow-y:auto;padding:12px}
+.pvm-h3{font-size:13px;font-weight:800;color:#7fd0ff;margin:12px 0 6px}
+.pvm-note{font-size:12.5px;opacity:.85;text-align:center;padding:9px 0;line-height:1.6}
+.pvm-big{width:100%;padding:16px;border-radius:14px;border:0;cursor:pointer;font:inherit;font-weight:900;font-size:17px;margin:6px 0}
+.pvm-talk{background:linear-gradient(180deg,#69e0a0,#2ec6b6);color:#04231f}
+.pvm-stop{background:linear-gradient(180deg,#ff6b6b,#e2504a);color:#fff}
+.pvm-raise{background:linear-gradient(180deg,#f6d976,#e0b73c);color:#20180a}
+.pvm-b{width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);
+  color:inherit;font:inherit;font-weight:800;font-size:14px;cursor:pointer;margin-top:8px}
+.pvm-closeall{background:#e2504a;color:#fff;border:0}
+.pvm-step{display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0 4px}
+.pvm-step button{width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);
+  color:inherit;font-size:22px;font-weight:900;cursor:pointer}
+.pvm-step b{font-size:22px;min-width:34px;text-align:center;color:#7fd0ff}
+.pvm-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pvm-row{display:flex;align-items:center;gap:8px;font-size:13.5px;background:rgba(255,255,255,.05);padding:8px 10px;border-radius:10px}
+.pvm-row .nm{flex:1;font-weight:700}
+.pvm-row.spk{background:rgba(46,198,182,.16);border:1px solid rgba(46,198,182,.5)}
+.pvm-row.rz{background:rgba(224,183,60,.14);border:1px solid rgba(224,183,60,.45)}
+.pvm-row button{padding:7px 11px;border-radius:9px;border:0;cursor:pointer;font:inherit;font-size:12.5px;font-weight:800;background:#2ec6b6;color:#04231f}
+.pvm-row button.off{background:#e2504a;color:#fff}
+.pvm-row button[disabled]{opacity:.4;cursor:default}
+`;
+
+  var fab, dot, pill, panel, bodyEl, audioBox;
+  var panelOpen = false;
+
+  function buildUI() {
+    if (fab) return;
+    if (!document.body) { setTimeout(buildUI, 200); return; }
+    var st = el('style'); st.textContent = CSS; document.head.appendChild(st);
+
+    fab = el('button', 'pvm-fab', '🎤');
+    dot = el('span', 'pvm-dot', '');
+    fab.appendChild(dot);
+    fab.onclick = togglePanel;
+    document.body.appendChild(fab);
+
+    pill = el('div', 'pvm-pill', '');
+    document.body.appendChild(pill);
+
+    panel = el('div', 'pvm-panel');
+    panel.dir = isRTL() ? 'rtl' : 'ltr';
+    var head = el('div', 'pvm-head');
+    head.appendChild(el('b', null, '🎤 ' + TX('المايك', 'Microphone')));
+    var x = el('button', 'pvm-x', '✕'); x.onclick = togglePanel;
+    head.appendChild(x);
+    bodyEl = el('div', 'pvm-body');
+    panel.appendChild(head); panel.appendChild(bodyEl);
+    document.body.appendChild(panel);
+
+    audioBox = el('div');
+    audioBox.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden';
+    document.body.appendChild(audioBox);
+  }
+
+  function togglePanel() {
+    panelOpen = !panelOpen;
+    panel.classList.toggle('on', panelOpen);
+    if (panelOpen) { enableAudio(); render(); }
+  }
+
+  function speakerNames() {
+    var out = [];
+    if (live) out.push(MY.name + TX(' (أنتِ)', ' (you)'));
+    Object.keys(liveMap).forEach(function (id) {
+      if (id === MY.id) return;
+      out.push(liveMap[id].name || '؟');
+    });
+    return out;
+  }
+
+  function updateFab() {
+    if (!fab) return;
+    fab.style.display = (MY.room && MY.name) ? 'flex' : 'none';
+    fab.classList.toggle('live', live);
+    var n = speakerNames();
+    dot.style.display = n.length ? 'flex' : 'none';
+    dot.textContent = String(n.length);
+    if (n.length) { pill.style.display = 'block'; pill.textContent = '🎤 ' + TX('يتحدث الآن: ', 'Speaking: ') + n.join('، '); }
+    else { pill.style.display = 'none'; }
+  }
+
+  /* ============ الأدوار ============ */
+  function iAmGranted() {
+    if (MY.role === 'teacher') return true;
+    return ctrl.speakers.indexOf(MY.id) !== -1;
+  }
+
+  /* ============ العرض ============ */
+  function render() {
+    if (!panelOpen || !bodyEl) return;
+    bodyEl.innerHTML = '';
+    if (MY.role === 'teacher') renderTeacher();
+    else renderStudent();
+  }
+
+  function renderStudent() {
+    if (iAmGranted()) {
+      if (!live) {
+        var bt = el('button', 'pvm-big pvm-talk', '🎤 ' + TX('اضغطي لبدء التحدث', 'Tap to talk'));
+        bt.onclick = startTalking; bodyEl.appendChild(bt);
+        bodyEl.appendChild(el('div', 'pvm-note', TX('سمحت لكِ المعلمة بالتحدث. اضغطي الزر ثم تكلمي.', 'The teacher allowed you to talk. Tap, then speak.')));
+      } else {
+        var bs = el('button', 'pvm-big pvm-stop', '🔴 ' + TX('أنتِ تتحدثين — اضغطي للإيقاف', 'You are live — tap to stop'));
+        bs.onclick = stopTalking; bodyEl.appendChild(bs);
+      }
+    } else {
+      if (!raised) {
+        var br = el('button', 'pvm-big pvm-raise', '✋ ' + TX('اطلبي المايك', 'Raise hand'));
+        br.onclick = raiseHand; bodyEl.appendChild(br);
+      } else {
+        var bcn = el('button', 'pvm-big pvm-raise', '✅ ' + TX('طلبكِ وصل — اضغطي للسحب', 'Request sent — tap to cancel'));
+        bcn.onclick = lowerHand; bodyEl.appendChild(bcn);
+      }
+      bodyEl.appendChild(el('div', 'pvm-note', TX('أنتِ في وضع الاستماع 👂', 'You are listening 👂')));
+    }
+    var names = speakerNames();
+    bodyEl.appendChild(el('div', 'pvm-h3', '🎤 ' + TX('يتحدث الآن', 'Speaking now')));
+    bodyEl.appendChild(el('div', 'pvm-note', names.length ? names.join('، ') : TX('لا أحد', 'Nobody')));
+    if (!audioOK) {
+      var ba = el('button', 'pvm-b', '🔊 ' + TX('تشغيل الصوت', 'Enable sound'));
+      ba.onclick = enableAudio; bodyEl.appendChild(ba);
+    }
+  }
+
+  function renderTeacher() {
+    if (!live) {
+      var bt = el('button', 'pvm-big pvm-talk', '🎤 ' + TX('اضغطي لتشغيل مايكك', 'Tap to enable your mic'));
+      bt.onclick = startTalking; bodyEl.appendChild(bt);
+    } else {
+      var bs = el('button', 'pvm-big pvm-stop', '🔴 ' + TX('مايكك مفتوح — اضغطي للإغلاق', 'Your mic is on — tap to close'));
+      bs.onclick = stopTalking; bodyEl.appendChild(bs);
+    }
+
+    bodyEl.appendChild(el('div', 'pvm-h3', TX('كم مايك مفتوح معًا؟', 'Mics open at once')));
+    var stp = el('div', 'pvm-step');
+    var minus = el('button', null, '−');
+    var val = el('b', null, String(ctrl.micMax));
+    var plus = el('button', null, '+');
+    minus.onclick = function () { setMicMax(ctrl.micMax - 1); };
+    plus.onclick = function () { setMicMax(ctrl.micMax + 1); };
+    stp.appendChild(minus); stp.appendChild(val); stp.appendChild(plus);
+    bodyEl.appendChild(stp);
+    bodyEl.appendChild(el('div', 'pvm-note', TX('الافتراضي 1. تقدري تفتحي حتى 8 وقت النقاش.', 'Default 1. Up to 8 for group talk.')));
+
+    /* رافعات اليد + الطالبات المسموح لهن */
+    bodyEl.appendChild(el('div', 'pvm-h3', '✋ ' + TX('الطلبات والمايكات', 'Requests & mics')));
+    var ids = [], seen = {};
+    Object.keys(handMap).forEach(function (id) { if (!seen[id]) { seen[id] = 1; ids.push(id); } });
+    ctrl.speakers.forEach(function (id) { if (!seen[id]) { seen[id] = 1; ids.push(id); } });
+    if (!ids.length) {
+      bodyEl.appendChild(el('div', 'pvm-note', TX('لا توجد طلبات بعد. الطالبة تضغط «اطلبي المايك» فيظهر اسمها هنا.', 'No requests yet. When a student taps “Raise hand”, her name shows here.')));
+    } else {
+      var openCount = ctrl.speakers.length;
+      var list = el('div', 'pvm-list');
+      /* المسموح لهن أولًا، ثم رافعات اليد */
+      ids.sort(function (a, b) {
+        var oa = ctrl.speakers.indexOf(a) !== -1 ? 0 : 1;
+        var ob = ctrl.speakers.indexOf(b) !== -1 ? 0 : 1;
+        return oa - ob;
+      });
+      ids.forEach(function (id) {
+        var on = ctrl.speakers.indexOf(id) !== -1;
+        var nm = (ctrl.names && ctrl.names[id]) || (handMap[id] && handMap[id].name) || (liveMap[id] && liveMap[id].name) || '؟';
+        var talking = !!liveMap[id];
+        var cls = 'pvm-row' + (on ? ' spk' : ' rz');
+        var row = el('div', cls);
+        row.appendChild(el('span', 'nm', (on ? (talking ? '🎤 ' : '🔈 ') : '✋ ') + esc(nm)));
+        var b = el('button', on ? 'off' : '', on ? TX('إغلاق', 'Close') : TX('افتحي', 'Open'));
+        if (!on && openCount >= ctrl.micMax) b.disabled = true;
+        b.onclick = on ? function () { revoke(id); } : function () { grant(id, nm); };
+        row.appendChild(b);
+        list.appendChild(row);
+      });
+      bodyEl.appendChild(list);
+    }
+
+    var ca = el('button', 'pvm-b pvm-closeall', '🔇 ' + TX('إغلاق كل المايكات', 'Close all mics'));
+    ca.onclick = closeAll; bodyEl.appendChild(ca);
+
+    if (!audioOK) {
+      var ba = el('button', 'pvm-b', '🔊 ' + TX('تشغيل الصوت', 'Enable sound'));
+      ba.onclick = enableAudio; bodyEl.appendChild(ba);
+    }
+  }
+
+  /* ============ تحكم المعلمة ============ */
+  async function writeCtrl(patch) {
+    var f = await initFB(); if (!f) return;
+    try {
+      await f.setDoc(ctrlRef(f), Object.assign({ on: true, micMax: ctrl.micMax, speakers: ctrl.speakers, names: ctrl.names, hostId: MY.id }, patch), { merge: true });
+    } catch (e) { console.warn('[PVMic] ctrl', e); }
+  }
+  function setMicMax(n) {
+    n = Math.max(1, Math.min(8, n | 0));
+    var sp = ctrl.speakers.slice(0, n);
+    writeCtrl({ micMax: n, speakers: sp });
+  }
+  async function grant(id, nm) {
+    if (ctrl.speakers.indexOf(id) !== -1) return;
+    if (ctrl.speakers.length >= ctrl.micMax) return;
+    var sp = ctrl.speakers.concat([id]);
+    var names = Object.assign({}, ctrl.names); names[id] = nm || id;
+    await writeCtrl({ speakers: sp, names: names });
+    /* أزل طلب رفع اليد بعد المنح */
+    var f = await initFB(); if (f) { try { await f.deleteDoc(handRef(f, id)); } catch (e) { } }
+  }
+  async function revoke(id) {
+    var sp = ctrl.speakers.filter(function (x) { return x !== id; });
+    await writeCtrl({ speakers: sp });
+    /* المعلمة تُطفئ مايك الطالبة فعليًا: تحذف مستند بثّها */
+    var f = await initFB(); if (f) { try { await f.deleteDoc(liveRef(f, id)); } catch (e) { } }
+  }
+  async function closeAll() {
+    await writeCtrl({ speakers: [] });
+    var f = await initFB(); if (!f) return;
+    var ids = Object.keys(liveMap);
+    ids.forEach(function (id) { if (id !== MY.id) { f.deleteDoc(liveRef(f, id)).catch(function () { }); } });
+  }
+
+  /* ============ رفع اليد ============ */
+  async function raiseHand() {
+    raised = true; render();
+    var f = await initFB(); if (!f) return;
+    try { await f.setDoc(handRef(f, MY.id), { name: MY.name, ts: Date.now() }, { merge: true }); } catch (e) { }
+  }
+  async function lowerHand() {
+    raised = false; render();
+    var f = await initFB(); if (!f) return;
+    try { await f.deleteDoc(handRef(f, MY.id)); } catch (e) { }
+  }
+
+  /* ============ الصوت ============ */
+  function enableAudio() {
+    audioOK = true;
+    Object.keys(lisConns).forEach(function (id) {
+      var c = lisConns[id]; if (c && c.audio) { try { c.audio.play(); } catch (e) { } }
+    });
+    render();
+  }
+
+  /* ============ بدء/إيقاف التحدث ============ */
+  async function startTalking() {
+    if (!iAmGranted()) return;
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    } catch (e) {
+      msgLine(TX('لم يُسمح باستخدام المايك. من إعدادات المتصفح اسمحي للميكروفون ثم أعيدي المحاولة.',
+        'Microphone permission denied. Allow the mic in your browser settings and try again.'));
+      return;
+    }
+    live = true; audioOK = true;
+    var f = await initFB();
+    if (f) { try { await f.setDoc(liveRef(f, MY.id), { name: MY.name, role: MY.role, ts: Date.now() }, { merge: true }); } catch (e) { } }
+    startSpeakerListener();
+    startLiveHeartbeat();
+    updateFab(); render();
+  }
+  async function stopTalking() {
+    hardStopMic();
+    var f = await initFB();
+    if (f) { try { await f.deleteDoc(liveRef(f, MY.id)); } catch (e) { } }
+    updateFab(); render();
+  }
+  function hardStopMic() {
+    live = false;
+    stopLiveHeartbeat();
+    if (unsubSpkQ) { try { unsubSpkQ(); } catch (e) { } unsubSpkQ = null; }
+    Object.keys(spkConns).forEach(function (id) { closeSpk(id); });
+    if (localStream) {
+      localStream.getTracks().forEach(function (tr) { try { tr.stop(); } catch (e) { } });
+      localStream = null;
+    }
+  }
+  function startLiveHeartbeat() {
+    stopLiveHeartbeat();
+    liveHbTimer = setInterval(function () {
+      if (!live) return;
+      initFB().then(function (f) { if (f) f.setDoc(liveRef(f, MY.id), { ts: Date.now() }, { merge: true }).catch(function () { }); });
+    }, LIVE_HB);
+  }
+  function stopLiveHeartbeat() { if (liveHbTimer) { clearInterval(liveHbTimer); liveHbTimer = null; } }
+
+  function msgLine(msg) {
+    if (!bodyEl) return;
+    var n = el('div', 'pvm-note', esc(msg)); n.style.color = '#ffb3b3';
+    bodyEl.insertBefore(n, bodyEl.firstChild);
+    setTimeout(function () { try { n.remove(); } catch (e) { } }, 6000);
+  }
+
+  /* =========================================================
+     WebRTC — أنا مستمعة: أتصل بكل متحدث فعليًا
+     ========================================================= */
+  function reconcileListen() {
+    var f = FB;
+    var want = {};
+    Object.keys(liveMap).forEach(function (id) {
+      if (id === MY.id) return;
+      var l = liveMap[id];
+      if (Date.now() - (l.ts || 0) > LIVE_TTL) return;
+      want[id] = true;
+      if (!lisConns[id]) ensureListen(id);
+    });
+    Object.keys(lisConns).forEach(function (id) { if (!want[id]) closeListen(id); });
+    updateFab();
+    if (panelOpen) render();
+  }
+
+  async function ensureListen(spkId) {
+    if (lisConns[spkId]) return;
+    var f = await initFB(); if (!f) return;
+    var pc = new RTCPeerConnection(ICE);
+    var conn = { pc: pc, spk: spkId, audio: null, cands: {}, remoteSet: false };
+    lisConns[spkId] = conn;
+
+    try { pc.addTransceiver('audio', { direction: 'recvonly' }); } catch (e) { }
+
+    pc.ontrack = function (ev) {
+      var a = conn.audio;
+      if (!a) {
+        a = document.createElement('audio');
+        a.autoplay = true; a.playsInline = true; a.setAttribute('playsinline', '');
+        conn.audio = a; audioBox.appendChild(a);
+      }
+      a.srcObject = ev.streams[0];
+      if (audioOK) { try { a.play(); } catch (e) { } }
+    };
+    pc.onicecandidate = function (ev) {
+      if (!ev.candidate) return;
+      var patch = { cl: f.arrayUnion(ev.candidate.toJSON()) };
+      f.setDoc(pairRef(f, spkId, MY.id), Object.assign({ spk: spkId, lis: MY.id }, patch), { merge: true }).catch(function () { });
+    };
+    pc.oniceconnectionstatechange = function () {
+      var s = pc.iceConnectionState;
+      if (s === 'failed') { closeListen(spkId); setTimeout(reconcileListen, 1200); }
+    };
+
+    conn.unsub = f.onSnapshot(pairRef(f, spkId, MY.id), async function (snap) {
+      if (!snap.exists()) return;
+      var d = snap.data() || {};
+      try {
+        if (d.answer && !conn.remoteSet) {
+          conn.remoteSet = true;
+          await pc.setRemoteDescription(new RTCSessionDescription(d.answer));
+        }
+        if (Array.isArray(d.cs) && pc.remoteDescription) {
+          d.cs.forEach(function (c) {
+            var k = JSON.stringify(c); if (conn.cands[k]) return; conn.cands[k] = 1;
+            pc.addIceCandidate(new RTCIceCandidate(c)).catch(function () { });
+          });
+        }
+      } catch (e) { console.warn('[PVMic] listen', e); }
+    }, function () { });
+
+    try {
+      var offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await f.setDoc(pairRef(f, spkId, MY.id), { spk: spkId, lis: MY.id, offer: { type: offer.type, sdp: offer.sdp }, answer: null, cs: [], cl: [] }, { merge: false });
+    } catch (e) { console.warn('[PVMic] offer', e); }
+  }
+
+  function closeListen(spkId) {
+    var c = lisConns[spkId]; if (!c) return;
+    delete lisConns[spkId];
+    if (c.unsub) { try { c.unsub(); } catch (e) { } }
+    if (c.pc) { try { c.pc.close(); } catch (e) { } }
+    if (c.audio) { try { c.audio.srcObject = null; c.audio.remove(); } catch (e) { } }
+    initFB().then(function (f) { if (f) f.deleteDoc(pairRef(f, spkId, MY.id)).catch(function () { }); });
+  }
+
+  /* =========================================================
+     WebRTC — أنا متحدثة: أردّ على كل مستمعة تطلبني
+     ========================================================= */
+  function startSpeakerListener() {
+    if (unsubSpkQ) return;
+    initFB().then(function (f) {
+      if (!f || !live) return;
+      var q = f.query(pairsCol(f), f.where('spk', '==', MY.id));
+      unsubSpkQ = f.onSnapshot(q, function (snap) {
+        snap.forEach(function (docu) { handleListenerPair(docu.id, docu.data()); });
+      }, function () { });
+    });
+  }
+
+  async function handleListenerPair(pairId, d) {
+    if (!live || !d) return;
+    var lisId = d.lis; if (!lisId || lisId === MY.id) return;
+    var f = await initFB(); if (!f) return;
+    var conn = spkConns[lisId];
+
+    if (!conn) {
+      if (!d.offer) return;
+      var pc = new RTCPeerConnection(ICE);
+      conn = { pc: pc, lis: lisId, cands: {}, answered: false };
+      spkConns[lisId] = conn;
+      if (localStream) localStream.getTracks().forEach(function (tr) { pc.addTrack(tr, localStream); });
+      pc.onicecandidate = function (ev) {
+        if (!ev.candidate) return;
+        f.setDoc(pairRef(f, MY.id, lisId), { cs: f.arrayUnion(ev.candidate.toJSON()) }, { merge: true }).catch(function () { });
+      };
+      pc.oniceconnectionstatechange = function () {
+        var s = pc.iceConnectionState;
+        if (s === 'failed' || s === 'disconnected' || s === 'closed') {
+          setTimeout(function () {
+            var cc = spkConns[lisId];
+            if (cc && (cc.pc.iceConnectionState === 'failed' || cc.pc.iceConnectionState === 'closed')) {
+              closeSpk(lisId);
+              f.deleteDoc(pairRef(f, MY.id, lisId)).catch(function () { });
+            }
+          }, 2500);
+        }
+      };
+      try {
+        await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
+        var ans = await pc.createAnswer();
+        await pc.setLocalDescription(ans);
+        conn.answered = true;
+        await f.setDoc(pairRef(f, MY.id, lisId), { answer: { type: ans.type, sdp: ans.sdp } }, { merge: true });
+      } catch (e) { console.warn('[PVMic] answer', e); }
+    }
+
+    if (Array.isArray(d.cl) && conn.pc.remoteDescription) {
+      d.cl.forEach(function (c) {
+        var k = JSON.stringify(c); if (conn.cands[k]) return; conn.cands[k] = 1;
+        conn.pc.addIceCandidate(new RTCIceCandidate(c)).catch(function () { });
+      });
+    }
+  }
+
+  function closeSpk(lisId) {
+    var c = spkConns[lisId]; if (!c) return;
+    delete spkConns[lisId];
+    if (c.pc) { try { c.pc.close(); } catch (e) { } }
+  }
+
+  /* ============ التشغيل ============ */
+  async function start() {
+    if (started) return;
+    started = true;
+    buildUI();
+    updateFab();                 /* أظهري زر المايك فورًا عند الدخول للغرفة */
+    var f = await initFB();
+    if (!f) {                    /* الشبكة لم تجهز بعد → أعيدي المحاولة */
+      started = false;
+      setTimeout(function () { if (MY.room && MY.name) start(); }, 4000);
+      return;
+    }
+
+    if (MY.role === 'teacher') {
+      f.getDoc(ctrlRef(f)).then(function (d) {
+        if (!d.exists()) writeCtrl({ on: true, micMax: 1, speakers: [], names: {} });
+      }).catch(function () { });
+    }
+
+    unsubCtrl = f.onSnapshot(ctrlRef(f), function (d) {
+      var v = d.exists() ? d.data() : {};
+      ctrl.on = v.on !== false;
+      ctrl.micMax = Math.max(1, Math.min(8, v.micMax || 1));
+      ctrl.speakers = Array.isArray(v.speakers) ? v.speakers : [];
+      ctrl.names = v.names || {};
+      /* سُحب إذني وأنا أتحدث → أغلق مايكي فورًا */
+      if (!iAmGranted() && live) stopTalking();
+      updateFab();
+      if (panelOpen) render();
+    }, function () { });
+
+    unsubLive = f.onSnapshot(liveCol(f), function (snap) {
+      var m = {};
+      snap.forEach(function (docu) { m[docu.id] = docu.data() || {}; });
+      liveMap = m;
+      reconcileListen();
+    }, function () { });
+
+    /* المعلمة فقط تراقب رفع الأيادي وتنظّف القديم */
+    if (MY.role === 'teacher') {
+      unsubHands = f.onSnapshot(handsCol(f), function (snap) {
+        var h = {};
+        snap.forEach(function (docu) { h[docu.id] = docu.data() || {}; });
+        handMap = h;
+        if (panelOpen) render();
+      }, function () { });
+
+      pruneTimer = setInterval(function () {
+        var now = Date.now();
+        Object.keys(liveMap).forEach(function (id) {
+          if (id !== MY.id && now - (liveMap[id].ts || 0) > LIVE_TTL + 10000) {
+            f.deleteDoc(liveRef(f, id)).catch(function () { });
+          }
+        });
+      }, 15000);
+    }
+
+    updateFab();
+  }
+
+  function stop() {
+    if (!started) return;
+    started = false;
+    [unsubCtrl, unsubLive, unsubHands, unsubSpkQ].forEach(function (u) { if (u) { try { u(); } catch (e) { } } });
+    unsubCtrl = unsubLive = unsubHands = unsubSpkQ = null;
+    if (pruneTimer) { clearInterval(pruneTimer); pruneTimer = null; }
+    hardStopMic();
+    Object.keys(lisConns).forEach(function (id) { closeListen(id); });
+    Object.keys(spkConns).forEach(function (id) { closeSpk(id); });
+    liveMap = {}; handMap = {}; raised = false;
+    var f = FB;
+    if (f && MY.room && MY.id) {
+      f.deleteDoc(handRef(f, MY.id)).catch(function () { });
+      f.deleteDoc(liveRef(f, MY.id)).catch(function () { });
+    }
+    updateFab();
+    if (panel) { panel.classList.remove('on'); panelOpen = false; }
+  }
+
+  function begin(room, name, role) {
+    stop();
+    MY.id = myMicId(); MY.room = room; MY.name = name; MY.role = role || 'student';
+    buildUI(); updateFab();
+    start();
+  }
+
+  /* ============ الربط مع حالة الغرفة (نفس مفاتيح PVChat) ============ */
+  var lastKey = '';
+  function poll() {
+    var name = lsGet('pv_name');
+    var role = lsGet('pv_role') || 'student';
+    var troom = lsGet('pv_teacher_room');
+    var room = (role === 'teacher' && troom) ? troom : lsGet('pv_room');
+    var key = room + '|' + name + '|' + role;
+    if (key === lastKey) return;
+    lastKey = key;
+    if (room && name) begin(room, name, role);
+    else stop();
+  }
+
+  window.addEventListener('pagehide', function () { hardStopMic(); });
+  window.addEventListener('beforeunload', function () { hardStopMic(); });
+
+  window.PVMic = { _v: 2, refresh: poll, stop: stop };
+
+  function boot() {
+    buildUI();
+    poll();
+    setInterval(poll, 1200);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else setTimeout(boot, 300);
+})();
+
+</script>
+
 <body>
 <a href="index.html" class="home-btn" title="العودة للرئيسية">
   <span style="font-size:1.1rem">🏠</span>
