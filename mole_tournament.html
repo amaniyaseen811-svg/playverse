@@ -1316,6 +1316,91 @@
   animation: hintPulse 1.3s ease-in-out infinite;
 }
 @keyframes hintPulse { 0%,100%{transform:translate(-50%,-50%) scale(1);} 50%{transform:translate(-50%,-50%) scale(1.06);} }
+/* ===== Difficulty toggle (المستوى) ===== */
+.diff-toggle {
+  display: flex; gap: 8px; justify-content: center;
+  margin: 4px auto 6px; max-width: 320px;
+}
+.diff-btn {
+  flex: 1; padding: 10px 8px; border-radius: 14px; cursor: pointer;
+  font-family: inherit; font-size: 15px; font-weight: 800;
+  color: #cdd8ee; background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.14); transition: all 0.18s ease;
+}
+.diff-btn:active { transform: scale(0.96); }
+.diff-btn.active[data-diff="normal"] {
+  background: linear-gradient(180deg,#2eb872,#1a8a4e); border-color:#4ada8a; color:#fff;
+  box-shadow: 0 6px 16px rgba(46,184,114,0.35);
+}
+.diff-btn.active[data-diff="hard"] {
+  background: linear-gradient(180deg,#f97316,#c2410c); border-color:#fb923c; color:#fff;
+  box-shadow: 0 6px 16px rgba(249,115,22,0.35);
+}
+.diff-hint {
+  text-align: center; color: #9fb0cc; font-size: 12.5px;
+  margin: 0 auto 12px; max-width: 340px; line-height: 1.5;
+}
+.round-card .round-lvl {
+  display:inline-block; font-size:11px; font-weight:800; padding:1px 8px;
+  border-radius:999px; margin-inline-start:6px; vertical-align:middle;
+}
+.round-card .round-lvl.hard { background:rgba(249,115,22,0.18); color:#fdba74; border:1px solid rgba(249,115,22,0.4); }
+.round-card .round-lvl.normal { background:rgba(46,184,114,0.16); color:#7ee2ab; border:1px solid rgba(46,184,114,0.4); }
+
+/* ===== Group Quiz (اختبار جماعي) ===== */
+.quiz-add-row { display:flex; gap:8px; max-width:360px; margin:8px auto 6px; width:100%; }
+.quiz-add-row .mp-input { flex:1; margin:0; }
+.quiz-add-btn {
+  width:52px; flex:0 0 52px; border-radius:14px; cursor:pointer;
+  font-size:26px; font-weight:800; color:#fff; border:none;
+  background:linear-gradient(180deg,#4ade80,#15803d);
+  box-shadow:0 6px 16px rgba(34,197,94,0.35);
+}
+.quiz-add-btn:active { transform:scale(0.94); }
+.quiz-chips { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:380px; margin:6px auto; }
+.quiz-chip {
+  display:inline-flex; align-items:center; gap:6px; padding:7px 12px;
+  border-radius:999px; background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.16); color:#eaf1ff; font-weight:700; font-size:14px;
+}
+.quiz-chip .chip-x {
+  cursor:pointer; color:#ff9b9b; font-weight:900; font-size:16px; line-height:1;
+  background:none; border:none; padding:0 2px;
+}
+.quiz-chip .chip-num {
+  background:rgba(255,255,255,0.16); border-radius:999px; width:20px; height:20px;
+  display:inline-flex; align-items:center; justify-content:center; font-size:12px;
+}
+.quiz-empty { text-align:center; color:#8ea3c4; font-size:13px; margin:6px 0 4px; }
+.quiz-setup-meta { text-align:center; color:#bcd0f0; font-size:13.5px; margin:8px auto 4px; max-width:360px; line-height:1.6; }
+
+.quiz-turn-emoji { font-size:64px; margin-bottom:4px; }
+.quiz-turn-label { color:#9fb0cc; font-size:16px; font-weight:700; }
+.quiz-turn-name {
+  font-size:34px; font-weight:900; color:#fff; margin:2px 0 6px;
+  text-shadow:0 2px 12px rgba(90,176,255,0.4);
+}
+.quiz-turn-meta { color:#bcd0f0; font-size:14px; margin-bottom:2px; }
+.quiz-turn-progress {
+  color:#7ee2ab; font-size:13px; font-weight:800; background:rgba(46,184,114,0.14);
+  padding:4px 14px; border-radius:999px; border:1px solid rgba(46,184,114,0.35);
+}
+#screen-quiz-setup, #screen-quiz-turn, #screen-quiz-result {
+  justify-content:center; align-items:center; padding:20px 14px; text-align:center;
+}
+.quiz-result-sub { color:#bcd0f0; font-size:14px; margin-bottom:12px; }
+.quiz-board { width:100%; max-width:420px; display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+.quiz-row {
+  display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:14px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); text-align:right;
+}
+.quiz-row .qr-rank { font-size:20px; width:30px; text-align:center; flex:0 0 30px; }
+.quiz-row .qr-name { flex:1; min-width:0; font-weight:800; color:#fff; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.quiz-row .qr-score { font-weight:900; color:#5ab0ff; font-size:17px; }
+.quiz-row .qr-grade { font-size:12px; color:#9fb0cc; margin-inline-start:2px; }
+.quiz-row.top1 { background:linear-gradient(180deg,rgba(255,196,0,0.16),rgba(255,196,0,0.05)); border-color:rgba(255,196,0,0.45); }
+.quiz-row.top2 { background:linear-gradient(180deg,rgba(203,213,225,0.14),rgba(203,213,225,0.04)); border-color:rgba(203,213,225,0.4); }
+.quiz-row.top3 { background:linear-gradient(180deg,rgba(205,127,50,0.16),rgba(205,127,50,0.05)); border-color:rgba(205,127,50,0.42); }
 </style>
 </head>
 <!-- ===== PlayVerse Chat + Room (mudmaj) ===== -->
@@ -2439,6 +2524,11 @@
   <section class="screen" id="screen-round">
     <div class="scr-title">اختاري الجولة</div>
     <div class="scr-sub">كل جولة ١٢ سؤال بين المفهوم والتطبيق</div>
+    <div class="diff-toggle" id="diffToggle">
+      <button class="diff-btn active" data-diff="normal">🟢 عادي</button>
+      <button class="diff-btn" data-diff="hard">🔥 صعب</button>
+    </div>
+    <div class="diff-hint" id="diffHint">المستوى العادي: أسئلة المنهج الأساسية.</div>
     <div id="roundList"></div>
     <button class="btn-secondary" id="btnRoundBack" style="margin-top:10px;">← الرئيسية</button>
   </section>
@@ -2455,7 +2545,7 @@
 
   <section class="screen" id="screen-mode">
     <h2 class="teams-title" style="margin-top:16px;">🎯 اختر طريقة اللعب</h2>
-    <p class="teams-subtitle">4 أنماط للعب حسب حاجتك</p>
+    <p class="teams-subtitle">٥ أنماط للعب حسب حاجتك</p>
 
     <button class="team-card sky mode-card-compact" id="modeSolo" style="margin-top:14px;">
       <div class="team-logo" style="background:linear-gradient(135deg,#4ada8a,#1a8a4e)">🎮</div>
@@ -2501,6 +2591,18 @@
         <div class="mode-desc">
           <span>👩‍🏫 معلمة + فرق</span><span>🌐 إنترنت</span><span>📺 شاشة عرض</span>
           <p>٢ لـ ٤ فرق بتتسابق. بكل سؤال وحدة من كل فريق بيجي دورها، والدور بيلف على الكل. فيها شاشة عرض للبروجكتر تبيّن الأهداف مباشرة.</p>
+        </div>
+      </div>
+    </button>
+
+    <button class="team-card sky mode-card-compact" id="modeQuiz" style="border-color:#22c55e;">
+      <div class="team-logo" style="background:linear-gradient(135deg,#4ade80,#15803d)">📝</div>
+      <div class="team-info">
+        <div class="team-name">اختبار جماعي</div>
+        <div class="team-tagline">اختبار على جهاز واحد بالتناوب</div>
+        <div class="mode-desc">
+          <span>👥 عدة طالبات</span><span>📱 جهاز واحد</span><span>🏆 ترتيب نهائي</span>
+          <p>تُدخلين أسماء الطالبات، وكل وحدة تحلّ نفس الأسئلة بدورها على نفس الجهاز. بالنهاية يطلع ترتيب الكل ودرجاتهن. بدون إنترنت — مثالي للاختبار داخل الصف.</p>
         </div>
       </div>
     </button>
@@ -2935,6 +3037,49 @@
       </button>
       <button class="btn-secondary" id="btnReview">📚 مراجعة الدروس</button>
       <button class="btn-secondary" id="btnGoHome">🏠 الرئيسية</button>
+    </div>
+  </section>
+
+  <!-- ========== QUIZ: SETUP (اختبار جماعي) ========== -->
+  <section class="screen" id="screen-quiz-setup">
+    <h2 class="teams-title" style="margin-top:16px;">📝 اختبار جماعي</h2>
+    <p class="teams-subtitle">أدخلي أسماء الطالبات — كل وحدة تحلّ الاختبار بدورها على نفس الجهاز</p>
+
+    <div class="quiz-add-row">
+      <input type="text" class="mp-input" id="quizNameInput" placeholder="اسم الطالبة" maxlength="20" autocomplete="off">
+      <button class="quiz-add-btn" id="quizAddBtn" aria-label="إضافة">＋</button>
+    </div>
+
+    <div class="quiz-chips" id="quizChips"></div>
+    <p class="quiz-empty" id="quizEmptyHint">لسّا ما أضفتِ أي طالبة</p>
+
+    <div class="quiz-setup-meta" id="quizSetupMeta"></div>
+
+    <button class="btn-primary" id="quizStartBtn" style="margin-top:8px;" disabled>▶️ ابدأي الاختبار</button>
+    <button class="btn-secondary" id="quizSetupBack" style="margin-top:8px;">← رجوع</button>
+  </section>
+
+  <!-- ========== QUIZ: TURN BANNER ========== -->
+  <section class="screen" id="screen-quiz-turn">
+    <div class="quiz-turn-emoji">🎓</div>
+    <div class="quiz-turn-label">دور الطالبة</div>
+    <div class="quiz-turn-name" id="quizTurnName">—</div>
+    <div class="quiz-turn-meta" id="quizTurnMeta"></div>
+    <div class="quiz-turn-progress" id="quizTurnProgress"></div>
+    <button class="btn-primary" id="quizTurnGo" style="margin-top:18px;">✅ جاهزة — يلا نبدأ</button>
+    <button class="btn-secondary" id="quizTurnEnd" style="margin-top:8px;">🏁 إنهاء الاختبار وعرض النتائج</button>
+  </section>
+
+  <!-- ========== QUIZ: RESULTS ========== -->
+  <section class="screen" id="screen-quiz-result">
+    <div class="result-medal" style="font-size:52px;">🏆</div>
+    <div class="result-rank" style="margin-bottom:4px;">نتائج الاختبار الجماعي</div>
+    <div class="quiz-result-sub" id="quizResultSub"></div>
+    <div class="quiz-board" id="quizResultList"></div>
+    <div class="result-actions">
+      <button class="btn-primary" id="quizPlayAgain"><span>🔄</span><span>اختبار جديد لنفس المجموعة</span></button>
+      <button class="btn-secondary" id="quizReview">📚 مراجعة الدروس</button>
+      <button class="btn-secondary" id="quizResultHome">🏠 الرئيسية</button>
     </div>
   </section>
 
@@ -3412,13 +3557,439 @@ const ROUNDS = [
   }
 ];
 
+
+// ===== بنك الأسئلة للمستوى الصعب =====
+const ROUNDS_HARD = [
+  {
+    id: 1, emoji: '⚗️', title: 'الجولة الأولى — أساسيات المول',
+    sub: 'مفهوم المول وعدد أفوجادرو وعدّ الجسيمات',
+    questions: [
+    {
+      id: 1, role: 'GK', num: '1.GK', position: 'حارس', kind: 'مفهوم', topic: 'لماذا نحتاج المول؟',
+      text: 'أي العبارات التالية يمثّل السبب الأدقّ لاعتماد الكيميائيين وحدة المول؟',
+      answers: {
+        up:    { text: 'لأنها تربط كتلة قابلة للوزن بعددٍ هائل من الجسيمات لا يُعدّ فردياً', correct: true },
+        right: { text: 'لأنها تجعل كل التفاعلات تحدث عند حجم 22.4 لتر', correct: false },
+        down:  { text: 'لأنها تُلغي الحاجة إلى الجدول الدوري', correct: false },
+        left:  { text: 'لأنها تحوّل كل العناصر إلى نفس الكتلة', correct: false }
+      },
+      explain: 'المول يربط المقياس العياني (الغرام الذي نزنه) بالمقياس الذري (عدد الجسيمات) عبر عدد أفوجادرو'
+    },
+    {
+      id: 2, role: 'DEF', num: '2.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'المول وحدة عدّ',
+      text: 'كم عدد الأيونات الكلّي في 1 مول من كلوريد الكالسيوم CaCl₂ عند ذوبانه التام؟',
+      answers: {
+        up:    { text: '6.022 × 10²³ أيون', correct: false },
+        right: { text: '18.066 × 10²³ أيون', correct: true },
+        down:  { text: '12.044 × 10²³ أيون', correct: false },
+        left:  { text: '3 أيونات', correct: false }
+      },
+      explain: 'كل وحدة CaCl₂ تعطي 3 أيونات (Ca²⁺ + 2Cl⁻) ⇒ 3 × 6.022×10²³ = 18.066×10²³ أيون'
+    },
+    {
+      id: 3, role: 'DEF', num: '3.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'تعريف المول',
+      text: 'عيّنة تحتوي على 1.204 × 10²⁴ جزيء. كم مولاً تمثّل؟',
+      answers: {
+        up:    { text: '0.5 مول', correct: false },
+        right: { text: '2 مول', correct: true },
+        down:  { text: '1 مول', correct: false },
+        left:  { text: '12 مول', correct: false }
+      },
+      explain: 'n = 1.204×10²⁴ ÷ 6.022×10²³ = 2 مول'
+    },
+    {
+      id: 4, role: 'DEF', num: '4.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'وحدات القياس',
+      text: 'أي علاقة تُستخدم لإيجاد عدد المولات انطلاقاً من عدد الجسيمات؟',
+      answers: {
+        up:    { text: 'n = m × M', correct: false },
+        right: { text: 'n = V × 22.4', correct: false },
+        down:  { text: 'n = N ÷ Nₐ', correct: true },
+        left:  { text: 'n = Nₐ ÷ N', correct: false }
+      },
+      explain: 'عدد المولات = عدد الجسيمات ÷ عدد أفوجادرو، أي n = N ÷ Nₐ'
+    },
+    {
+      id: 5, role: 'DEF', num: '5.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'قيمة عدد أفوجادرو',
+      text: 'كم ذرة أكسجين توجد في 0.5 مول من CO₂؟',
+      answers: {
+        up:    { text: '6.022 × 10²³ ذرة', correct: true },
+        right: { text: '3.011 × 10²³ ذرة', correct: false },
+        down:  { text: '12.044 × 10²³ ذرة', correct: false },
+        left:  { text: '1.204 × 10²⁴ ذرة', correct: false }
+      },
+      explain: 'كل جزيء CO₂ فيه ذرتا أكسجين ⇒ 0.5×2 = 1 مول ذرات O = 6.022×10²³ ذرة'
+    },
+    {
+      id: 6, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'عدد أفوجادرو',
+      text: 'كم عدد الذرات الكلّي في 0.25 مول من غاز الأمونيا NH₃؟',
+      answers: {
+        up:    { text: '3.011 × 10²³ ذرة', correct: false },
+        left:  { text: '1.204 × 10²⁴ ذرة', correct: false },
+        down:  { text: '6.022 × 10²³ ذرة', correct: true },
+        right: { text: '1.5055 × 10²³ ذرة', correct: false }
+      },
+      explain: 'كل جزيء NH₃ فيه 4 ذرات ⇒ 0.25×4 = 1 مول ذرات = 6.022×10²³ ذرة'
+    },
+    {
+      id: 7, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'رمز عدد أفوجادرو',
+      text: 'عيّنة من الفضة تحتوي على 1.5055 × 10²³ ذرة. كم مولاً تمثّل؟',
+      answers: {
+        up:    { text: '0.25 مول', correct: true },
+        right: { text: '0.5 مول', correct: false },
+        down:  { text: '2.5 مول', correct: false },
+        left:  { text: '4 مول', correct: false }
+      },
+      explain: 'n = 1.5055×10²³ ÷ 6.022×10²³ = 0.25 مول'
+    },
+    {
+      id: 8, role: 'MID', num: '7.MID', position: 'وسط', kind: 'مفهوم', topic: 'ثبات عدد الجسيمات',
+      text: 'أيهما يحتوي على عدد جزيئات أكبر: 2 مول H₂ أم 32 غرام من O₂ (M=32)؟',
+      answers: {
+        up:    { text: '32 غرام O₂ لأنه أثقل', correct: false },
+        right: { text: 'متساويان في عدد الجزيئات', correct: false },
+        down:  { text: '2 مول H₂ لأن فيه ضعف عدد الجزيئات', correct: true },
+        left:  { text: 'لا يمكن المقارنة دون معرفة الحجم', correct: false }
+      },
+      explain: '32 غرام O₂ = 1 مول = 6.022×10²³ جزيء، بينما 2 مول H₂ = 12.044×10²³ جزيء ⇒ الهيدروجين أكثر'
+    },
+    {
+      id: 9, role: 'MID', num: '8.MID', position: 'وسط', kind: 'تطبيق', topic: 'عدد الجسيمات',
+      text: 'كم عدد ذرات الأكسجين في 2 مول من حمض الكبريتيك H₂SO₄؟',
+      answers: {
+        up:    { text: '1.204 × 10²⁴ ذرة', correct: false },
+        right: { text: '4.818 × 10²⁴ ذرة', correct: true },
+        down:  { text: '6.022 × 10²³ ذرة', correct: false },
+        left:  { text: '2.409 × 10²⁴ ذرة', correct: false }
+      },
+      explain: 'كل جزيء فيه 4 ذرات O ⇒ 2×4 = 8 مول ذرات O = 8 × 6.022×10²³ ≈ 4.818×10²⁴ ذرة'
+    },
+    {
+      id: 10, role: 'FWD', num: '9.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'عدد الذرات في المول',
+      text: 'كم عدد ذرات الهيدروجين في 3 مول من غاز الميثان CH₄؟',
+      answers: {
+        right: { text: '1.807 × 10²⁴ ذرة', correct: false },
+        up:    { text: '7.226 × 10²⁴ ذرة', correct: true },
+        left:  { text: '1.204 × 10²⁴ ذرة', correct: false },
+        down:  { text: '2.409 × 10²⁴ ذرة', correct: false }
+      },
+      explain: '3 مول CH₄ × 4 ذرات H = 12 مول ذرات H = 12 × 6.022×10²³ ≈ 7.226×10²⁴ ذرة'
+    },
+    {
+      id: 11, role: 'FWD', num: '10.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'من الجسيمات للمولات',
+      text: 'كم مولاً من الجزيئات في 9.033 × 10²³ جزيء من الماء H₂O؟',
+      answers: {
+        up:    { text: '1.5 مول', correct: true },
+        right: { text: '0.5 مول', correct: false },
+        down:  { text: '3 مول', correct: false },
+        left:  { text: '2 مول', correct: false }
+      },
+      explain: 'n = 9.033×10²³ ÷ 6.022×10²³ = 1.5 مول'
+    },
+    {
+      id: 12, role: 'FWD', num: '11.FWD', position: 'مهاجم', kind: 'مفهوم', topic: 'المول جسر',
+      text: 'لعيّنة غاز عند STP، ما المسار الصحيح للانتقال من الحجم (لتر) إلى عدد الجزيئات؟',
+      answers: {
+        up:    { text: 'نقسم الحجم على الكتلة المولية مباشرة', correct: false },
+        right: { text: 'نقسم الحجم على 22.4 لإيجاد المولات ثم نضرب في Nₐ', correct: true },
+        down:  { text: 'نضرب الحجم في 22.4 ثم نقسم على Nₐ', correct: false },
+        left:  { text: 'نضرب الحجم في الكتلة المولية', correct: false }
+      },
+      explain: 'الحجم ÷ 22.4 = عدد المولات، ثم × 6.022×10²³ = عدد الجزيئات'
+    }
+    ]
+  },
+  {
+    id: 2, emoji: '🎈', title: 'الجولة الثانية — الحجم المولي',
+    sub: '22.4 لتر/مول والظروف القياسية والتحويلات',
+    questions: [
+    {
+      id: 1, role: 'GK', num: '1.GK', position: 'حارس', kind: 'مفهوم', topic: 'الظروف القياسية',
+      text: 'أي تغيير يجعل الحجم المولي لغاز أكبر من 22.4 لتر/مول؟',
+      answers: {
+        up:    { text: 'خفض درجة الحرارة تحت 273 كلفن', correct: false },
+        right: { text: 'رفع درجة الحرارة فوق 273 كلفن مع ثبوت الضغط', correct: true },
+        down:  { text: 'زيادة الضغط فوق 1 جوي', correct: false },
+        left:  { text: 'استبدال الغاز بغاز أثقل', correct: false }
+      },
+      explain: 'قيمة 22.4 لتر خاصة بـ STP؛ رفع الحرارة (بثبوت الضغط) يُمدّد الغاز فيتجاوز حجمه المولي 22.4 لتر'
+    },
+    {
+      id: 2, role: 'DEF', num: '2.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'الحجم المولي',
+      text: 'ما حجم 1.5 مول من غاز عند الظروف القياسية STP؟',
+      answers: {
+        left:  { text: '11.2 لتر', correct: false },
+        down:  { text: '33.6 لتر', correct: true },
+        right: { text: '44.8 لتر', correct: false },
+        up:    { text: '22.4 لتر', correct: false }
+      },
+      explain: 'V = n × 22.4 = 1.5 × 22.4 = 33.6 لتر'
+    },
+    {
+      id: 3, role: 'DEF', num: '3.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'لماذا الحجم المولي ثابت؟',
+      text: 'غازان مختلفان لهما نفس عدد المولات عند STP لكن كتلتاهما مختلفتان. ماذا نستنتج عن حجميهما؟',
+      answers: {
+        up:    { text: 'حجم الأثقل أكبر', correct: false },
+        right: { text: 'حجماهما متساويان لأن الحجم يعتمد على عدد المولات لا على الكتلة', correct: true },
+        down:  { text: 'حجم الأخف أكبر', correct: false },
+        left:  { text: 'لا يمكن تحديد ذلك', correct: false }
+      },
+      explain: 'الحجم عند STP يتحدد بعدد المولات فقط (V = n × 22.4)، فتساوي المولات يعني تساوي الحجوم'
+    },
+    {
+      id: 4, role: 'DEF', num: '4.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'تساوي حجوم الغازات',
+      text: '2 غرام H₂ (M=2) و 16 غرام O₂ (M=32) عند STP — قارن بين حجميهما.',
+      answers: {
+        up:    { text: 'متساويان في الحجم', correct: false },
+        right: { text: 'حجم O₂ ضعف حجم H₂', correct: false },
+        down:  { text: 'حجم H₂ ضعف حجم O₂', correct: true },
+        left:  { text: 'يعتمد على شكل الوعاء', correct: false }
+      },
+      explain: '2 غرام H₂ = 1 مول = 22.4 لتر، و16 غرام O₂ = 0.5 مول = 11.2 لتر ⇒ حجم H₂ ضعف حجم O₂'
+    },
+    {
+      id: 5, role: 'DEF', num: '5.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'قانون أفوجادرو',
+      text: 'إذا كان 5 لتر من غاز A يحتوي على n جزيء، فكم جزيء يحتوي 15 لتر من غاز B في نفس الظروف؟',
+      answers: {
+        up:    { text: 'n جزيء', correct: false },
+        right: { text: '3n جزيء', correct: true },
+        down:  { text: 'n ÷ 3 جزيء', correct: false },
+        left:  { text: '15n جزيء', correct: false }
+      },
+      explain: 'حسب قانون أفوجادرو الحجوم المتساوية تحوي نفس العدد؛ 15 لتر = 3 أضعاف 5 لتر ⇒ 3n جزيء'
+    },
+    {
+      id: 6, role: 'MID', num: '6.MID', position: 'وسط', kind: 'مفهوم', topic: 'أثر الحرارة',
+      text: 'وعاء يحوي غازاً عند STP. إذا ضاعفنا الضغط مع ثبوت درجة الحرارة، ماذا يحدث لحجم الغاز؟',
+      answers: {
+        up:    { text: 'ينخفض إلى النصف', correct: true },
+        right: { text: 'يتضاعف', correct: false },
+        down:  { text: 'يبقى 22.4 لتر/مول', correct: false },
+        left:  { text: 'يصبح صفراً', correct: false }
+      },
+      explain: 'عند ثبوت الحرارة، مضاعفة الضغط تقلّل الحجم إلى النصف (قانون بويل)'
+    },
+    {
+      id: 7, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'حساب الحجم',
+      text: 'ما حجم 0.75 مول من غاز عند الظروف القياسية STP؟',
+      answers: {
+        up:    { text: '11.2 لتر', correct: false },
+        right: { text: '16.8 لتر', correct: true },
+        down:  { text: '22.4 لتر', correct: false },
+        left:  { text: '33.6 لتر', correct: false }
+      },
+      explain: 'V = n × 22.4 = 0.75 × 22.4 = 16.8 لتر'
+    },
+    {
+      id: 8, role: 'MID', num: '7.MID', position: 'وسط', kind: 'تطبيق', topic: 'حساب الحجم',
+      text: 'ما حجم 2.5 مول من غاز عند الظروف القياسية STP؟',
+      answers: {
+        up:    { text: '44.8 لتر', correct: false },
+        right: { text: '50 لتر', correct: false },
+        down:  { text: '56 لتر', correct: true },
+        left:  { text: '67.2 لتر', correct: false }
+      },
+      explain: 'V = n × 22.4 = 2.5 × 22.4 = 56 لتر'
+    },
+    {
+      id: 9, role: 'MID', num: '8.MID', position: 'وسط', kind: 'تطبيق', topic: 'من الحجم للمولات',
+      text: 'كم مولاً في 89.6 لتر من غاز عند STP؟',
+      answers: {
+        up:    { text: '4 مول', correct: true },
+        right: { text: '2 مول', correct: false },
+        down:  { text: '8 مول', correct: false },
+        left:  { text: '0.25 مول', correct: false }
+      },
+      explain: 'n = V ÷ 22.4 = 89.6 ÷ 22.4 = 4 مول'
+    },
+    {
+      id: 10, role: 'FWD', num: '9.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'من الحجم للجسيمات',
+      text: 'كم جزيء يوجد في 5.6 لتر من غاز عند STP؟',
+      answers: {
+        up:    { text: '6.022 × 10²³ جزيء', correct: false },
+        right: { text: '1.5055 × 10²³ جزيء', correct: true },
+        down:  { text: '3.011 × 10²³ جزيء', correct: false },
+        left:  { text: '2.409 × 10²³ جزيء', correct: false }
+      },
+      explain: 'n = 5.6 ÷ 22.4 = 0.25 مول ⇒ 0.25 × 6.022×10²³ = 1.5055×10²³ جزيء'
+    },
+    {
+      id: 11, role: 'FWD', num: '10.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'من الكتلة للحجم',
+      text: 'ما حجم 11 غرام من غاز ثاني أكسيد الكربون CO₂ (M=44) عند STP؟',
+      answers: {
+        up:    { text: '2.8 لتر', correct: false },
+        right: { text: '5.6 لتر', correct: true },
+        down:  { text: '11.2 لتر', correct: false },
+        left:  { text: '22.4 لتر', correct: false }
+      },
+      explain: 'n = 11 ÷ 44 = 0.25 مول ⇒ V = 0.25 × 22.4 = 5.6 لتر'
+    },
+    {
+      id: 12, role: 'FWD', num: '11.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'من الحجم للكتلة',
+      text: 'ما كتلة 33.6 لتر من غاز الأكسجين O₂ (M=32) عند STP؟',
+      answers: {
+        up:    { text: '48 غرام', correct: true },
+        right: { text: '32 غرام', correct: false },
+        down:  { text: '64 غرام', correct: false },
+        left:  { text: '24 غرام', correct: false }
+      },
+      explain: 'n = 33.6 ÷ 22.4 = 1.5 مول ⇒ m = 1.5 × 32 = 48 غرام'
+    }
+    ]
+  },
+  {
+    id: 3, emoji: '⚖️', title: 'الجولة الثالثة — الكتلة المولية',
+    sub: 'حساب M للعناصر والمركّبات والتحويل للمولات',
+    questions: [
+    {
+      id: 1, role: 'GK', num: '1.GK', position: 'حارس', kind: 'مفهوم', topic: 'معنى الكتلة الذرية',
+      text: 'الكتلة المولية للنيون 20 g/mol. ماذا تعني بدقة؟',
+      answers: {
+        up:    { text: 'كتلة ذرة نيون واحدة = 20 غرام', correct: false },
+        right: { text: 'كتلة 6.022×10²³ ذرة نيون = 20 غرام', correct: true },
+        down:  { text: 'حجم مول النيون = 20 لتر', correct: false },
+        left:  { text: 'في العيّنة 20 ذرة نيون', correct: false }
+      },
+      explain: 'الكتلة المولية = كتلة مول واحد (6.022×10²³ ذرة) من العنصر بالغرام'
+    },
+    {
+      id: 2, role: 'DEF', num: '2.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'مصدر الكتلة المولية',
+      text: 'مركّب صيغته X₂O₃ وكتلته المولية 102 g/mol والأكسجين O=16. ما الكتلة الذرية للعنصر X؟',
+      answers: {
+        up:    { text: '27', correct: true },
+        right: { text: '54', correct: false },
+        down:  { text: '48', correct: false },
+        left:  { text: '18', correct: false }
+      },
+      explain: '2X + 3×16 = 102 ⇒ 2X = 54 ⇒ X = 27 (الألمنيوم)'
+    },
+    {
+      id: 3, role: 'DEF', num: '3.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'سبب اختلاف الكتل',
+      text: 'عيّنتان متساويتان في الكتلة: 4 غرام He (M=4) و 4 غرام H₂ (M=2). أيهما فيه مولات أكثر؟',
+      answers: {
+        up:    { text: 'الهيليوم', correct: false },
+        right: { text: 'الهيدروجين (2 مول مقابل 1 مول)', correct: true },
+        down:  { text: 'متساويان في عدد المولات', correct: false },
+        left:  { text: 'يعتمد على الحجم', correct: false }
+      },
+      explain: 'n(He) = 4÷4 = 1 مول، n(H₂) = 4÷2 = 2 مول ⇒ الهيدروجين فيه مولات أكثر'
+    },
+    {
+      id: 4, role: 'DEF', num: '4.DEF', position: 'مدافع', kind: 'مفهوم', topic: 'مقارنة كتل المولات',
+      text: 'أيهما أكبر كتلة: 0.5 مول من CO₂ (M=44) أم 0.5 مول من O₂ (M=32)؟',
+      answers: {
+        up:    { text: 'الأكسجين O₂', correct: false },
+        right: { text: 'ثاني أكسيد الكربون CO₂ (22 غرام)', correct: true },
+        down:  { text: 'متساويان لأن عدد المولات واحد', correct: false },
+        left:  { text: 'يعتمد على الحجم', correct: false }
+      },
+      explain: 'm(CO₂) = 0.5×44 = 22 غرام، m(O₂) = 0.5×32 = 16 غرام ⇒ CO₂ أثقل'
+    },
+    {
+      id: 5, role: 'DEF', num: '5.DEF', position: 'مدافع', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما الكتلة المولية لهيدروكسيد الصوديوم NaOH؟ (Na=23, O=16, H=1)',
+      answers: {
+        left:  { text: '39 g/mol', correct: false },
+        up:    { text: '24 g/mol', correct: false },
+        right: { text: '40 g/mol', correct: true },
+        down:  { text: '56 g/mol', correct: false }
+      },
+      explain: 'NaOH = 23 + 16 + 1 = 40 g/mol'
+    },
+    {
+      id: 6, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما الكتلة المولية لكبريتات النحاس اللامائية CuSO₄؟ (Cu=64, S=32, O=16)',
+      answers: {
+        up:    { text: '112 g/mol', correct: false },
+        right: { text: '160 g/mol', correct: true },
+        down:  { text: '144 g/mol', correct: false },
+        left:  { text: '96 g/mol', correct: false }
+      },
+      explain: 'CuSO₄ = 64 + 32 + (4×16) = 160 g/mol'
+    },
+    {
+      id: 7, role: 'MID', num: '6.MID', position: 'وسط', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما الكتلة المولية للجلوكوز C₆H₁₂O₆؟ (C=12, H=1, O=16)',
+      answers: {
+        up:    { text: '160 g/mol', correct: false },
+        right: { text: '180 g/mol', correct: true },
+        down:  { text: '150 g/mol', correct: false },
+        left:  { text: '192 g/mol', correct: false }
+      },
+      explain: 'C₆H₁₂O₆ = (6×12) + (12×1) + (6×16) = 72 + 12 + 96 = 180 g/mol'
+    },
+    {
+      id: 8, role: 'MID', num: '7.MID', position: 'وسط', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما الكتلة المولية لنترات الكالسيوم Ca(NO₃)₂؟ (Ca=40, N=14, O=16)',
+      answers: {
+        up:    { text: '150 g/mol', correct: false },
+        right: { text: '102 g/mol', correct: false },
+        down:  { text: '164 g/mol', correct: true },
+        left:  { text: '148 g/mol', correct: false }
+      },
+      explain: 'Ca(NO₃)₂ = 40 + 2×(14 + 3×16) = 40 + 2×62 = 164 g/mol'
+    },
+    {
+      id: 9, role: 'MID', num: '8.MID', position: 'وسط', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما الكتلة المولية لكبريتات النحاس المائية CuSO₄·5H₂O؟ (Cu=64, S=32, O=16, H=1)',
+      answers: {
+        up:    { text: '242 g/mol', correct: false },
+        right: { text: '250 g/mol', correct: true },
+        down:  { text: '178 g/mol', correct: false },
+        left:  { text: '320 g/mol', correct: false }
+      },
+      explain: 'CuSO₄ (160) + 5×H₂O (5×18 = 90) = 250 g/mol'
+    },
+    {
+      id: 10, role: 'FWD', num: '9.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'الكتلة المولية',
+      text: 'ما النسبة المئوية للأكسجين في الماء H₂O؟ (H=1, O=16, M=18)',
+      answers: {
+        up:    { text: '11.1%', correct: false },
+        right: { text: '88.9%', correct: true },
+        down:  { text: '50%', correct: false },
+        left:  { text: '16%', correct: false }
+      },
+      explain: 'النسبة = (16 ÷ 18) × 100 ≈ 88.9%'
+    },
+    {
+      id: 11, role: 'FWD', num: '10.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'إيجاد الكتلة المولية',
+      text: 'مركّب يحتوي 40% كربون و6.7% هيدروجين و53.3% أكسجين (C=12, H=1, O=16). ما صيغته الأولية؟',
+      answers: {
+        up:    { text: 'CH₂O', correct: true },
+        right: { text: 'C₂H₄O₂', correct: false },
+        down:  { text: 'CHO', correct: false },
+        left:  { text: 'CH₄O', correct: false }
+      },
+      explain: 'C: 40÷12 = 3.33، H: 6.7÷1 = 6.7، O: 53.3÷16 = 3.33 ⇒ النسبة 1:2:1 ⇒ CH₂O'
+    },
+    {
+      id: 12, role: 'FWD', num: '11.FWD', position: 'مهاجم', kind: 'تطبيق', topic: 'حساب عدد المولات',
+      text: 'كم عدد جزيئات في 90 غرام من الجلوكوز C₆H₁₂O₆؟ (M = 180 g/mol)',
+      answers: {
+        up:    { text: '6.022 × 10²³ جزيء', correct: false },
+        left:  { text: '3.011 × 10²³ جزيء', correct: true },
+        down:  { text: '1.204 × 10²⁴ جزيء', correct: false },
+        right: { text: '1.5055 × 10²³ جزيء', correct: false }
+      },
+      explain: 'n = 90 ÷ 180 = 0.5 مول ⇒ 0.5 × 6.022×10²³ = 3.011×10²³ جزيء'
+    }
+    ]
+  }
+];
+
+// ===== اختيار البنك النشط حسب المستوى =====
+// المستوى الصعب يُطبَّق في الفردي والاختبار الجماعي فقط (الأنماط أونلاين تبقى عادية لتفادي عدم التطابق)
+function activeBank() {
+  return (typeof state !== 'undefined' && state && state.difficulty === 'hard'
+          && (state.mode === 'solo' || state.mode === 'quiz')) ? ROUNDS_HARD : ROUNDS;
+}
+
 // QUESTIONS always points at the round currently being played
 let QUESTIONS = ROUNDS[0].questions;
 
 function setRound(idx) {
   const k = Math.max(0, Math.min(ROUNDS.length - 1, idx | 0));
   state.roundIndex = k;
-  QUESTIONS = ROUNDS[k].questions;
+  QUESTIONS = activeBank()[k].questions;
   return k;
 }
 
@@ -3464,8 +4035,14 @@ const LESSONS = [
 // ============ State ============
 const state = {
   roundIndex: 0,
-  mode: 'solo',          // 'solo' | 'versus' | 'classroom' | 'teams'
+  mode: 'solo',          // 'solo' | 'versus' | 'classroom' | 'teams' | 'quiz'
+  difficulty: 'normal',  // 'normal' | 'hard'  (يؤثر في الفردي والاختبار الجماعي)
   team: 'sky',
+  // Group Quiz (اختبار جماعي) — local, offline, single device
+  quiz: {
+    students: [],        // [{ name, score }]
+    current: 0
+  },
   questionIndex: 0,
   score: 0,
   lives: 2,
@@ -3546,6 +4123,9 @@ const screens = {
   tmLobby:         $('screen-teams-lobby'),
   tmOrder:         $('screen-teams-order'),
   teams:           $('screen-teams'),
+  quizSetup:       $('screen-quiz-setup'),
+  quizTurn:        $('screen-quiz-turn'),
+  quizResult:      $('screen-quiz-result'),
   game:            $('screen-game'),
   result:          $('screen-result')
 };
@@ -3658,12 +4238,23 @@ function renderHUD() {
   if (!sEl || !pEl || !lEl) return;
   sEl.textContent = state.score;
   pEl.textContent = (state.questionIndex + 1) + '/' + QUESTIONS.length;
+  // In group-quiz mode there are no lives — show the current student's name instead.
+  if (state.mode === 'quiz') {
+    const st = state.quiz.students[state.quiz.current];
+    const nm = st ? st.name : '';
+    lEl.innerHTML = '<span style="font-size:14px;font-weight:800;color:#7ee2ab;">🎓 ' + quizEscape(nm) + '</span>';
+    const lbl = lEl.parentElement ? lEl.parentElement.querySelector('.hud-label') : null;
+    if (lbl) lbl.textContent = 'الطالبة';
+    return;
+  }
   let livesHTML = '';
   for (let i = 0; i < 2; i++) {
     if (i < state.lives) livesHTML += '❤️';
     else livesHTML += '<span class="hud-lives-dim">🤍</span>';
   }
   lEl.innerHTML = livesHTML;
+  const lbl2 = lEl.parentElement ? lEl.parentElement.querySelector('.hud-label') : null;
+  if (lbl2) lbl2.textContent = 'المحاولات';
 }
 function renderField() {
   // Teams mode shows one ball PER TEAM (the race); other modes show the single ball
@@ -3891,6 +4482,7 @@ function chooseAnswer(dir) {
   if (state.mode === 'versus') { chooseAnswerMP(dir); return; }
   if (state.mode === 'classroom') { chooseAnswerClassroom(dir); return; }
   if (state.mode === 'teams') { chooseAnswerTeams(dir); return; }
+  if (state.mode === 'quiz') { chooseAnswerQuiz(dir); return; }
   if (state.locked) return;
   const q = QUESTIONS[state.questionIndex];
   const ans = q.answers[dir];
@@ -3967,6 +4559,158 @@ function finishGame() {
   $('resultScore').textContent = s;
   $('resultMsg').textContent = msg;
   showScreen('result');
+}
+
+// ============ Group Quiz (اختبار جماعي) — local, offline ============
+function quizRenderChips() {
+  const box = $('quizChips');
+  const hint = $('quizEmptyHint');
+  const startBtn = $('quizStartBtn');
+  if (!box) return;
+  const list = state.quiz.students;
+  box.innerHTML = list.map(function(s, i) {
+    return '<span class="quiz-chip"><span class="chip-num">' + (i + 1) + '</span>' +
+      '<span>' + quizEscape(s.name) + '</span>' +
+      '<button class="chip-x" data-i="' + i + '" aria-label="حذف">×</button></span>';
+  }).join('');
+  if (hint) hint.style.display = list.length ? 'none' : 'block';
+  if (startBtn) startBtn.disabled = list.length === 0;
+  const meta = $('quizSetupMeta');
+  if (meta) {
+    meta.innerHTML = list.length
+      ? ('📋 ' + ROUNDS[state.roundIndex].title + ' &nbsp;·&nbsp; ' +
+         (state.difficulty === 'hard' ? '🔥 مستوى صعب' : '🟢 مستوى عادي') +
+         ' &nbsp;·&nbsp; ' + activeBank()[state.roundIndex].questions.length + ' سؤال لكل طالبة')
+      : '';
+  }
+  const cards = box.querySelectorAll('.chip-x');
+  for (let i = 0; i < cards.length; i++) {
+    cards[i].addEventListener('click', function() {
+      sfxClick();
+      const idx = parseInt(this.getAttribute('data-i'), 10);
+      state.quiz.students.splice(idx, 1);
+      quizRenderChips();
+    });
+  }
+}
+function quizEscape(str) {
+  return String(str).replace(/[&<>"]/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+function quizAddStudent() {
+  const input = $('quizNameInput');
+  if (!input) return;
+  let name = (input.value || '').trim();
+  if (!name) return;
+  if (state.quiz.students.length >= 30) {
+    showCelebration2('info', 1800, 'الحد الأقصى', 'أقصى عدد ٣٠ طالبة');
+    return;
+  }
+  state.quiz.students.push({ name: name, score: 0 });
+  input.value = '';
+  input.focus();
+  sfxClick();
+  quizRenderChips();
+}
+function quizStart() {
+  // called after students are entered
+  state.mode = 'quiz';
+  state.team = 'sky';
+  state.quiz.current = 0;
+  state.quiz.students.forEach(function(s) { s.score = 0; });
+  setRound(state.roundIndex); // refresh QUESTIONS for quiz + current difficulty
+  quizShowTurn();
+}
+function quizShowTurn() {
+  const q = state.quiz;
+  if (q.current >= q.students.length) { quizShowResults(); return; }
+  const s = q.students[q.current];
+  $('quizTurnName').textContent = s.name;
+  $('quizTurnMeta').textContent = ROUNDS[state.roundIndex].title + ' • ' +
+    (state.difficulty === 'hard' ? '🔥 صعب' : '🟢 عادي') + ' • ' + QUESTIONS.length + ' سؤال';
+  $('quizTurnProgress').textContent = 'طالبة ' + (q.current + 1) + ' من ' + q.students.length;
+  showScreen('quizTurn');
+}
+function quizStartStudent() {
+  state.questionIndex = 0;
+  state.score = 0;
+  state.locked = false;
+  showScreen('game');
+  renderAll();
+  setTimeout(sfxWhistle, 150);
+}
+function chooseAnswerQuiz(dir) {
+  if (state.locked) return;
+  const q = QUESTIONS[state.questionIndex];
+  const ans = q.answers[dir];
+  if (!ans) return;
+  state.locked = true;
+  const chosenBtn = document.querySelector('.ans-btn[data-dir="' + dir + '"]');
+  let correctDir = null;
+  for (const d in q.answers) if (q.answers[d].correct) correctDir = d;
+  if (ans.correct) {
+    if (chosenBtn) chosenBtn.classList.add('correct');
+    sfxCorrect();
+    state.score += 1;
+  } else {
+    if (chosenBtn) chosenBtn.classList.add('wrong');
+    sfxWrong();
+    const cb = document.querySelector('.ans-btn[data-dir="' + correctDir + '"]');
+    if (cb) cb.classList.add('correct');
+  }
+  renderHUD();
+  setTimeout(function() {
+    const btns = document.querySelectorAll('.ans-btn');
+    for (let i = 0; i < btns.length; i++) btns[i].classList.remove('correct', 'wrong');
+    const next = state.questionIndex + 1;
+    if (next >= QUESTIONS.length) {
+      quizFinishStudent();
+    } else {
+      transitionToQuestion(next);
+      state.locked = false;
+    }
+  }, 1400);
+}
+function quizFinishStudent() {
+  const q = state.quiz;
+  if (q.students[q.current]) q.students[q.current].score = state.score;
+  setTimeout(sfxWhistle, 60);
+  q.current += 1;
+  quizShowTurn();
+}
+function quizGrade(score, total) {
+  const pct = total ? Math.round((score / total) * 100) : 0;
+  let label = 'راسبة';
+  if (pct >= 90) label = 'ممتاز';
+  else if (pct >= 80) label = 'جيد جداً';
+  else if (pct >= 70) label = 'جيد';
+  else if (pct >= 60) label = 'مقبول';
+  else if (pct >= 50) label = 'ضعيف';
+  return { pct: pct, label: label };
+}
+function quizShowResults() {
+  const total = QUESTIONS.length;
+  const arr = state.quiz.students.map(function(s, i) { return { name: s.name, score: s.score, i: i }; });
+  arr.sort(function(a, b) { return (b.score - a.score) || (a.i - b.i); });
+  const medals = ['🥇', '🥈', '🥉'];
+  $('quizResultList').innerHTML = arr.map(function(s, rank) {
+    const g = quizGrade(s.score, total);
+    const rankIco = rank < 3 ? medals[rank] : (rank + 1);
+    const topClass = rank < 3 ? (' top' + (rank + 1)) : '';
+    return '<div class="quiz-row' + topClass + '">' +
+      '<div class="qr-rank">' + rankIco + '</div>' +
+      '<div class="qr-name">' + quizEscape(s.name) + '</div>' +
+      '<div><span class="qr-score">' + s.score + '</span>' +
+        '<span class="qr-grade">/' + total + ' · ' + g.pct + '% · ' + g.label + '</span></div>' +
+      '</div>';
+  }).join('');
+  const avg = arr.length ? Math.round(arr.reduce(function(a, s) { return a + s.score; }, 0) / arr.length * 10) / 10 : 0;
+  $('quizResultSub').textContent = ROUNDS[state.roundIndex].title + ' • ' +
+    (state.difficulty === 'hard' ? '🔥 صعب' : '🟢 عادي') +
+    ' • ' + arr.length + ' طالبة • المعدل ' + avg + '/' + total;
+  setTimeout(function() { ensureAudio(); sfxGoal(); }, 60);
+  showScreen('quizResult');
 }
 
 // ============ Lessons modal ============
@@ -4063,6 +4807,66 @@ function bindEvents() {
   });
   
   $('btnModeBack').addEventListener('click', function() { sfxClick(); renderRounds(); showScreen('round'); });
+
+  // ===== Difficulty toggle (المستوى) =====
+  const diffToggle = $('diffToggle');
+  if (diffToggle) {
+    const diffBtns = diffToggle.querySelectorAll('.diff-btn');
+    for (let i = 0; i < diffBtns.length; i++) {
+      diffBtns[i].addEventListener('click', function() {
+        sfxClick();
+        const d = this.getAttribute('data-diff');
+        state.difficulty = (d === 'hard') ? 'hard' : 'normal';
+        for (let j = 0; j < diffBtns.length; j++) diffBtns[j].classList.remove('active');
+        this.classList.add('active');
+        const hint = $('diffHint');
+        if (hint) {
+          hint.textContent = (state.difficulty === 'hard')
+            ? 'المستوى الصعب: أسئلة أعمق وحسابات متعددة الخطوات (يُطبَّق في الفردي والاختبار الجماعي).'
+            : 'المستوى العادي: أسئلة المنهج الأساسية.';
+        }
+        setRound(state.roundIndex); // refresh QUESTIONS bank
+        renderRounds();
+      });
+    }
+  }
+
+  // ===== Group Quiz mode (اختبار جماعي) =====
+  $('modeQuiz').addEventListener('click', function() {
+    sfxClick();
+    state.mode = 'quiz';
+    setRound(state.roundIndex); // load current round + difficulty bank
+    $('quizNameInput').value = '';
+    quizRenderChips();
+    showScreen('quizSetup');
+    setTimeout(function() { const el = $('quizNameInput'); if (el) el.focus(); }, 60);
+  });
+  $('quizAddBtn').addEventListener('click', function() { quizAddStudent(); });
+  $('quizNameInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); quizAddStudent(); }
+  });
+  $('quizStartBtn').addEventListener('click', function() {
+    ensureAudio(); sfxClick();
+    if (!state.quiz.students.length) return;
+    quizStart();
+  });
+  $('quizSetupBack').addEventListener('click', function() { sfxClick(); showScreen('mode'); });
+  $('quizTurnGo').addEventListener('click', function() { ensureAudio(); sfxClick(); quizStartStudent(); });
+  $('quizTurnEnd').addEventListener('click', function() {
+    sfxClick();
+    if (confirm('إنهاء الاختبار الآن وعرض نتائج من أنهين فقط؟')) {
+      // keep only students who already played (before current)
+      state.quiz.students = state.quiz.students.slice(0, state.quiz.current);
+      if (!state.quiz.students.length) { showScreen('mode'); return; }
+      quizShowResults();
+    }
+  });
+  $('quizPlayAgain').addEventListener('click', function() {
+    ensureAudio(); sfxClick();
+    quizStart(); // same students, reset scores
+  });
+  $('quizReview').addEventListener('click', function() { ensureAudio(); sfxClick(); openAllLessons(); });
+  $('quizResultHome').addEventListener('click', function() { ensureAudio(); sfxClick(); showScreen('home'); });
 
   // MP Menu
   $('mpCreateBtn').addEventListener('click', function() { sfxClick(); $('mpCreateName').value=''; showScreen('mpCreate'); setTimeout(()=>$('mpCreateName').focus(), 200); });
@@ -6616,13 +7420,17 @@ function roundDoneKey(i) { return 'mole_round_done_' + i; }
 function renderRounds() {
   const box = $('roundList');
   if (!box) return;
+  const isHard = (state.difficulty === 'hard');
+  const lvlBadge = isHard
+    ? '<span class="round-lvl hard">🔥 صعب</span>'
+    : '<span class="round-lvl normal">🟢 عادي</span>';
   box.innerHTML = ROUNDS.map(function(r, i) {
     let done = false;
     try { done = localStorage.getItem(roundDoneKey(i)) === '1'; } catch(e) {}
     return '<button class="round-card' + (done ? ' done' : '') + '" data-round="' + i + '">' +
       '<div class="round-ico">' + r.emoji + '</div>' +
       '<div style="flex:1;min-width:0">' +
-        '<div class="round-name">' + r.title + (done ? ' ✅' : '') + '</div>' +
+        '<div class="round-name">' + r.title + (done ? ' ✅' : '') + lvlBadge + '</div>' +
         '<div class="round-sub">' + r.sub + '</div>' +
         '<div class="round-meta">' + r.questions.length + ' سؤال · ⏳ 30 دقيقة</div>' +
       '</div></button>';
