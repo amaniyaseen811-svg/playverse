@@ -460,7 +460,7 @@ table.dash tr.top td{color:var(--signal)}
 </head>
 <body>
 <div id="cine">
-  <video id="introVid" playsinline webkit-playsinline muted preload="metadata"
+  <video id="introVid" playsinline webkit-playsinline muted autoplay preload="auto"
          poster="samplex-cover.jpg">
     <source src="samplex-intro.mp4" type="video/mp4">
   </video>
@@ -4604,46 +4604,67 @@ $('endHome').onclick=()=>show('screen-start');
 /* ===== المقدمة السينمائية ===== */
 (function cinematic(){
   const box=$('cine'); if(!box) return;
-  const vid=$('introVid'), sndBtn=$('cineSound');
-  let finished=false;
-  function endCineV(){ if(finished)return; finished=true;
-    try{vid.pause()}catch(e){}
-    box.classList.add('gone'); setTimeout(()=>box.remove(),750);
+  const vid=$('introVid'), sndBtn=$('cineSound'), skipBtn=$('cineSkip');
+  let done=false, drawnRan=false, videoOK=false;
+  let guards=[];
+  const later=(fn,ms)=>{ const id=setTimeout(fn,ms); guards.push(id); return id; };
+
+  // إنهاء المقدمة — يعمل دائمًا مهما حصل
+  function finish(){
+    if(done) return; done=true;
+    guards.forEach(clearTimeout); guards=[];
+    try{ vid.pause(); }catch(e){}
+    box.classList.add('gone');
+    setTimeout(()=>{ try{box.remove()}catch(e){} },750);
     if(musicOn) tryPlay();
   }
-  $('cineSkip').onclick=endCineV;
-  // نحاول تشغيل الفيديو؛ إن لم يوجد الملف نعود للمقدمة المرسومة
-  let started=false;
-  vid.addEventListener('loadeddata',()=>{ started=true; box.classList.add('hasvid'); });
-  vid.addEventListener('ended',endCineV);
-  vid.addEventListener('error',()=>{ if(!started) drawnIntro(); });
-  sndBtn.onclick=()=>{
+  skipBtn.onclick=finish;
+  box.addEventListener('click',e=>{ if(e.target===skipBtn) finish(); });
+
+  // زر الصوت
+  sndBtn.onclick=(e)=>{ e.stopPropagation();
     vid.muted=!vid.muted;
     sndBtn.textContent = vid.muted ? '🔇 شغّل الصوت' : '🔊 أوقف الصوت';
   };
-  const p=vid.play(); if(p&&p.catch) p.catch(()=>{});
-  setTimeout(()=>{ if(!started) drawnIntro(); },2600);
-  setTimeout(()=>{ if(!finished) endCineV(); },42000);
-  return;
 
+  // ===== المقدمة المرسومة (تعمل مرة واحدة فقط) =====
   function drawnIntro(){
-  if(finished) return;
-  let t0=Date.now(), base=new Date(2024,0,1,20,44,3), tick=null;
-  tick=setInterval(()=>{
-    const sec=Math.floor((Date.now()-t0)/1000*22);
-    const d=new Date(base.getTime()+sec*1000);
-    const p=n=>String(n).padStart(2,'0');
-    const st_=$('cStamp'); if(st_) st_.textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
-  },60);
-  const sh=$('cShadow'), gl=$('cGlitch'), lo=$('cLost'), ti=$('cTitle');
-  setTimeout(()=>{ sh.style.transition="transform 2.6s ease-in"; sh.style.transform="translateX(0)"; },2200);
-  setTimeout(()=>{ gl.style.transition="opacity .09s"; gl.style.opacity=".8"; setTimeout(()=>gl.style.opacity="0",90); },5200);
-  setTimeout(()=>{ lo.style.transition="opacity .25s"; lo.style.opacity="1"; clearInterval(tick); },5600);
-  setTimeout(()=>{ ti.style.transition="opacity 1s"; ti.style.opacity="1"; },7000);
-  setTimeout(endCine,10200);
-  $('cineSkip').onclick=endCine;
-  function endCine(){ clearInterval(tick); endCineV(); }
+    if(done||drawnRan||videoOK) return; drawnRan=true;
+    const t0=Date.now(), base=new Date(2024,0,1,20,44,3);
+    const pad=n=>String(n).padStart(2,'0');
+    const tick=setInterval(()=>{
+      const d=new Date(base.getTime()+Math.floor((Date.now()-t0)/1000*22)*1000);
+      const el=$('cStamp'); if(el) el.textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    },80);
+    guards.push(tick);
+    const sh=$('cShadow'), gl=$('cGlitch'), lo=$('cLost'), ti=$('cTitle');
+    later(()=>{ if(sh){sh.style.transition="transform 2.4s ease-in"; sh.style.transform="translateX(0)";} },1600);
+    later(()=>{ if(gl){gl.style.transition="opacity .09s"; gl.style.opacity=".8"; setTimeout(()=>gl.style.opacity="0",90);} },4200);
+    later(()=>{ if(lo){lo.style.transition="opacity .25s"; lo.style.opacity="1";} clearInterval(tick); },4600);
+    later(()=>{ if(ti){ti.style.transition="opacity 1s"; ti.style.opacity="1";} },5800);
+    later(()=>{ clearInterval(tick); finish(); },8600);   // تنتهي دائمًا بعد 8.6 ثانية
   }
+
+  // ===== محاولة تشغيل الفيديو =====
+  function videoStarted(){
+    if(done||videoOK) return; videoOK=true;
+    drawnRan=true;                       // نمنع المرسومة نهائيًا
+    guards.forEach(clearTimeout); guards=[];
+    box.classList.add('hasvid');
+    later(finish, 45000);                // حارس أقصى
+  }
+  vid.addEventListener('playing',videoStarted);
+  vid.addEventListener('timeupdate',()=>{ if(vid.currentTime>0.25) videoStarted(); });
+  vid.addEventListener('ended',finish);
+  vid.addEventListener('error',()=>{ if(!videoOK) drawnIntro(); });
+
+  try{ vid.load(); }catch(e){}
+  const pr=vid.play(); if(pr&&pr.catch) pr.catch(()=>{});
+
+  // إن لم يبدأ الفيديو خلال 4 ثوانٍ → المقدمة المرسومة
+  later(()=>{ if(!videoOK) drawnIntro(); },4000);
+  // حارس مطلق: لا تعلق الشاشة أبدًا
+  setTimeout(()=>{ if(!done && !videoOK) finish(); },14000);
 })();
 
 /* ===== الإيموجي ===== */
