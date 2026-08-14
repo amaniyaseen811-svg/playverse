@@ -26,6 +26,8 @@
   function today() { return Math.floor((Date.now() - EPOCH) / DAY); }
 
   function freeUntilDay() {
+    // رابط الاختبار: أضيفي ?pvtest=1 لآخر الرابط لمعاينة شاشة الكود حتى أثناء الفترة المجانية
+    if (typeof location !== 'undefined' && /[?&]pvtest=1/.test(location.search)) return -1;
     if (!FREE_UNTIL) return -1;
     var d = new Date(FREE_UNTIL + 'T00:00:00Z');
     if (isNaN(d.getTime())) return -1;
@@ -175,6 +177,23 @@
     + '#pvChip{position:fixed;top:10px;inset-inline-start:10px;z-index:2147482000;padding:7px 13px;border-radius:999px;'
     + 'font-family:"Tajawal",system-ui,sans-serif;font-size:12px;font-weight:700;direction:rtl;'
     + 'background:rgba(255,165,31,.14);color:#FFC145;border:1px solid rgba(255,193,69,.4);backdrop-filter:blur(6px)}'
+    + '#pvFree{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;'
+    + 'padding:18px;background:radial-gradient(120% 90% at 50% 0%,#0d2a1c 0%,#071b12 55%,#04120c 100%);'
+    + 'font-family:"Tajawal","Segoe UI",system-ui,sans-serif;direction:rtl;overflow:auto}'
+    + '#pvFree *{box-sizing:border-box}'
+    + '#pvFree .pv-card{width:100%;max-width:390px;text-align:center;color:#fff}'
+    + '#pvFree .pv-orb{width:92px;height:92px;margin:0 auto 16px;border-radius:26px;display:flex;align-items:center;'
+    + 'justify-content:center;font-size:44px;background:linear-gradient(150deg,#0f3d27,#07231a);'
+    + 'border:1px solid rgba(126,226,168,.4);box-shadow:0 18px 50px rgba(126,226,168,.18)}'
+    + '#pvFree h1{margin:0 0 6px;font-size:24px;font-weight:800;color:#7ee2a8}'
+    + '#pvFree .pv-sub{margin:0 0 20px;font-size:14px;line-height:1.8;color:rgba(255,255,255,.7)}'
+    + '#pvFree .pv-count{margin:0 0 22px;padding:18px;border-radius:16px;'
+    + 'background:rgba(126,226,168,.08);border:1px solid rgba(126,226,168,.3)}'
+    + '#pvFree .pv-count b{display:block;font-size:40px;font-weight:800;color:#7ee2a8;line-height:1.1}'
+    + '#pvFree .pv-count span{font-size:13px;color:rgba(255,255,255,.65)}'
+    + '#pvFree .pv-btn{width:100%;padding:15px;border:0;border-radius:14px;cursor:pointer;'
+    + 'font-family:inherit;font-size:16px;font-weight:800;color:#04120c;'
+    + 'background:linear-gradient(135deg,#9dfcc0,#4fd889);box-shadow:0 10px 26px rgba(126,226,168,.3)}'
     + '@media (prefers-reduced-motion:reduce){#pvLock .pv-btn{transition:none}}';
 
   function injectCSS() {
@@ -190,6 +209,27 @@
     c.id = 'pvChip';
     c.textContent = text;
     document.body.appendChild(c);
+  }
+
+  function showFreeBanner(daysLeft) {
+    injectCSS();
+    document.documentElement.style.overflow = 'hidden';
+    var wrap = document.createElement('div');
+    wrap.id = 'pvFree';
+    wrap.innerHTML = ''
+      + '<div class="pv-card">'
+      + '  <div class="pv-orb">🎁</div>'
+      + '  <h1>PlayVerse مجاني الآن!</h1>'
+      + '  <p class="pv-sub">استمتعي بكل الألعاب مجاناً بدون أي كود، لفترة محدودة.</p>'
+      + '  <div class="pv-count"><b>' + daysLeft + '</b><span>يوم متبقٍ على العرض المجاني</span></div>'
+      + '  <button class="pv-btn" id="pvFreeGo">ابدأ اللعب 🚀</button>'
+      + '</div>';
+    document.body.appendChild(wrap);
+    function close() {
+      wrap.remove();
+      document.documentElement.style.overflow = '';
+    }
+    wrap.querySelector('#pvFreeGo').addEventListener('click', close);
   }
 
   function unlock() {
@@ -292,7 +332,7 @@
     if (st.ok) {
       if (st.free) {
         applyOfflineMode('F');
-        showChip('🎁 مجاني الآن — باقي ' + st.daysLeftFree + ' يوم على العرض');
+        showFreeBanner(st.daysLeftFree);
         return;
       }
       applyOfflineMode(st.tier);
