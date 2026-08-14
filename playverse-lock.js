@@ -13,6 +13,8 @@
   var WHATSAPP     = '972594090764';                // رقم التواصل
   var TRIAL_DAYS   = 7;                             // التجربة المجانية (0 = بدون تجربة)
   var EPOCH        = Date.UTC(2026, 0, 1);          // بداية حساب التواريخ
+  var FREE_UNTIL   = '2026-10-14';                  // التطبيق مجاني للجميع لحد هذا التاريخ (بدون كود)
+                                                     // بعده بيرجع يطلب كود تلقائياً. لإلغاء الفترة المجانية اجعليها ''
   /* --------------------------------------------- */
 
   var LS_LIC   = 'pv_license';
@@ -22,6 +24,13 @@
 
   /* ---------- أدوات ---------- */
   function today() { return Math.floor((Date.now() - EPOCH) / DAY); }
+
+  function freeUntilDay() {
+    if (!FREE_UNTIL) return -1;
+    var d = new Date(FREE_UNTIL + 'T00:00:00Z');
+    if (isNaN(d.getTime())) return -1;
+    return Math.floor((d.getTime() - EPOCH) / DAY);
+  }
 
   // أبجدية بدون الحرفين I و O لمنع الالتباس مع 1 و 0
   var AB = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -108,6 +117,10 @@
   }
 
   function check() {
+    var freeDay = freeUntilDay();
+    if (freeDay >= 0 && today() < freeDay) {
+      return { ok: true, free: true, daysLeftFree: freeDay - today() };
+    }
     var lic = load();
     if (!lic) return { ok: false };
     if (lic.forever) return { ok: true, forever: true, kind: 'T', tier: lic.tier || 'F' };
@@ -277,6 +290,11 @@
   function start() {
     var st = check();
     if (st.ok) {
+      if (st.free) {
+        applyOfflineMode('F');
+        showChip('🎁 مجاني الآن — باقي ' + st.daysLeftFree + ' يوم على العرض');
+        return;
+      }
       applyOfflineMode(st.tier);
       if (!st.forever && st.left <= 7) showChip(st.left <= 0 ? 'ينتهي اشتراكك اليوم' : 'باقي ' + st.left + ' يوم على انتهاء الاشتراك');
       return;
