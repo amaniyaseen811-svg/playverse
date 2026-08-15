@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlayVerse - ابدا</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f1e8 0%, #ede8df 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      pointer-events: none;
+      padding: 20px;
+    }
+
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ===== الصفحة الأولى: الشعار ===== */
+    .page-1 {
+      background: linear-gradient(135deg, #f5f1e8 0%, #ede8df 100%);
+      gap: 40px;
+    }
+
+    .logo-container {
+      animation: pulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 30px rgba(138, 43, 226, 0.4));
+      max-width: 90vw;
+      max-height: 60vh;
+    }
+
+    .logo-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* ===== الصفحة الثانية: الجنية ===== */
+    .page-2 {
+      background: linear-gradient(135deg, #f5f1e8 0%, #ede8df 100%);
+      gap: 30px;
+    }
+
+    .fairy-container {
+      max-width: 85vw;
+      max-height: 65vh;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .fairy-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* ===== الأزرار ===== */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #8a2be2, #5c1fa3);
+      color: white;
+      box-shadow: 0 8px 20px rgba(138, 43, 226, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(138, 43, 226, 0.5);
+      background: linear-gradient(135deg, #9d3dd9, #6b2ab3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(138, 43, 226, 0.1);
+      color: #8a2be2;
+      border: 2px solid #8a2be2;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(138, 43, 226, 0.2);
+      transform: translateY(-3px);
+    }
+
+    /* ===== التأثيرات الحركية ===== */
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.08);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+
+    @keyframes sparkle {
+      0% {
+        opacity: 0;
+        transform: scale(0) translateY(0);
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1) translateY(-30px);
+      }
+    }
+
+    /* ===== النجوم اللامعة ===== */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+    }
+
+    .sparkle-dot {
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle, #FFD700, #FFA500);
+      border-radius: 50%;
+      box-shadow: 0 0 10px #FFD700, 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .logo-container {
+        max-width: 95vw;
+        max-height: 50vh;
+      }
+
+      .fairy-container {
+        max-width: 95vw;
+        max-height: 55vh;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <!-- الصفحة الأولى: الشعار -->
+    <div class="page page-1 active" id="page1">
+      <div class="logo-container">
+        <img src="playverse-main-logo.png" alt="PlayVerse Logo">
+      </div>
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="goToPage(2)">متابعة →</button>
+      </div>
+    </div>
+
+    <!-- الصفحة الثانية: الجنية -->
+    <div class="page page-2" id="page2">
+      <div class="fairy-container">
+        <img src="playverse-fairy.png" alt="PlayVerse Fairy">
+      </div>
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="startPlaying()">ابدأ اللعب 🚀</button>
+        <button class="btn btn-secondary" onclick="goToPage(1)">← رجوع</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentPage = 1;
+
+    function goToPage(pageNum) {
+      // إخفاء الصفحة الحالية
+      document.getElementById(`page${currentPage}`).classList.remove('active');
+      
+      // إظهار الصفحة الجديدة
+      document.getElementById(`page${pageNum}`).classList.add('active');
+      
+      currentPage = pageNum;
+    }
+
+    function startPlaying() {
+      // الانتقال لصفحة الألعاب الرئيسية
+      window.location.href = 'index.html';
+    }
+
+    // إنشاء النجوم اللامعة
+    function createSparkles() {
+      const container = document.getElementById('container');
+      
+      for (let i = 0; i < 12; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+        const delay = Math.random() * 2;
+        const duration = 2 + Math.random() * 1;
+        
+        sparkle.style.left = left + '%';
+        sparkle.style.top = top + '%';
+        
+        const dot = document.createElement('div');
+        dot.className = 'sparkle-dot';
+        dot.style.animation = `sparkle ${duration}s ease-out forwards`;
+        dot.style.animationDelay = delay + 's';
+        
+        sparkle.appendChild(dot);
+        container.appendChild(sparkle);
+        
+        setTimeout(() => {
+          sparkle.remove();
+        }, (duration + delay) * 1000);
+      }
+    }
+
+    // البدء مع النجوم
+    createSparkles();
+    
+    // إنشاء نجوم جديدة كل 4 ثواني
+    setInterval(createSparkles, 4000);
+  </script>
+</body>
+</html>
