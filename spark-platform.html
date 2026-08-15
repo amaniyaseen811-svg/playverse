@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark - منصة الإبداع والابتكار</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+    <script src="https://sdk.agora.io/release/AgoraRTC_N.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #FF6B35;
+            --primary-pink: #FF1B6D;
+            --primary-blue: #1E40AF;
+            --dark: #0D1B2A;
+            --light: #F8F9FA;
+            --accent-yellow: #FFD700;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a2f5a 100%);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* ============ LOGIN PAGE ============ */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a2f5a 50%, #2d5a8c 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-box {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            z-index: 10;
+            animation: slideUp 0.8s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spark-logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .spark-logo h1 {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .spark-logo p {
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: var(--transition);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(255, 107, 53, 0.4);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+            display: none;
+            font-size: 14px;
+        }
+
+        /* ============ MAIN APP ============ */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a2f5a 100%);
+            padding: 20px;
+        }
+
+        .app-container.active {
+            display: block;
+        }
+
+        /* ============ HEADER ============ */
+        .app-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-title h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .user-badge {
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            background: #fee;
+            color: #c33;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: #fdd;
+        }
+
+        /* ============ PROJECTS GRID ============ */
+        .projects-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-header {
+            height: 140px;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink), var(--primary-blue));
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+
+        .project-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(10%, 10%); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .project-content {
+            padding: 25px;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .project-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .project-team {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .team-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .project-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .project-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        /* ============ PROJECT ROOM ============ */
+        .project-room {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .project-room.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .room-header {
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink), var(--primary-blue));
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .room-title {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .close-room {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-room:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .room-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ============ AUDIO CALL ============ */
+        .audio-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .audio-section h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .call-status {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .call-status.active {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left: 4px solid #4caf50;
+        }
+
+        .call-status p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .call-timer {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-family: 'Courier New', monospace;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        .control-btn:hover {
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink));
+            color: white;
+            border-color: transparent;
+        }
+
+        .participants-list {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .participant {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .participant-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4caf50;
+        }
+
+        /* ============ NOTES SECTION ============ */
+        .notes-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notes-section h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notes-textarea {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+            resize: none;
+            transition: var(--transition);
+            margin-bottom: 15px;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .save-notes-btn {
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-pink));
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .save-notes-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1024px) {
+            .room-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 35px 25px;
+            }
+
+            .spark-logo h1 {
+                font-size: 36px;
+            }
+
+            .app-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-title {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .room-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* ============ ANIMATIONS ============ */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid #4caf50;
+        }
+
+        .toast.error {
+            border-left: 4px solid #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============ LOGIN PAGE ============ -->
+<div class="login-container" id="loginPage">
+    <div class="login-box">
+        <div class="spark-logo">
+            <h1>✨ Spark</h1>
+            <p>Creativity • Innovation • Youth</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="teamName">اسم الفريق</label>
+                <input type="text" id="teamName" placeholder="مثلاً: فريق الابتكار" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="accessCode">كود الدخول</label>
+                <input type="password" id="accessCode" placeholder="أدخل الكود الخاص بك" required>
+            </div>
+            
+            <button type="submit" class="login-btn">دخول جزيرة الإبداع 🚀</button>
+        </form>
+    </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div class="app-container" id="appContainer">
+    <!-- Header -->
+    <div class="app-header">
+        <div class="header-title">
+            <h1>✨ Spark</h1>
+        </div>
+        <div class="user-info">
+            <div class="user-badge" id="userBadge">فريق الابتكار</div>
+            <button class="logout-btn" onclick="handleLogout()">تسجيل الخروج</button>
+        </div>
+    </div>
+
+    <!-- Projects Container -->
+    <div class="projects-container">
+        <div class="projects-grid" id="projectsGrid"></div>
+    </div>
+</div>
+
+<!-- ============ PROJECT ROOM ============ -->
+<div class="project-room" id="projectRoom">
+    <div class="room-header">
+        <div class="room-title" id="roomTitle">غرفة المشروع</div>
+        <button class="close-room" onclick="closeProjectRoom()">✕</button>
+    </div>
+    
+    <div class="room-content">
+        <!-- Audio Call Section -->
+        <div class="audio-section">
+            <h2>🎤 اللقاء الصوتي</h2>
+            
+            <div class="call-status" id="callStatus">
+                <p>حالة الاتصال</p>
+                <p style="font-size: 14px; color: #999;">غير متصل</p>
+            </div>
+            
+            <div class="audio-controls">
+                <button class="control-btn" onclick="startCall()">ابدأ اللقاء</button>
+                <button class="control-btn" onclick="toggleMic()">🔇 كتم الصوت</button>
+                <button class="control-btn" onclick="endCall()">إنهاء</button>
+            </div>
+            
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;">المشاركون</h3>
+            <div class="participants-list" id="participantsList">
+                <div class="participant">
+                    <div class="participant-status"></div>
+                    <span>أنت (المضيف)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="notes-section">
+            <h2>📝 مذكرات اللقاء</h2>
+            <textarea class="notes-textarea" id="notesTextarea" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+            <button class="save-notes-btn" onclick="saveNotes()">حفظ الملاحظات</button>
+            
+            <h3 style="font-size: 14px; font-weight: 700; margin-top: 20px; margin-bottom: 10px;">معلومات المشروع</h3>
+            <div id="projectDetails" style="font-size: 14px; color: #666; line-height: 1.8;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============ PROJECTS DATA ============
+    const projects = [
+        {
+            id: 1,
+            title: 'أكاديمية المهن الرقمية',
+            emoji: '💻',
+            desc: 'منصة تدريب أونلاين لمهارات رقمية متقدمة',
+            team: 5,
+            code: 'DIGITAL-ACADEMY-2026'
+        },
+        {
+            id: 2,
+            title: 'تطبيق الحرف اليدوية الفلسطينية',
+            emoji: '🧵',
+            desc: 'ربط الحرفيين الفلسطينيين بالعملاء عالمياً',
+            team: 4,
+            code: 'CRAFTS-APP-2026'
+        },
+        {
+            id: 3,
+            title: 'منصة التدريب الصيفي الافتراضية',
+            emoji: '👨‍💼',
+            desc: 'تدريبات في شركات دولية وعربية للشباب',
+            team: 6,
+            code: 'SUMMER-TRAINING-2026'
+        },
+        {
+            id: 4,
+            title: 'أتمتة الإعلانات المحلية',
+            emoji: '📱',
+            desc: 'أداة لإنشاء إعلانات احترافية تلقائياً',
+            team: 3,
+            code: 'AUTO-ADS-2026'
+        },
+        {
+            id: 5,
+            title: 'منصة بيع الدورات التعليمية',
+            emoji: '📚',
+            desc: 'منصة عربية لنشر ودراسة الدورات التعليمية',
+            team: 5,
+            code: 'COURSES-PLATFORM-2026'
+        },
+        {
+            id: 6,
+            title: 'استشارات اختيار التخصص',
+            emoji: '🎓',
+            desc: 'تطبيق ذكي لمساعدة الطلاب على اختيار تخصصهم',
+            team: 4,
+            code: 'CAREER-GUIDANCE-2026'
+        },
+        {
+            id: 7,
+            title: 'منصة التعليم الثنائية اللغة',
+            emoji: '🌍',
+            desc: 'ألعاب تعليمية ودروس تفاعلية لتعليم اللغات',
+            team: 5,
+            code: 'BILINGUAL-LEARNING-2026'
+        },
+        {
+            id: 8,
+            title: 'تطبيق الاستشارات النفسية',
+            emoji: '💭',
+            desc: 'منصة آمنة لتقديم الاستشارات النفسية والإرشاد',
+            team: 4,
+            code: 'MENTAL-HEALTH-2026'
+        }
+    ];
+
+    // ============ STATE MANAGEMENT ============
+    let currentUser = null;
+    let currentProject = null;
+    let callActive = false;
+    let micMuted = false;
+
+    // ============ LOGIN ============
+    function handleLogin(event) {
+        event.preventDefault();
+        
+        const teamName = document.getElementById('teamName').value.trim();
+        const accessCode = document.getElementById('accessCode').value.trim();
+        const errorDiv = document.getElementById('errorMessage');
+
+        // Validate code - each project has unique code
+        const validCodes = projects.map(p => p.code);
+        
+        if (!validCodes.includes(accessCode)) {
+            errorDiv.textContent = '❌ كود الدخول غير صحيح. تحقق من الكود وحاول مجدداً.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        errorDiv.style.display = 'none';
+        currentUser = { teamName, accessCode };
+        
+        // Show app, hide login
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('appContainer').classList.add('active');
+        document.getElementById('userBadge').textContent = `🏆 ${teamName}`;
+        
+        renderProjects();
+        showToast(`مرحباً بك يا ${teamName}! 🎉`, 'success');
+    }
+
+    // ============ RENDER PROJECTS ============
+    function renderProjects() {
+        const grid = document.getElementById('projectsGrid');
+        grid.innerHTML = '';
+
+        projects.forEach(project => {
+            const card = document.createElement('div');
+            card.className = 'project-card fade-in';
+            card.innerHTML = `
+                <div class="project-header">${project.emoji}</div>
+                <div class="project-content">
+                    <div class="project-title">${project.title}</div>
+                    <div class="project-desc">${project.desc}</div>
+                    <div class="project-team">
+                        <span>👥 ${project.team} أعضاء</span>
+                    </div>
+                    <button class="project-btn" onclick="openProjectRoom(${project.id})">
+                        دخول الغرفة 🚀
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // ============ PROJECT ROOM ============
+    function openProjectRoom(projectId) {
+        currentProject = projects.find(p => p.id === projectId);
+        const room = document.getElementById('projectRoom');
+        
+        document.getElementById('roomTitle').textContent = `🎯 ${currentProject.title}`;
+        document.getElementById('projectDetails').innerHTML = `
+            <strong>الفريق:</strong> ${currentUser.teamName}<br>
+            <strong>عدد الأعضاء:</strong> ${currentProject.team}<br>
+            <strong>الوصف:</strong> ${currentProject.desc}<br>
+            <strong>تاريخ البدء:</strong> ${new Date().toLocaleDateString('ar-SA')}
+        `;
+        
+        room.classList.add('active');
+        document.getElementById('notesTextarea').value = '';
+        resetCallStatus();
+    }
+
+    function closeProjectRoom() {
+        endCall();
+        document.getElementById('projectRoom').classList.remove('active');
+        currentProject = null;
+    }
+
+    // ============ AUDIO CALL ============
+    function startCall() {
+        if (callActive) return;
+        
+        callActive = true;
+        const status = document.getElementById('callStatus');
+        status.classList.add('active');
+        status.innerHTML = `
+            <p>✅ متصل</p>
+            <div class="call-timer" id="callTimer">00:00</div>
+        `;
+        
+        // Simulate timer
+        let seconds = 0;
+        window.callInterval = setInterval(() => {
+            seconds++;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            const timer = document.getElementById('callTimer');
+            if (timer) {
+                timer.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+        }, 1000);
+
+        // Add random participant
+        addParticipant('أحمد محمد');
+        showToast('تم بدء اللقاء الصوتي ✅', 'success');
+    }
+
+    function toggleMic() {
+        micMuted = !micMuted;
+        const btn = event.target;
+        btn.classList.toggle('active');
+        btn.textContent = micMuted ? '🔊 تفعيل الصوت' : '🔇 كتم الصوت';
+        showToast(micMuted ? 'تم كتم صوتك' : 'تم تفعيل صوتك', 'success');
+    }
+
+    function endCall() {
+        if (!callActive) return;
+        
+        callActive = false;
+        clearInterval(window.callInterval);
+        resetCallStatus();
+        showToast('تم إنهاء اللقاء', 'success');
+    }
+
+    function resetCallStatus() {
+        document.getElementById('callStatus').classList.remove('active');
+        document.getElementById('callStatus').innerHTML = `
+            <p>حالة الاتصال</p>
+            <p style="font-size: 14px; color: #999;">غير متصل</p>
+        `;
+    }
+
+    function addParticipant(name) {
+        const list = document.getElementById('participantsList');
+        if (list.children.length > 5) return; // Max 5 participants
+        
+        const participant = document.createElement('div');
+        participant.className = 'participant';
+        participant.innerHTML = `
+            <div class="participant-status"></div>
+            <span>${name}</span>
+        `;
+        list.appendChild(participant);
+    }
+
+    // ============ NOTES ============
+    function saveNotes() {
+        const notes = document.getElementById('notesTextarea').value;
+        if (!notes.trim()) {
+            showToast('⚠️ لا توجد ملاحظات لحفظها', 'error');
+            return;
+        }
+        
+        localStorage.setItem(`notes_${currentProject.id}`, notes);
+        showToast('✅ تم حفظ الملاحظات بنجاح', 'success');
+    }
+
+    // ============ LOGOUT ============
+    function handleLogout() {
+        if (confirm('هل متأكد من تسجيل الخروج؟')) {
+            currentUser = null;
+            document.getElementById('appContainer').classList.remove('active');
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('teamName').value = '';
+            document.getElementById('accessCode').value = '';
+            showToast('تم تسجيل الخروج بنجاح 👋', 'success');
+        }
+    }
+
+    // ============ TOAST ============
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // ============ INIT ============
+    window.addEventListener('load', () => {
+        console.log('🚀 Spark Platform Ready');
+        console.log('📌 Access Codes for Testing:');
+        projects.forEach(p => {
+            console.log(`${p.title}: ${p.code}`);
+        });
+    });
+</script>
+
+</body>
+</html>
