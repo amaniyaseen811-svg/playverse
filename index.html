@@ -1545,22 +1545,24 @@ function bindLessonSearch(){
   if (ls && !ls._bound){
     ls._bound = true;
     ls.addEventListener('input', doLessonSearch);
-    ls.addEventListener('keyup', doLessonSearch);
   }
 }
 
+var _lessonTimer = null;
 function doLessonSearch(){
   var inp = document.getElementById('lessonSearch');
   if(!inp) return;
   var q = inp.value.trim();
   var main = document.getElementById('searchInput');
-  if(main){
-    main.value = q;
+  if(!main) return;
+  main.value = q;
+  clearTimeout(_lessonTimer);
+  _lessonTimer = setTimeout(function(){
     var ac = document.querySelector('.filter-chip.active');
     renderGames(ac ? ac.getAttribute('data-filter') : 'all', q);
     var grid = document.getElementById('gamesGrid');
     if(grid && q) grid.scrollIntoView({behavior:'smooth', block:'start'});
-  }
+  }, 260);
 }
 
 function buildPickerGrid(){
@@ -2558,6 +2560,7 @@ function getBadgeClass(subjKey) {
 // Render games
 function renderGames(filter, search) {
   var grid = document.getElementById('gamesGrid');
+  if (typeof stopAnimCovers === 'function') stopAnimCovers();
   grid.innerHTML = '';
   var filtered = games.filter(function(g) {
     var matchFilter = !filter || filter === 'all' || g.subjKey === filter;
@@ -2589,7 +2592,7 @@ function renderGames(filter, search) {
       var _multi = Array.isArray(g.animCover) && g.animCover.length > 1;
       var _vsty = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;transition:opacity .6s ease';
       thumbInner = '<img src="' + g.cover + '" class="anim-poster" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:3;transition:opacity .5s">'
-        + '<video id="lumoVid" class="anim-cover" muted playsinline preload="none" style="' + _vsty + ';z-index:2;opacity:1">'
+        + '<video class="anim-cover" muted playsinline preload="none" style="' + _vsty + ';z-index:2;opacity:1">'
         + (_multi ? '' : '<source src="' + g.animCover[0] + '" type="video/mp4">') + '</video>'
         + (_multi ? '<video class="anim-cover-b" muted playsinline preload="none" style="' + _vsty + ';z-index:1;opacity:0"></video>' : '')
         + '<div class="anim-shine"></div>';
@@ -2620,6 +2623,20 @@ var ANIM_SCENES = [
   { start: 28, dur: 3.5 },
   { start: 42, dur: 3.5 }
 ];
+var _ANIM_OBS = [];
+/* تنظيف كامل قبل إعادة بناء الشبكة — يمنع تراكم المؤقتات والمراقبين والفيديوهات */
+function stopAnimCovers(){
+  for (var i = 0; i < _ANIM_OBS.length; i++){ try { _ANIM_OBS[i].disconnect(); } catch(e){} }
+  _ANIM_OBS = [];
+  var old = document.querySelectorAll('video.anim-cover, video.anim-cover-b');
+  for (var j = 0; j < old.length; j++){
+    var m = old[j];
+    try { clearTimeout(m._animTimer); } catch(e){}
+    try { m.pause(); } catch(e){}
+    try { m.removeAttribute('src'); m.innerHTML = ''; m.load(); } catch(e){}
+    m._animOn = false;
+  }
+}
 function startAnimCovers(){
   var vids = document.querySelectorAll('video.anim-cover');
   for (var i = 0; i < vids.length; i++){
@@ -2693,7 +2710,7 @@ function startAnimCovers(){
           } catch(e){}
           hidePoster();
           clearTimeout(timer);
-          timer = setTimeout(function(){ idx++; playScene(); }, sc.dur * 1000);
+          timer = v._animTimer = setTimeout(function(){ idx++; playScene(); }, sc.dur * 1000);
         };
         v.addEventListener('loadedmetadata', playScene, { once:true });
         v.addEventListener('error', function(){ showPoster(); clearTimeout(timer); });
@@ -2705,10 +2722,11 @@ function startAnimCovers(){
       }
 
       if ('IntersectionObserver' in window){
-        new IntersectionObserver(function(entries){
+        var _io = new IntersectionObserver(function(entries){
           entries.forEach(function(en){
             var t = en.target;
             var sib = t.parentNode.querySelector('.anim-cover-b');
+            t._vis = en.isIntersecting;
             if (en.isIntersecting){
               if (t._kick) t._kick();
               if (sib && parseFloat(sib.style.opacity) === 1){
@@ -2719,7 +2737,9 @@ function startAnimCovers(){
               if (sib){ try { sib.pause(); } catch(e){} }
             }
           });
-        }, { threshold: 0.15 }).observe(v);
+        }, { threshold: 0.15 });
+        _io.observe(v);
+        _ANIM_OBS.push(_io);
       }
     })(vids[i]);
   }
@@ -2727,11 +2747,20 @@ function startAnimCovers(){
 
 /* ==== تشغيل الأغلفة عند أول تفاعل من المستخدم ==== */
 (function(){
+  var _pending = false;
   function kickAll(){
-    var all = document.querySelectorAll('video.anim-cover');
-    for (var i = 0; i < all.length; i++){ if (all[i]._kick) all[i]._kick(); }
+    if (_pending) return;
+    _pending = true;
+    setTimeout(function(){
+      _pending = false;
+      var all = document.querySelectorAll('video.anim-cover');
+      for (var i = 0; i < all.length; i++){
+        /* الظاهر على الشاشة فقط — لا نشغّل 31 فيديو مرة واحدة */
+        if (all[i]._vis && all[i]._kick) all[i]._kick();
+      }
+    }, 300);
   }
-  var evs = ['pointerdown','touchstart','click','scroll'];
+  var evs = ['pointerdown','touchstart','click'];
   for (var e = 0; e < evs.length; e++){
     window.addEventListener(evs[e], kickAll, { passive:true });
   }
@@ -2814,10 +2843,15 @@ document.getElementById('filterWrap').addEventListener('click', function(e) {
 });
 
 // Search
+var _searchTimer = null;
 document.getElementById('searchInput').addEventListener('input', function() {
-  var activeChip = document.querySelector('.filter-chip.active');
-  var filter = activeChip ? activeChip.getAttribute('data-filter') : 'all';
-  renderGames(filter, this.value);
+  var val = this.value;
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(function(){
+    var activeChip = document.querySelector('.filter-chip.active');
+    var filter = activeChip ? activeChip.getAttribute('data-filter') : 'all';
+    renderGames(filter, val);
+  }, 260);
 });
 
 // PWA Install
