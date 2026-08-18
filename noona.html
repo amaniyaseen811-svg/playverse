@@ -219,6 +219,19 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
   opacity:0;transition:opacity 1.2s ease;animation:kenburns 34s ease-in-out infinite alternate;
   will-change:transform;pointer-events:none}
 .bgfx.on{opacity:.75}
+/* طبقة ثانية للتبديل الناعم بين الصور مع كل سؤال */
+.bgfx.b2{animation-name:kenburns2;animation-duration:30s}
+.bgfx.b3{animation-name:kenburns3;animation-duration:38s}
+@keyframes kenburns2{
+  0%{transform:scale(1.14) translate(2%,1.5%)}
+  50%{transform:scale(1.06) translate(-2%,1%)}
+  100%{transform:scale(1.15) translate(1.5%,-2%)}
+}
+@keyframes kenburns3{
+  0%{transform:scale(1.08) translate(-2%,1%)}
+  50%{transform:scale(1.17) translate(2%,-1.5%)}
+  100%{transform:scale(1.06) translate(-1%,-2%)}
+}
 .bgveil{position:absolute;inset:0;z-index:0;pointer-events:none;
   background:radial-gradient(120% 95% at 50% 10%, rgba(24,15,61,.05) 0%, rgba(24,15,61,.30) 55%, rgba(24,15,61,.62) 100%)}
 @keyframes kenburns{
@@ -1609,6 +1622,28 @@ function setBG(i){
   el.classList.remove('on');
   setTimeout(()=>{ el.style.backgroundImage='url('+BGS[i]+')'; el.classList.add('on'); },160);
 }
+
+/* ===== خلفية ساحرة تتغيّر مع كل سؤال =====
+   تدور على صور اللعبة مع ثلاث حركات مختلفة، فلا يتكرّر المشهد نفسه. */
+const QBG_MOTION=['','b2','b3'];
+let qbgStep=-1;
+function setQuestionBG(stageIdx, qIndex){
+  const el=document.getElementById('bgfx');
+  if(!el || !BGS.length) return;
+  const step=(stageIdx*7 + qIndex);
+  if(step===qbgStep) return;
+  qbgStep=step;
+  const img=BGS[step % BGS.length];
+  const mo =QBG_MOTION[step % QBG_MOTION.length];
+  bgNow=stageIdx;
+  el.classList.remove('on');
+  setTimeout(()=>{
+    el.classList.remove('b2','b3');
+    if(mo) el.classList.add(mo);
+    el.style.backgroundImage='url('+img+')';
+    el.classList.add('on');
+  },170);
+}
 function clearBG(){ bgNow=-1; document.getElementById('bgfx').classList.remove('on'); }
 
 
@@ -1890,6 +1925,7 @@ function stopTimer(){if(timerId){clearInterval(timerId);timerId=null}
 function renderQ(){
   const st=STAGES[stage], q=st.qs[qi];
   answered=false; picked=[]; slots=[];
+  setQuestionBG(stage, qi);
   updateHud(); renderPlayers();
   const card=document.getElementById('qCard');
   const who = mode==='solo'?'':`<div class="eyebrow">دور: <b>${players[turn].name}</b></div>`;
