@@ -353,9 +353,43 @@ input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;bac
 .musicbtn:after{content:attr(data-lbl);position:absolute;top:50px;left:0;font-size:10px;
   font-weight:800;color:var(--clay3);white-space:nowrap;background:rgba(20,16,32,.85);
   padding:2px 6px;border-radius:7px}
+
+/* ===== لغة البيكر ===== */
+#langPicker{
+  position:fixed;top:12px;right:12px;z-index:999;
+  background:rgba(20,16,32,.7);backdrop-filter:blur(8px);
+  border:2px solid rgba(229,172,46,.3);border-radius:999px;
+  padding:8px 12px;display:flex;gap:5px;flex-wrap:wrap;
+  max-width:90vw;justify-content:center;
+}
+.lang-btn{
+  background:rgba(236,220,187,.09);border:1.5px solid rgba(236,220,187,.2);
+  border-radius:999px;padding:6px 11px;color:var(--clay);cursor:pointer;
+  font-size:.85rem;font-weight:700;transition:.2s;font-family:inherit;
+  white-space:nowrap;
+}
+.lang-btn:hover{background:rgba(229,172,46,.15);border-color:var(--gold);transform:scale(1.05)}
+.lang-btn.active{background:linear-gradient(160deg,var(--gold2),var(--gold));
+  color:#2a1c04;box-shadow:0 0 14px rgba(229,172,46,.5)}
+@media (max-width:500px){
+  #langPicker{position:static;margin:0 0 12px;gap:4px;padding:6px 8px}
+  .lang-btn{font-size:.75rem;padding:5px 9px}
+}
 </style>
 </head>
 <body>
+<!-- لغة البيكر - 8 لغات -->
+<div id="langPicker">
+  <button class="lang-btn active" onclick="window.setLang('ar')" data-lang="ar">العربية</button>
+  <button class="lang-btn" onclick="window.setLang('en')" data-lang="en">English</button>
+  <button class="lang-btn" onclick="window.setLang('fr')" data-lang="fr">Français</button>
+  <button class="lang-btn" onclick="window.setLang('es')" data-lang="es">Español</button>
+  <button class="lang-btn" onclick="window.setLang('sv')" data-lang="sv">Svenska</button>
+  <button class="lang-btn" onclick="window.setLang('ru')" data-lang="ru">Русский</button>
+  <button class="lang-btn" onclick="window.setLang('zh')" data-lang="zh">中文</button>
+  <button class="lang-btn" onclick="window.setLang('hi')" data-lang="hi">हिंदी</button>
+</div>
+
 <div id="app">
   <div class="topbar" id="topbar" style="display:none">
     <button class="iconbtn" id="btnMute" aria-label="كتم الصوت">🔊</button>
@@ -3020,6 +3054,18 @@ scrCover();
   function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
   function lang() { try { return localStorage.getItem('pv_lang') || 'ar'; } catch (e) { return 'ar'; } }
+  
+  /* تبديل اللغة ديناميكياً */
+  window.setLang = function(langCode) {
+    try { localStorage.setItem('pv_lang', langCode); } catch(e) {}
+    document.documentElement.lang = langCode;
+    document.documentElement.dir = (langCode === 'ar' || langCode === 'he' || langCode === 'fa') ? 'rtl' : 'ltr';
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === langCode);
+    });
+    location.reload();
+  };
+  
   function isRTL() { var c = lang(); return c === 'ar' || c === 'he' || c === 'fa'; }
   var AR = lang() !== 'en';
   function TX(ar, en) { return AR ? ar : en; }
@@ -3670,6 +3716,15 @@ scrCover();
   else setTimeout(boot, 300);
 })();
 
+/* ===== تهيئة لغة البيكر ===== */
+(function() {
+  var currentLang = localStorage.getItem('pv_lang') || 'ar';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar' || currentLang === 'he' || currentLang === 'fa') ? 'rtl' : 'ltr';
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+  });
+})();
 </script>
 
 </body>
