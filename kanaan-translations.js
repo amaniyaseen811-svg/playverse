@@ -144,13 +144,8 @@ const QUESTIONS_I18N = {
     {q:"¿Qué aprendemos de los cananeos hoy?",o:["Amor por la tierra, trabajo, construcción y resistencia","Pereza y emigración","Olvido de la historia"],f:"Los cananeos nos enseñaron: la tierra es honor, quien cultiva su tierra no morirá de hambre, quien construye su casa no será desplazado.",h:"Valores positivos para estudiantes"},
     {q:"¿Cuál es la relación de los palestinos de hoy con los cananeos?",o:["Una continuación histórica y cultural y un pueblo en una tierra","Sin relación","Un pueblo completamente diferente"],f:"Las pruebas de ADN prueban que el 90% de los palestinos son descendientes directos de los cananeos - ¡hemos estado aquí durante 4000 años!",h:"Somos sus descendientes"},
     {q:"¿Por qué estudiamos la historia de Canaán?",o:["Para conocer nuestras raíces y derechos históricos en Palestina","Solo para entretenimiento","Porque es un tema sin importancia"],f:"Quien no conoce su historia no conoce sus derechos. Estudiar Canaán prueba que Palestina es nuestra ¡incluso antes de que se escribiera la historia!",h:"Para probar nuestros derechos históricos"}
-  ]
-};
+  ],
 
-// إضافة اللغات الأخرى (sv, ru, zh, hi) بنفس الطريقة...
-// سيتم ملء البيانات بناءً على الترجمات المطلوبة
-
-,
   sv: [
     {q:"Vem var det första folket att bosätta sig i Palestina och bygga sin civilisation?",o:["Kananéerna","Romarna","Ottomanerna"],f:"Kananéerna migrerade från Arabiska halvön för 4000 år sedan och byggde mer än 200 städer i Palestina.",h:"Deras namn börjar med bokstaven C"},
     {q:"Varför kallades Palestina för Kanaans land?",o:["Efter kananéerna som bosatte sig där","Efter berget Kanaan","Efter floden Kanaan"],f:"Landet kallades Kanaan efter kananéerna som utvecklade det och gjorde det till ett grönt paradis.",h:"Namnet är relaterat till de första invånarna"},
@@ -236,7 +231,7 @@ const QUESTIONS_I18N = {
     {q:"哪片海洋在西边与巴勒斯坦接壤?",o:["地中海","红海","阿拉伯海"],f:"地中海为巴勒斯坦提供了224公里长的美丽海岸线和温和的气候。",h:"同一片海洋俯瞰雅法和海法"},
     {q:"巴勒斯坦的主要河流是什么?",o:["约旦河","尼罗河","幼发拉底河"],f:"约旦河发源于赫尔蒙山，流入死海，长度为251公里。",h:"流入死海"},
     {q:"巴勒斯坦的气候是什么?",o:["地中海气候温和","非常炎热的沙漠气候","寒冷的两极气候"],f:"巴勒斯坦的气候多样化：温和的海岸、冬季寒冷的山脉、炎热的山谷——这是其农业财富的秘密。",h:"如黎巴嫩气候"},
-    {q:"列举3个仍然存在的著名迦南城市?",o:["耶利哥、耶路撒冷（耶布斯）和希伯伦","伦敦、巴黎和罗马","开罗、巴格达和大马士革仅"},f:"耶利哥、耶布斯（耶路撒冷）、希伯伦、纳布卢斯、阿卡、雅法、伯笃生、麦吉多——都起源于迦南人。",h:"我们今天所知的巴勒斯坦城市"},
+    {q:"列举3个仍然存在的著名迦南城市?",o:["耶利哥、耶路撒冷（耶布斯）和希伯伦","伦敦、巴黎和罗马","开罗、巴格达和大马士革仅"],f:"耶利哥、耶布斯（耶路撒冷）、希伯伦、纳布卢斯、阿卡、雅法、伯笃生、麦吉多——都起源于迦南人。",h:"我们今天所知的巴勒斯坦城市"},
     {q:"迦南人因农业而闻名什么?",o:["种植小麦、橄榄和葡萄","仅种植米","他们不关心农业"],f:"迦南人是世界上第一个种植橄榄树的人，橄榄树至今仍是巴勒斯坦的象征。",h:"三种著名的地中海作物"},
     {q:"迦南人因工业而闻名什么?",o:["生产紫色染料、玻璃和陶器","生产汽车","生产塑料"],f:"紫色是古代世界最贵的染料，从贝壳中提取并出口给国王。",h:"古代珍贵的手工艺"},
     {q:"迦南人发明了什么并奉献给世界?",o:["字母/字母文字","互联网","电力"],f:"迦南字母表（22个字母）是世界上所有字母的母亲，包括阿拉伯语、希伯来语和拉丁语。",h:"帮助人类轻松写字的发明"},
