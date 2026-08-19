@@ -10,8 +10,8 @@
         breakMax  : 2,    // مرتين للأساسية · مرة واحدة للكبار
         gameMinutes: 30,  // 0 = اللعبة عندها مؤقتها الخاص
         breakBtn  : true  // false = اللعبة عندها زر توقف خاص
-     };</script>
-     <script src="pvkit.js"></script>
+     };<\/script>
+     <script src="pvkit.js"><\/script>
 
    خطّافات اختيارية داخل اللعبة (إن وُجدت يستدعيها PVKit):
      window.PVKIT_PAUSE  = function(){ ... }

@@ -2157,7 +2157,8 @@ function showResult(){
 
 /* ===== تهيئة لغة البيكر ===== */
 (function() {
-  var currentLang = lang();
+  var currentLang = 'ar';
+  try { currentLang = localStorage.getItem('pv_lang') || 'ar'; } catch(e) {}
   document.documentElement.lang = currentLang;
   document.documentElement.dir = 'rtl';  // ✅ ثابت RTL
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -2172,5 +2173,9 @@ function showResult(){
 <!-- 🌐 ترجمات لعبة نُونا وحَرْفوش - 8 لغات مكتملة -->
 <script src="noona-translations.js"></script>
 
+
+<!-- ===== PVKit: زر الرئيسية + التوقف اللحظي + المؤقت العام ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',breakSec:40,breakMax:2,gameMinutes:30,breakBtn:true};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>
