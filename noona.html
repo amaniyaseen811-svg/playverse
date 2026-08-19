@@ -2159,11 +2159,18 @@ function showResult(){
 (function() {
   var currentLang = lang();
   document.documentElement.lang = currentLang;
-  document.documentElement.dir = isRTL() ? 'rtl' : 'ltr';
+  document.documentElement.dir = 'rtl';  // ✅ ثابت RTL
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
   });
 })();
 </script>
+
+<!-- 🎮 نظام اللعبة الموحد - جميع الألعاب -->
+<script src="universal-game-system.js"></script>
+
+<!-- 🌐 ترجمات لعبة نُونا وحَرْفوش - 8 لغات مكتملة -->
+<script src="noona-translations.js"></script>
+
 </body>
 </html>

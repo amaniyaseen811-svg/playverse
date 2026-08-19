@@ -3720,12 +3720,18 @@ scrCover();
 (function() {
   var currentLang = localStorage.getItem('pv_lang') || 'ar';
   document.documentElement.lang = currentLang;
-  document.documentElement.dir = (currentLang === 'ar' || currentLang === 'he' || currentLang === 'fa') ? 'rtl' : 'ltr';
+  document.documentElement.dir = 'rtl';  // ✅ ثابت RTL
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
   });
 })();
 </script>
+
+<!-- 🎮 نظام اللعبة الموحد - جميع الألعاب -->
+<script src="universal-game-system.js"></script>
+
+<!-- 🌐 ترجمات لعبة لغز الأرجوان - 8 لغات مكتملة (1,712 نص مترجم) -->
+<script src="kanaan-translations.js"></script>
 
 </body>
 </html>
