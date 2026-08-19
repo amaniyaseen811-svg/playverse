@@ -261,6 +261,27 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
   h2.title{font-size:1.28rem}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== لغة البيكر ===== */
+#langPicker{
+  position:fixed;top:12px;right:12px;z-index:999;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(8px);
+  border:2px solid rgba(94,240,196,.3);border-radius:999px;
+  padding:6px 10px;display:flex;gap:4px;flex-wrap:wrap;
+  max-width:90vw;justify-content:center;
+}
+.lang-btn{
+  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.16);
+  border-radius:999px;padding:6px 10px;color:var(--cream);cursor:pointer;
+  font-size:.8rem;font-weight:700;transition:.2s;font-family:inherit;
+  white-space:nowrap;
+}
+.lang-btn:hover{background:rgba(94,240,196,.15);border-color:var(--mint);transform:scale(1.05)}
+.lang-btn.active{background:var(--mint);color:var(--ink);box-shadow:0 0 12px rgba(94,240,196,.5)}
+@media (max-width:480px){
+  #langPicker{position:static;margin:0 0 10px;gap:3px;padding:4px 6px}
+  .lang-btn{font-size:.75rem;padding:4px 8px}
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -459,6 +480,17 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
     return o;
   }
   function isRTL() { var c = lang(); return c === 'ar' || c === 'he' || c === 'fa'; }
+  
+  /* تبديل اللغة ديناميكياً */
+  window.setLang = function(langCode) {
+    try { localStorage.setItem('pv_lang', langCode); } catch(e) {}
+    document.documentElement.lang = langCode;
+    document.documentElement.dir = isRTL() ? 'rtl' : 'ltr';
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === langCode);
+    });
+    location.reload();
+  };
 
   /* تطبيع النص العربي: تشكيل، مدّ، ألف/همزة، ة/ه، ى/ي، أرقام بدل حروف */
   function norm(s) {
@@ -1264,6 +1296,18 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
 </script>
 
 <body>
+<!-- لغة البيكر - 8 لغات -->
+<div id="langPicker">
+  <button class="lang-btn active" onclick="setLang('ar')" data-lang="ar">العربية</button>
+  <button class="lang-btn" onclick="setLang('en')" data-lang="en">English</button>
+  <button class="lang-btn" onclick="setLang('fr')" data-lang="fr">Français</button>
+  <button class="lang-btn" onclick="setLang('es')" data-lang="es">Español</button>
+  <button class="lang-btn" onclick="setLang('sv')" data-lang="sv">Svenska</button>
+  <button class="lang-btn" onclick="setLang('ru')" data-lang="ru">Русский</button>
+  <button class="lang-btn" onclick="setLang('zh')" data-lang="zh">中文</button>
+  <button class="lang-btn" onclick="setLang('hi')" data-lang="hi">हिंदी</button>
+</div>
+
 <div class="sky" id="sky"></div>
 
 <div class="stage">
@@ -2110,6 +2154,16 @@ function showResult(){
       ? '<p class="sub">تم إرسال نتيجتك إلى المعلّمة ✓</p>' : lb.innerHTML;
   beep('win'); show('s-result');
 }
+
+/* ===== تهيئة لغة البيكر ===== */
+(function() {
+  var currentLang = lang();
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = isRTL() ? 'rtl' : 'ltr';
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+  });
+})();
 </script>
 </body>
 </html>
