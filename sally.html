@@ -338,6 +338,27 @@
     body{background:#fff;padding:0;} .app{box-shadow:none;border:none;}
     .ws-item input{border:none;border-bottom:2px solid #999;border-radius:0;}
   }
+
+/* ===== شريط اللغات الثماني ===== */
+#langPicker{
+  position:fixed;top:10px;right:10px;z-index:2147481000;
+  background:rgba(20,12,30,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:2px solid rgba(255,255,255,.22);border-radius:999px;
+  padding:5px 9px;display:flex;gap:4px;flex-wrap:wrap;
+  max-width:92vw;justify-content:center;
+}
+.lang-btn{
+  background:rgba(255,255,255,.10);border:1.5px solid rgba(255,255,255,.18);
+  border-radius:999px;padding:5px 9px;color:#fff;cursor:pointer;
+  font-size:.78rem;font-weight:800;transition:.2s;font-family:inherit;
+  white-space:nowrap;line-height:1;
+}
+.lang-btn:hover{background:rgba(255,179,0,.22);border-color:#ffb300;transform:scale(1.05)}
+.lang-btn.active{background:#ffb300;color:#2a1a00;box-shadow:0 0 12px rgba(255,179,0,.55)}
+@media (max-width:480px){
+  #langPicker{position:static;margin:0 auto 8px;gap:3px;padding:4px 6px}
+  .lang-btn{font-size:.72rem;padding:4px 7px}
+}
 </style>
 </head>
 <!-- ===== PlayVerse Chat + Room (mudmaj) ===== -->
@@ -1339,6 +1360,17 @@
 </script>
 
 <body>
+<!-- ===== شريط اللغات الثماني ===== -->
+<div id="langPicker">
+  <button class="lang-btn active" onclick="setLang('ar')" data-lang="ar">العربية</button>
+  <button class="lang-btn" onclick="setLang('en')" data-lang="en">English</button>
+  <button class="lang-btn" onclick="setLang('fr')" data-lang="fr">Français</button>
+  <button class="lang-btn" onclick="setLang('es')" data-lang="es">Español</button>
+  <button class="lang-btn" onclick="setLang('sv')" data-lang="sv">Svenska</button>
+  <button class="lang-btn" onclick="setLang('ru')" data-lang="ru">Русский</button>
+  <button class="lang-btn" onclick="setLang('zh')" data-lang="zh">中文</button>
+  <button class="lang-btn" onclick="setLang('hi')" data-lang="hi">हिंदी</button>
+</div>
 <div class="app">
 
   <div class="topbar">
@@ -2761,6 +2793,7 @@ setTimeout(playIntro, 250);
 </script>
 
 <!-- 🌐 ترجمات لعبة مغامرة سالي - 8 لغات مكتملة -->
+<script src="universal-game-system.js"></script>
 <script src="sally-translations.js"></script>
 
 
