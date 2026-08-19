@@ -133,6 +133,11 @@
     filter:blur(9px) saturate(1.25) brightness(.92);opacity:.42;
     animation:mgDrift 26s ease-in-out infinite alternate;}
   @keyframes mgDrift{from{transform:scale(1.06) translate(0,0);}to{transform:scale(1.16) translate(-2%,-3%);}}
+  .mg-photo.mv2{animation-name:mgDrift2;animation-duration:22s;}
+  .mg-photo.mv3{animation-name:mgDrift3;animation-duration:30s;}
+  .mg-photo.fade{opacity:0;transition:opacity .5s ease;}
+  @keyframes mgDrift2{from{transform:scale(1.15) translate(2%,2%);}to{transform:scale(1.05) translate(-2%,1%);}}
+  @keyframes mgDrift3{from{transform:scale(1.08) translate(-2%,1%);}to{transform:scale(1.18) translate(2%,-2%);}}
   /* الطبقة 2 — شفق ملوّن متحرك */
   .mg-aurora{position:absolute;inset:-25%;
     background:
@@ -1338,7 +1343,7 @@
 
   <div class="topbar">
     <div class="row1">
-      <h1>🌸 مغامرة سالي مع الأرقام</h1>
+      <h1 data-i18n="gameTitleE">🌸 مغامرة سالي مع الأرقام</h1>
       <div style="display:flex;gap:6px;">
         <button class="icon-btn" onclick="goBack()" title="رجوع">↩️</button>
         <button class="icon-btn" onclick="backToPlatform()" title="الشاشة الرئيسية للألعاب">🏠</button>
@@ -1349,7 +1354,7 @@
       <span class="pill clock" id="clockPill">⏳ 30:00</span>
       <span class="pill" id="heartsPill">❤️❤️❤️</span>
       <span class="pill" id="scorePill">النقاط: 0</span>
-      <button class="icon-btn" id="pauseBtn" onclick="togglePause()" title="إيقاف مؤقت">⏸️</button>
+      <button class="icon-btn" id="pauseBtn" onclick="startBreak()" title="إيقاف مؤقت">⏸️</button>
       <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="الصوت">🔊</button>
       <button class="icon-btn" onclick="goHome()" title="خريطة المراحل">🗺️</button>
     </div>
@@ -1357,84 +1362,84 @@
 
   <!-- اختيار نمط اللعب -->
   <div class="screen" id="screen-mode">
-    <h2 class="title">🎮 اختر طريقة اللعب</h2>
+    <h2 class="title" data-i18n="chooseMode">🎮 اختر طريقة اللعب</h2>
     <div class="levels">
       <button class="level-card" onclick="pickMode('solo')">
         <span class="lv-emoji">🧍</span>
-        <span class="lv-body"><span class="lv-name">لعب فردي</span><br>
-        <span class="lv-desc">تلعب لحالك، والنتيجة بتضل على جهازك</span></span></button>
+        <span class="lv-body"><span class="lv-name" data-i18n="soloMode">لعب فردي</span><br>
+        <span class="lv-desc" data-i18n="soloDesc">تلعب لحالك، والنتيجة بتضل على جهازك</span></span></button>
       <button class="level-card" onclick="pickMode('class')">
         <span class="lv-emoji">👥</span>
-        <span class="lv-body"><span class="lv-name">جماعي — الكل بشوف النتائج</span><br>
-        <span class="lv-desc">سباق صفّي بلوحة نتائج مباشرة يشوفها الجميع</span></span></button>
+        <span class="lv-body"><span class="lv-name" data-i18n="classMode">جماعي — الكل بشوف النتائج</span><br>
+        <span class="lv-desc" data-i18n="classDesc">سباق صفّي بلوحة نتائج مباشرة يشوفها الجميع</span></span></button>
       <button class="level-card" onclick="pickMode('teacher')">
         <span class="lv-emoji">👩‍🏫</span>
-        <span class="lv-body"><span class="lv-name">الكل بيلعب — المعلّمة بس بتشوف</span><br>
-        <span class="lv-desc">النتائج محفوظة وما بيشوفها إلا المعلّمة بكلمة السر</span></span></button>
+        <span class="lv-body"><span class="lv-name" data-i18n="teacherMode">الكل بيلعب — المعلّمة بس بتشوف</span><br>
+        <span class="lv-desc" data-i18n="teacherDesc">النتائج محفوظة وما بيشوفها إلا المعلّمة بكلمة السر</span></span></button>
     </div>
-    <div class="btn-row"><button class="btn secondary" onclick="backToPlatform()">🏠 العودة إلى الألعاب</button></div>
+    <div class="btn-row"><button class="btn secondary" onclick="backToPlatform()" data-i18n="backToGames">🏠 العودة إلى الألعاب</button></div>
   </div>
 
   <!-- الدخول للغرفة -->
   <div class="screen" id="screen-join">
-    <h2 class="title" id="joinTitle">👥 الدخول إلى الغرفة</h2>
+    <h2 class="title" id="joinTitle" data-i18n="enterRoom">👥 الدخول إلى الغرفة</h2>
     <div class="story-text" id="joinHint"></div>
     <input class="field" id="pName" maxlength="20" placeholder="اسمك">
     <input class="field" id="pRoom" maxlength="16" placeholder="كود الغرفة — مثال: صف1">
     <div class="note" id="joinMsg"></div>
     <div class="btn-row">
-      <button class="btn" onclick="doJoin()">✅ دخول</button>
-      <button class="btn ghost" onclick="showScreen('mode')">↩️ رجوع</button>
+      <button class="btn" onclick="doJoin()" data-i18n="enterBtn">✅ دخول</button>
+      <button class="btn ghost" onclick="showScreen('mode')" data-i18n="backBtn">↩️ رجوع</button>
     </div>
   </div>
 
   <!-- لوحة النتائج -->
   <div class="screen" id="screen-board">
-    <h2 class="title">🏁 لوحة النتائج</h2>
+    <h2 class="title" data-i18n="scoreboard">🏁 لوحة النتائج</h2>
     <div class="note" id="boardRoom"></div>
     <div id="boardWrap" style="margin-top:10px;"></div>
     <div class="btn-row">
-      <button class="btn secondary" onclick="loadBoard()">🔄 تحديث</button>
-      <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+      <button class="btn secondary" onclick="loadBoard()" data-i18n="refresh">🔄 تحديث</button>
+      <button class="btn ghost" onclick="goHome()" data-i18n="map">🗺️ الخريطة</button>
     </div>
   </div>
 
   <!-- نتائج المعلّمة -->
   <div class="screen" id="screen-teacher">
-    <h2 class="title">🔒 نتائج الطلاب</h2>
+    <h2 class="title" data-i18n="studentRes">🔒 نتائج الطلاب</h2>
     <div id="teacherLock">
-      <div class="story-text">هذه الشاشة للمعلّمة فقط.</div>
+      <div class="story-text" data-i18n="teacherOnly">هذه الشاشة للمعلّمة فقط.</div>
       <input class="field" id="tPass" type="password" placeholder="كلمة السر">
       <div class="note" id="tMsg"></div>
       <div class="btn-row">
-        <button class="btn" onclick="checkTeacher()">🔓 دخول</button>
-        <button class="btn ghost" onclick="goHome()">↩️ رجوع</button>
+        <button class="btn" onclick="checkTeacher()" data-i18n="unlockBtn">🔓 دخول</button>
+        <button class="btn ghost" onclick="goHome()" data-i18n="backBtn">↩️ رجوع</button>
       </div>
     </div>
     <div id="teacherPanel" style="display:none;">
       <div class="note" id="teacherRoom"></div>
       <div id="teacherWrap" style="margin-top:10px;"></div>
       <div class="btn-row">
-        <button class="btn secondary" onclick="loadBoard(true)">🔄 تحديث</button>
-        <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+        <button class="btn secondary" onclick="loadBoard(true)" data-i18n="refresh">🔄 تحديث</button>
+        <button class="btn ghost" onclick="goHome()" data-i18n="map">🗺️ الخريطة</button>
       </div>
     </div>
   </div>
 
   <!-- خريطة المراحل -->
   <div class="screen" id="screen-home">
-    <h2 class="title">🗺️ اختَر مرحلتك</h2>
+    <h2 class="title" data-i18n="chooseStage">🗺️ اختَر مرحلتك</h2>
     <div class="levels" id="levelsWrap"></div>
     <div class="story-text" style="font-size:14px;padding:10px 13px;" id="totalLine"></div>
     <div class="btn-row">
-      <button class="btn ghost" onclick="playIntro()">🎬 القصة والمقدمة</button>
-      <button class="btn ghost" id="boardBtn" style="display:none;" onclick="openBoard()">🏁 لوحة النتائج</button>
-      <button class="btn ghost" id="teacherBtn" style="display:none;" onclick="showScreen('teacher')">🔒 نتائج الطلاب</button>
-      <button class="btn ghost" onclick="openTrophy(true)">🏆 الجوائز</button>
-      <button class="btn ghost" onclick="resetProgress()">🧹 مسح التقدّم</button>
+      <button class="btn ghost" onclick="playIntro()" data-i18n="storyIntro">🎬 القصة والمقدمة</button>
+      <button class="btn ghost" id="boardBtn" style="display:none;" onclick="openBoard()" data-i18n="scoreboard">🏁 لوحة النتائج</button>
+      <button class="btn ghost" id="teacherBtn" style="display:none;" onclick="showScreen('teacher')" data-i18n="studentRes">🔒 نتائج الطلاب</button>
+      <button class="btn ghost" onclick="openTrophy(true)" data-i18n="prizes">🏆 الجوائز</button>
+      <button class="btn ghost" onclick="resetProgress()" data-i18n="clearProg">🧹 مسح التقدّم</button>
     </div>
     <div class="btn-row">
-      <button class="btn secondary" onclick="backToPlatform()">🏠 العودة إلى الألعاب</button>
+      <button class="btn secondary" onclick="backToPlatform()" data-i18n="backToGames">🏠 العودة إلى الألعاب</button>
     </div>
   </div>
 
@@ -1444,8 +1449,8 @@
     <h2 class="title" id="lessonTitle"></h2>
     <div class="lesson-grid" id="lessonCards"></div>
     <div class="btn-row">
-      <button class="btn" onclick="startLevel()">🎮 ابدأ المرحلة</button>
-      <button class="btn ghost" onclick="goHome()">↩️ رجوع</button>
+      <button class="btn" onclick="startLevel()" data-i18n="startStage">🎮 ابدأ المرحلة</button>
+      <button class="btn ghost" onclick="goHome()" data-i18n="backBtn">↩️ رجوع</button>
     </div>
   </div>
 
@@ -1485,93 +1490,93 @@
     <div class="score-line" id="doneScore"></div>
     <div class="story-text" id="doneText"></div>
     <div class="btn-row">
-      <button class="btn" id="nextLevelBtn" onclick="nextLevel()">▶️ المرحلة التالية</button>
-      <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+      <button class="btn" id="nextLevelBtn" onclick="nextLevel()" data-i18n="nextStage">▶️ المرحلة التالية</button>
+      <button class="btn ghost" onclick="goHome()" data-i18n="map">🗺️ الخريطة</button>
     </div>
   </div>
 
   <!-- خسارة القلوب -->
   <div class="screen" id="screen-gameOver">
     <img class="hero" data-src="no" alt="سالي حزينة">
-    <h2 class="title">خلصت القلوب 💔</h2>
+    <h2 class="title" data-i18n="noHearts">خلصت القلوب 💔</h2>
     <div class="story-text">لا بأس يا بطل! سالي تعبت شوي بس ما استسلمت. راجِع الدرس وجرّب من جديد — كل محاولة بتقرّبك أكثر 🌼</div>
     <div class="btn-row">
-      <button class="btn" onclick="startLevel()">🔄 أعِد المرحلة</button>
-      <button class="btn secondary" onclick="openLesson(currentLevel)">📖 راجِع الدرس</button>
-      <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+      <button class="btn" onclick="startLevel()" data-i18n="redoStage">🔄 أعِد المرحلة</button>
+      <button class="btn secondary" onclick="openLesson(currentLevel)" data-i18n="reviewLesson">📖 راجِع الدرس</button>
+      <button class="btn ghost" onclick="goHome()" data-i18n="map">🗺️ الخريطة</button>
     </div>
   </div>
 
   <!-- انتهاء وقت اللعبة -->
   <div class="screen" id="screen-timeUp">
-    <h2 class="title">⏳ انتهى وقت اللعبة!</h2>
-    <div class="story-text">خلصت الثلاثون دقيقة. شوف نتيجتك، وبتقدر تبدأ من جديد وقت ما بدك 🌸</div>
+    <h2 class="title" data-i18n="timeUp">⏳ انتهى وقت اللعبة!</h2>
+    <div class="story-text" data-i18n="timeUpMsg">خلصت الثلاثون دقيقة. شوف نتيجتك، وبتقدر تبدأ من جديد وقت ما بدك 🌸</div>
     <div class="score-line" id="timeUpScore"></div>
     <div class="btn-row">
-      <button class="btn gold" onclick="openTrophy(false)">🏆 شوف الكأس</button>
-      <button class="btn" onclick="restartTime()">🔄 وقت جديد</button>
-      <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+      <button class="btn gold" onclick="openTrophy(false)" data-i18n="seeCup">🏆 شوف الكأس</button>
+      <button class="btn" onclick="restartTime()" data-i18n="newTime">🔄 وقت جديد</button>
+      <button class="btn ghost" onclick="goHome()" data-i18n="map">🗺️ الخريطة</button>
     </div>
   </div>
 
   <!-- الكأس -->
   <div class="screen" id="screen-trophy">
-    <h2 class="title">🏆 مبروك! أنهيتَ التحدّي</h2>
+    <h2 class="title" data-i18n="congrats">🏆 مبروك! أنهيتَ التحدّي</h2>
     <div class="cup-wrap" id="cupWrap"></div>
     <div class="score-line" id="trophyScore"></div>
     <div class="story-text" id="trophyText"></div>
     <div class="btn-row">
-      <button class="btn" onclick="openWS(1)">📝 ورقة العمل الأولى</button>
-      <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+      <button class="btn" onclick="openWS(1)" data-i18n="ws1">📝 ورقة العمل الأولى</button>
+      <button class="btn ghost" onclick="goHome()" data-i18n="map">🗺️ الخريطة</button>
     </div>
   </div>
 
   <!-- ورقة العمل الأولى -->
   <div class="screen" id="screen-ws1">
     <div class="worksheet">
-      <h3>📝 ورقة العمل الأولى — تدريب أساسي</h3>
-      <p class="ws-head">الاسم: ____________________ &nbsp; التاريخ: ____________</p>
+      <h3 data-i18n="ws1Desc">📝 ورقة العمل الأولى — تدريب أساسي</h3>
+      <p class="ws-head" data-i18n="nameDate">الاسم: ____________________ &nbsp; التاريخ: ____________</p>
       <div id="ws1Items"></div>
       <div class="ws-score" id="ws1Score"></div>
     </div>
     <div class="btn-row">
-      <button class="btn" onclick="checkWS(1)">✅ تصحيح</button>
-      <button class="btn secondary" onclick="openWS(1)">🎲 أسئلة جديدة</button>
-      <button class="btn ghost" onclick="window.print()">🖨️ طباعة</button>
+      <button class="btn" onclick="checkWS(1)" data-i18n="check">✅ تصحيح</button>
+      <button class="btn secondary" onclick="openWS(1)" data-i18n="newQuestions">🎲 أسئلة جديدة</button>
+      <button class="btn ghost" onclick="window.print()" data-i18n="printBtn">🖨️ طباعة</button>
     </div>
     <div class="btn-row">
-      <button class="btn gold" onclick="openWS(2)">📄 ورقة العمل الثانية ▶️</button>
+      <button class="btn gold" onclick="openWS(2)" data-i18n="ws2">📄 ورقة العمل الثانية ▶️</button>
     </div>
   </div>
 
   <!-- ورقة العمل الثانية -->
   <div class="screen" id="screen-ws2">
     <div class="worksheet">
-      <h3>📄 ورقة العمل الثانية — تحدّي أصعب</h3>
-      <p class="ws-head">الاسم: ____________________ &nbsp; التاريخ: ____________</p>
+      <h3 data-i18n="ws2Desc">📄 ورقة العمل الثانية — تحدّي أصعب</h3>
+      <p class="ws-head" data-i18n="nameDate">الاسم: ____________________ &nbsp; التاريخ: ____________</p>
       <div id="ws2Items"></div>
       <div class="ws-score" id="ws2Score"></div>
     </div>
     <div class="btn-row">
-      <button class="btn" onclick="checkWS(2)">✅ تصحيح</button>
-      <button class="btn secondary" onclick="openWS(2)">🎲 أسئلة جديدة</button>
-      <button class="btn ghost" onclick="window.print()">🖨️ طباعة</button>
+      <button class="btn" onclick="checkWS(2)" data-i18n="check">✅ تصحيح</button>
+      <button class="btn secondary" onclick="openWS(2)" data-i18n="newQuestions">🎲 أسئلة جديدة</button>
+      <button class="btn ghost" onclick="window.print()" data-i18n="printBtn">🖨️ طباعة</button>
     </div>
     <div class="btn-row">
-      <button class="btn gold" onclick="openGenie()">🧞 المارد والجائزة ▶️</button>
+      <button class="btn gold" onclick="openGenie()" data-i18n="genieBtn">🧞 المارد والجائزة ▶️</button>
     </div>
   </div>
 
   <!-- المارد -->
   <div class="screen" id="screen-genie">
     <div class="genie-wrap" id="genieWrap"></div>
-    <h2 class="title">شبّيك لبّيك… لقد فزتَ!</h2>
-    <div class="story-text" style="margin-bottom:8px;">اختر صندوقًا واحدًا فقط لتكشف جائزتك 🎁</div>
+    <h2 class="title" data-i18n="youWon">شبّيك لبّيك… لقد فزتَ!</h2>
+    <div class="story-text" style="margin-bottom:8px;" data-i18n="pickBox">اختر صندوقًا واحدًا فقط لتكشف جائزتك 🎁</div>
     <div class="gifts" id="giftsWrap"></div>
     <div class="prize-card" id="prizeCard"></div>
     <div class="btn-row">
-      <button class="btn secondary" onclick="backToPlatform()">🏠 العودة إلى الألعاب</button>
-      <button class="btn ghost" onclick="goHome()">🗺️ الخريطة</button>
+      <button class="btn secondary" onclick="backToPlatform()" data-i18n="backToGames">🏠 العودة إلى الألعاب</button>
+      <button class="btn ghost" onclick="goHome()" data-i18n="map">🗺️ الخريطة</button>
     </div>
   </div>
 
@@ -1586,7 +1591,7 @@
       <div class="cv-glow" id="cvGlow" style="display:none;"></div>
       <div class="cv-title" id="cvTitle">
         <b>مغامرة سالي مع الأرقام</b>
-        <span>سالي • نونو • شطّاب</span>
+        <span data-i18n="cast">سالي • نونو • شطّاب</span>
       </div>
       <div class="ip-card" id="ipCard">
         <div class="ip-flower">🌸</div>
@@ -1594,8 +1599,8 @@
         <p id="ipCardS"></p>
       </div>
       <div class="ip-cap" id="ipCap"></div>
-      <button class="ip-skip" onclick="stopIntroCSS()">تخطّي ✖️</button>
-      <div class="ip-sound" id="ipSound">🔊 المس الشاشة لتشغيل الصوت</div>
+      <button class="ip-skip" onclick="stopIntroCSS()" data-i18n="skipBtn">تخطّي ✖️</button>
+      <div class="ip-sound" id="ipSound" data-i18n="tapSound">🔊 المس الشاشة لتشغيل الصوت</div>
     </div>
   </div>
 
@@ -1603,7 +1608,7 @@
   <div class="overlay" id="vidOverlay">
     <div style="position:relative;width:100vw;height:100vh;height:100dvh;">
       <video id="introVid" playsinline controls preload="metadata" style="background:#000;"></video>
-      <button class="ip-skip" onclick="closeIntro()">إغلاق ✖️</button>
+      <button class="ip-skip" onclick="closeIntro()" data-i18n="closeBtn">إغلاق ✖️</button>
     </div>
   </div>
 
@@ -1611,8 +1616,8 @@
   <div class="overlay" id="pauseOverlay">
     <div class="fb-card">
       <div style="font-size:56px;">⏸️</div>
-      <div class="fb-text">اللعبة متوقفة مؤقتًا<br><span style="font-size:15px;font-weight:normal;color:#8b7b86;">الوقت والمؤقت واقفين</span></div>
-      <button class="btn" onclick="togglePause()">▶️ متابعة</button>
+      <div class="fb-text">اللعبة متوقفة مؤقتًا<br><span style="font-size:15px;font-weight:normal;color:#8b7b86;" data-i18n="pausedMsg">الوقت والمؤقت واقفين</span></div>
+      <button class="btn" onclick="togglePause()" data-i18n="resumeBtn">▶️ متابعة</button>
     </div>
   </div>
 
@@ -1621,7 +1626,7 @@
     <div class="fb-card">
       <img id="fbImg" src="" alt="">
       <div class="fb-text" id="fbText"></div>
-      <button class="btn" id="fbBtn" onclick="nextQuestion()">التالي ⏭️</button>
+      <button class="btn" id="fbBtn" onclick="nextQuestion()" data-i18n="nextBtn">التالي ⏭️</button>
     </div>
   </div>
 
@@ -1927,6 +1932,36 @@ function onTimeUp(){
 }
 
 /* ---------- الإيقاف المؤقت ---------- */
+/* ===== التوقف اللحظي: 40 ثانية · مرتين فقط (مرحلة أساسية) ===== */
+const BREAK_SECONDS = 40, BREAK_MAX = 2;
+let breaksUsed = 0, breakId = null;
+function paintBreakBtn(){
+  const b=document.getElementById('pauseBtn');
+  if(!b) return;
+  const left=BREAK_MAX-breaksUsed;
+  b.title='توقف لحظي — باقي '+left;
+  if(left<=0){ b.disabled=true; b.style.opacity='.4'; }
+}
+function startBreak(){
+  if(paused) return;
+  if(breaksUsed>=BREAK_MAX){ alert('خلصت مرات التوقف المسموحة ('+BREAK_MAX+').'); return; }
+  breaksUsed++; paintBreakBtn();
+  togglePause();
+  const ovl=document.getElementById('pauseOverlay');
+  let num=document.getElementById('pvBreakNum');
+  if(!num){
+    num=document.createElement('div');
+    num.id='pvBreakNum';
+    num.style.cssText='font-size:70px;font-weight:900;margin:8px 0;color:#ffb300';
+    ovl.appendChild(num);
+  }
+  let n=BREAK_SECONDS; num.textContent=n;
+  clearInterval(breakId);
+  breakId=setInterval(()=>{
+    n--; num.textContent=Math.max(0,n);
+    if(n<=0){ clearInterval(breakId); breakId=null; if(paused) togglePause(); }
+  },1000);
+}
 function togglePause(){
   paused=!paused;
   document.getElementById('pauseBtn').textContent=paused?'▶️':'⏸️';
@@ -1980,6 +2015,32 @@ function openLesson(id){
   showScreen('lesson');
 }
 
+
+/* ---------- خلفية تتغيّر مع كل سؤال ---------- */
+let mgStep=-1;
+function magicScenes(){
+  const L=[];
+  if(typeof COVER_IMGS!=='undefined') L.push.apply(L,COVER_IMGS);
+  if(typeof IMG_STORY  !=='undefined') L.push(IMG_STORY);
+  if(typeof IMG_LESSON !=='undefined') L.push(IMG_LESSON);
+  return L;
+}
+function setQuestionBG(n){
+  const ph=document.getElementById('mgPhoto');
+  const L=magicScenes();
+  if(!ph || !L.length) return;
+  n=(typeof n==='number'&&isFinite(n))?n:0;
+  if(n===mgStep) return;
+  mgStep=n;
+  const img=L[n%L.length], mo=['','mv2','mv3'][n%3];
+  ph.classList.add('fade');
+  setTimeout(()=>{
+    ph.classList.remove('mv2','mv3');
+    if(mo) ph.classList.add(mo);
+    ph.style.backgroundImage='url("'+img+'")';
+    ph.classList.remove('fade');
+  },300);
+}
 
 /* ---------- الخلفية الساحرة ---------- */
 let magicBuilt=false;
@@ -2082,6 +2143,7 @@ function updateHUD(){
 function renderQuestion(){
   answered=false;
   const q=questions[qIndex];
+  setQuestionBG(currentLevel*10 + qIndex);
   document.getElementById('qCount').textContent=
     `سؤال ${qIndex+1} من ${questions.length} • المرحلة ${currentLevel+1} من 3`;
   document.getElementById('questionText').innerHTML=q.text;
@@ -2697,5 +2759,74 @@ showScreen('mode');
 // المقدمة بتشتغل لحالها أول ما تفتح اللعبة
 setTimeout(playIntro, 250);
 </script>
+
+<!-- 🌐 ترجمات لعبة مغامرة سالي - 8 لغات مكتملة -->
+<script src="sally-translations.js"></script>
+
+
+<script>
+/* ======================================================================
+   وصلة الترجمة — تربط sally-translations.js باللعبة.
+   بدونها يبقى القاموس محمّلاً دون أن تستعمله اللعبة.
+   ====================================================================== */
+(function(){
+  'use strict';
+
+  function savedLang(){
+    try { return localStorage.getItem('pv_lang') || 'ar'; } catch(e) { return 'ar'; }
+  }
+  function dict(lc){
+    if (typeof SALLY_TRANSLATIONS === 'undefined') return null;
+    return SALLY_TRANSLATIONS[lc] || SALLY_TRANSLATIONS.ar || null;
+  }
+
+  /* ترجمة النصوص الموسومة */
+  function applyStatic(lc){
+    var t = dict(lc); if (!t) return 0;
+    var els = document.querySelectorAll('[data-i18n]'), n = 0;
+    for (var i = 0; i < els.length; i++){
+      var k = els[i].getAttribute('data-i18n');
+      if (t[k]) { els[i].textContent = t[k]; n++; }
+    }
+    return n;
+  }
+
+  /* دالة عامة للنصوص التي تُبنى داخل الجافاسكربت */
+  window.ST = function(key){
+    var t = dict(savedLang());
+    return (t && t[key]) ? t[key] : key;
+  };
+
+  /* أعِد الترجمة بعد كل تغيير في الشاشة، فاللعبة تعيد بناء عناصرها */
+  var pending = false;
+  function refresh(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; applyStatic(savedLang()); }, 60);
+  }
+
+  function boot(){
+    var lc = savedLang();
+    var n = applyStatic(lc);
+    document.documentElement.setAttribute('data-pv-lang', lc);
+    if (window.MutationObserver){
+      var mo = new MutationObserver(refresh);
+      mo.observe(document.body, { childList:true, subtree:true });
+    }
+    if (window.console && console.log){
+      console.log('🌐 مغامرة سالي — اللغة: ' + lc + ' · عناصر مترجمة: ' + n);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  window.applySallyLang = function(lc){ applyStatic(lc || savedLang()); };
+})();
+</script>
+
+<!-- ===== PVKit: زر الرجوع للشاشة الرئيسية ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:0,breakBtn:false};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>

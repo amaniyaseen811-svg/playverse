@@ -1327,16 +1327,16 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
 
   <!-- 0 · المقدمة (الفيلم) -->
   <div class="screen" id="s-intro">
-    <h2 class="title">نُونا وحَرْفوش</h2>
-    <p class="sub">قصة كائن ضاعت منه حروفه… وبنتٍ قرّرت أن تساعده 🌌</p>
+    <h2 class="title" data-i18n="gameTitle">نُونا وحَرْفوش</h2>
+    <p class="sub" data-i18n="gameTag">قصة كائن ضاعت منه حروفه… وبنتٍ قرّرت أن تساعده 🌌</p>
     <div class="vidbox">
       <video id="introVid" playsinline preload="metadata" poster="noona-cover.jpg" controls>
         <source src="noona-intro.mp4" type="video/mp4">
       </video>
     </div>
     <div class="center">
-      <button class="btn" onclick="playIntro()">▶ شاهد المقدمة</button><br>
-      <button class="btn ghost" onclick="show('s-mode')">تخطّي المقدمة ⏩</button>
+      <button class="btn" onclick="playIntro()" data-i18n="watchIntro">▶ شاهد المقدمة</button><br>
+      <button class="btn ghost" onclick="show('s-mode')" data-i18n="skipIntro">تخطّي المقدمة ⏩</button>
     </div>
   </div>
 
@@ -1346,15 +1346,15 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
       <figure class="hero"><img id="imgNoona" alt=""><figcaption>نُونا</figcaption></figure>
       <figure class="hero"><img id="imgHarf" alt=""><figcaption>حَرْفوش</figcaption></figure>
     </div>
-    <h2 class="title">مين رح يساعد حَرْفوش؟</h2>
+    <h2 class="title" data-i18n="whoHelps">مين رح يساعد حَرْفوش؟</h2>
     <div class="modes">
-      <button class="mode" onclick="pickMode('solo')"><span class="ic">🧒</span><div><h4>لاعب واحد</h4><p>ألعب لحالي وأجمع النجوم</p></div></button>
-      <button class="mode" onclick="pickMode('duo')"><span class="ic">🤝</span><div><h4>صديق ضدّ صديق</h4><p>لاعبان بالتناوب على نفس الجهاز</p></div></button>
-      <button class="mode" onclick="pickMode('teams')"><span class="ic">🏫</span><div><h4>فريق ضدّ فريق</h4><p>٤ فرق على نفس الجهاز — للعرض على الشاشة</p></div></button>
-      <button class="mode" onclick="openRoom('all')"><span class="ic">🏆</span><div><h4>تحدّي الصف — الكل يرى الترتيب</h4><p>كل طالب على جهازه، ولوحة الترتيب أمام الجميع</p></div></button>
-      <button class="mode" onclick="openRoom('teacher')"><span class="ic">👩‍🏫</span><div><h4>تقييم صفّي — النتائج للمعلّمة فقط</h4><p>الطلاب يلعبون، والنتائج تظهر للمعلّمة وحدها</p></div></button>
+      <button class="mode" onclick="pickMode('solo')"><span class="ic">🧒</span><div><h4 data-i18n="onePlayer">لاعب واحد</h4><p data-i18n="onePlayerD">ألعب لحالي وأجمع النجوم</p></div></button>
+      <button class="mode" onclick="pickMode('duo')"><span class="ic">🤝</span><div><h4 data-i18n="friendVs">صديق ضدّ صديق</h4><p data-i18n="friendVsD">لاعبان بالتناوب على نفس الجهاز</p></div></button>
+      <button class="mode" onclick="pickMode('teams')"><span class="ic">🏫</span><div><h4 data-i18n="teamVs">فريق ضدّ فريق</h4><p data-i18n="teamVsD">٤ فرق على نفس الجهاز — للعرض على الشاشة</p></div></button>
+      <button class="mode" onclick="openRoom('all')"><span class="ic">🏆</span><div><h4 data-i18n="classChal">تحدّي الصف — الكل يرى الترتيب</h4><p data-i18n="classChalD">كل طالب على جهازه، ولوحة الترتيب أمام الجميع</p></div></button>
+      <button class="mode" onclick="openRoom('teacher')"><span class="ic">👩‍🏫</span><div><h4 data-i18n="classEval">تقييم صفّي — النتائج للمعلّمة فقط</h4><p data-i18n="classEvalD">الطلاب يلعبون، والنتائج تظهر للمعلّمة وحدها</p></div></button>
     </div>
-    <div class="center"><button class="btn ghost" onclick="show('s-intro')">🎬 شاهد الفيلم</button></div>
+    <div class="center"><button class="btn ghost" onclick="show('s-intro')" data-i18n="watchFilm">🎬 شاهد الفيلم</button></div>
   </div>
 
   <!-- أ · بوابة الغرفة -->
@@ -1362,47 +1362,47 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
     <h2 class="title" id="roomTitle"></h2>
     <p class="sub" id="roomSub"></p>
     <div class="modes">
-      <button class="mode" onclick="teacherGate()"><span class="ic">👩‍🏫</span><div><h4>أنا المعلّمة</h4><p>أنشئ غرفة جديدة وأتابع النتائج</p></div></button>
-      <button class="mode" onclick="showJoin()"><span class="ic">🧒</span><div><h4>أنا طالب/ة</h4><p>عندي رمز الغرفة وأريد اللعب</p></div></button>
+      <button class="mode" onclick="teacherGate()"><span class="ic">👩‍🏫</span><div><h4 data-i18n="iamTeacher">أنا المعلّمة</h4><p data-i18n="createRoom">أنشئ غرفة جديدة وأتابع النتائج</p></div></button>
+      <button class="mode" onclick="showJoin()"><span class="ic">🧒</span><div><h4 data-i18n="iamStudent">أنا طالب/ة</h4><p data-i18n="haveCode">عندي رمز الغرفة وأريد اللعب</p></div></button>
     </div>
-    <div class="center"><button class="btn ghost" onclick="show('s-mode')">↩ رجوع</button></div>
+    <div class="center"><button class="btn ghost" onclick="show('s-mode')" data-i18n="backBtn">↩ رجوع</button></div>
   </div>
 
   <!-- ب · دخول المعلّمة -->
   <div class="screen" id="s-teacher-pass">
-    <h2 class="title">كلمة مرور المعلّمة 🔐</h2>
+    <h2 class="title" data-i18n="teacherPass">كلمة مرور المعلّمة 🔐</h2>
     <input class="name" id="tPass" type="password" placeholder="اكتبي كلمة المرور">
-    <div class="center"><button class="btn mint" onclick="checkPass()">دخول</button>
-      <button class="btn ghost" onclick="show('s-room')">↩ رجوع</button></div>
+    <div class="center"><button class="btn mint" onclick="checkPass()" data-i18n="enter">دخول</button>
+      <button class="btn ghost" onclick="show('s-room')" data-i18n="backBtn">↩ رجوع</button></div>
   </div>
 
   <!-- ج · لوحة المعلّمة -->
   <div class="screen" id="s-teacher">
-    <h2 class="title">رمز الغرفة</h2>
+    <h2 class="title" data-i18n="roomCode">رمز الغرفة</h2>
     <div class="roomcode" id="roomCode">----</div>
-    <p class="sub" id="tHint">اكتبي الرمز على اللوح — الطلاب يدخلونه من أجهزتهم.</p>
+    <p class="sub" id="tHint" data-i18n="writeCode">اكتبي الرمز على اللوح — الطلاب يدخلونه من أجهزتهم.</p>
     <div id="tBoard"></div>
     <div class="center">
-      <button class="btn ghost" onclick="copyCode()">📋 انسخ الرمز</button>
-      <button class="btn" onclick="closeRoom()">إنهاء الجلسة ✓</button>
+      <button class="btn ghost" onclick="copyCode()" data-i18n="copyCode">📋 انسخ الرمز</button>
+      <button class="btn" onclick="closeRoom()" data-i18n="endSession">إنهاء الجلسة ✓</button>
     </div>
   </div>
 
   <!-- د · انضمام الطالب -->
   <div class="screen" id="s-join">
-    <h2 class="title">ادخل إلى غرفة الصف 🚪</h2>
+    <h2 class="title" data-i18n="enterClass">ادخل إلى غرفة الصف 🚪</h2>
     <input class="name" id="jCode" placeholder="رمز الغرفة (٤ أحرف)" maxlength="4" style="text-transform:uppercase;text-align:center;font-size:1.5rem;letter-spacing:6px">
     <input class="name" id="jName" placeholder="اسمك" maxlength="16">
-    <div class="center"><button class="btn mint" onclick="joinRoom()">انضم 🚀</button>
-      <button class="btn ghost" onclick="show('s-room')">↩ رجوع</button></div>
+    <div class="center"><button class="btn mint" onclick="joinRoom()" data-i18n="join">انضم 🚀</button>
+      <button class="btn ghost" onclick="show('s-room')" data-i18n="backBtn">↩ رجوع</button></div>
     <p class="sub" id="joinMsg"></p>
   </div>
 
   <!-- 2 · أسماء اللاعبين -->
   <div class="screen" id="s-names">
-    <h2 class="title">مين معنا اليوم؟</h2>
+    <h2 class="title" data-i18n="whoToday">مين معنا اليوم؟</h2>
     <div id="nameFields"></div>
-    <div class="center"><button class="btn mint" onclick="confirmNames()">يلا نبدأ 🚀</button></div>
+    <div class="center"><button class="btn mint" onclick="confirmNames()" data-i18n="letsStart">يلا نبدأ 🚀</button></div>
   </div>
 
   <!-- 3 · بطاقة الدرس -->
@@ -1410,7 +1410,7 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
     <h2 class="title" id="learnTitle"></h2>
     <p class="sub" id="learnSub"></p>
     <div class="learn" id="learnGrid"></div>
-    <div class="center"><button class="btn" onclick="startStage()">جاهز! ابدأ التحدّي ⚡</button></div>
+    <div class="center"><button class="btn" onclick="startStage()" data-i18n="readyGo">جاهز! ابدأ التحدّي ⚡</button></div>
   </div>
 
   <!-- 4 · السؤال -->
@@ -1426,7 +1426,7 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
       <div class="msg" id="fbMsg"></div>
       <div class="hint" id="fbHint"></div>
     </div>
-    <div class="center"><button class="btn mint" onclick="nextQ()">التالي ▶</button></div>
+    <div class="center"><button class="btn mint" onclick="nextQ()" data-i18n="nextBtn">التالي ▶</button></div>
   </div>
 
   <!-- 6 · نهاية المرحلة -->
@@ -1440,16 +1440,16 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
   <!-- 7أ · شاشة الكأس -->
   <div class="screen" id="s-cup">
     <img id="cupImg" class="fbimg" alt="مبروك">
-    <h2 class="title">مبروك! أنهيتَ العشرين سؤالًا 🏆</h2>
+    <h2 class="title" data-i18n="congrats20">مبروك! أنهيتَ العشرين سؤالًا 🏆</h2>
     <p class="sub" id="cupSub"></p>
-    <div class="center"><button class="btn" onclick="showWS(1)">ورقة العمل (1) 📄</button></div>
+    <div class="center"><button class="btn" onclick="showWS(1)" data-i18n="ws1Btn">ورقة العمل (1) 📄</button></div>
   </div>
 
   <!-- 7ب · ورقة العمل الأولى -->
   <div class="screen" id="s-ws1">
     <div class="wsheet">
       <div class="ws-head">
-        <h3>ورقة عمل (1) · نُونا وحَرْفوش</h3>
+        <h3 data-i18n="ws1Title">ورقة عمل (1) · نُونا وحَرْفوش</h3>
         <div class="ws-line">الاسم: ..................................... &nbsp;&nbsp; الصف: ............. &nbsp;&nbsp; التاريخ: .............</div>
       </div>
 
@@ -1479,11 +1479,11 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
         <span class="blank">A → ____</span><span class="blank">B → ____</span>
         <span class="blank">M → ____</span><span class="blank">S → ____</span></div>
 
-      <div class="ws-foot">✏️ حَرْفوش يقول: خُذ وقتك… ولا تنسَ أن تقرأ الكلمة بصوت عالٍ!</div>
+      <div class="ws-foot" data-i18n="takeTime">✏️ حَرْفوش يقول: خُذ وقتك… ولا تنسَ أن تقرأ الكلمة بصوت عالٍ!</div>
     </div>
     <div class="center noprint">
-      <button class="btn ghost" onclick="window.print()">🖨️ اطبع الورقة</button>
-      <button class="btn" onclick="showWS(2)">ورقة العمل (2) ⏩</button>
+      <button class="btn ghost" onclick="window.print()" data-i18n="printSheet">🖨️ اطبع الورقة</button>
+      <button class="btn" onclick="showWS(2)" data-i18n="ws2Btn">ورقة العمل (2) ⏩</button>
     </div>
   </div>
 
@@ -1491,7 +1491,7 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
   <div class="screen" id="s-ws2">
     <div class="wsheet">
       <div class="ws-head">
-        <h3>ورقة عمل (2) · تحدّي حَرْفوش ⭐</h3>
+        <h3 data-i18n="ws2Title">ورقة عمل (2) · تحدّي حَرْفوش ⭐</h3>
         <div class="ws-line">الاسم: ..................................... &nbsp;&nbsp; الصف: ............. &nbsp;&nbsp; التاريخ: .............</div>
       </div>
 
@@ -1518,21 +1518,21 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
       <div class="ws-q"><b>٥ ·</b> ارسم شيئًا يبدأ بحرف <span class="en">S</span>:</div>
       <div class="ws-draw"></div>
 
-      <div class="ws-foot">🌟 أحسنت! سلّم ورقتك لمعلّمتك.</div>
+      <div class="ws-foot" data-i18n="handIn">🌟 أحسنت! سلّم ورقتك لمعلّمتك.</div>
     </div>
     <div class="center noprint">
-      <button class="btn ghost" onclick="window.print()">🖨️ اطبع الورقة</button>
-      <button class="btn mint" onclick="openGate()">✨ أمنية حَرْفوش</button>
+      <button class="btn ghost" onclick="window.print()" data-i18n="printSheet">🖨️ اطبع الورقة</button>
+      <button class="btn mint" onclick="openGate()" data-i18n="wishTitle">✨ أمنية حَرْفوش</button>
     </div>
   </div>
 
   <!-- 7 · بوابة الجائزة -->
   <div class="screen" id="s-gate">
     <img id="genieImg" class="fbimg" alt="حَرْفوش">
-    <h2 class="title">حَرْفوش يحقّق لك أمنية! ✨</h2>
-    <p class="sub">اختر صندوقًا واحدًا… ماذا يخبّئ لك؟</p>
+    <h2 class="title" data-i18n="genieWish">حَرْفوش يحقّق لك أمنية! ✨</h2>
+    <p class="sub" data-i18n="pickBox">اختر صندوقًا واحدًا… ماذا يخبّئ لك؟</p>
     <div class="boxes" id="boxes"></div>
-    <div class="center" id="gateNext" style="display:none"><button class="btn mint" onclick="showResult()">شوف نتيجتك 🏆</button></div>
+    <div class="center" id="gateNext" style="display:none"><button class="btn mint" onclick="showResult()" data-i18n="seeResult">شوف نتيجتك 🏆</button></div>
   </div>
 
   <!-- 8 · النتيجة -->
@@ -1543,15 +1543,15 @@ input.name::placeholder{color:rgba(255,246,229,.5)}
     <div id="resBoard"></div>
     <div id="liveBoard"></div>
     <p class="sub" id="resMsg"></p>
-    <div class="center"><button class="btn" onclick="location.reload()">العب مرة ثانية 🔄</button></div>
+    <div class="center"><button class="btn" onclick="location.reload()" data-i18n="playAgain">العب مرة ثانية 🔄</button></div>
   </div>
 
   <audio id="bgm" src="noona-music.mp3" loop preload="auto"></audio>
 
   <div class="foot">
-    <button class="btn ghost" onclick="location.reload()">🏠 البداية</button>
-    <button class="btn ghost" id="sndBtn" onclick="toggleSound()">🔊 الصوت</button>
-    <button class="btn ghost" id="musBtn" onclick="toggleMusic()">🎵 الموسيقى</button>
+    <button class="btn ghost" onclick="location.reload()" data-i18n="homeBtn">🏠 البداية</button>
+    <button class="btn ghost" id="sndBtn" onclick="toggleSound()" data-i18n="soundBtn">🔊 الصوت</button>
+    <button class="btn ghost" id="musBtn" onclick="toggleMusic()" data-i18n="musicBtn">🎵 الموسيقى</button>
   </div>
 </div>
 
@@ -2177,5 +2177,66 @@ function showResult(){
 <!-- ===== PVKit: زر الرئيسية + التوقف اللحظي + المؤقت العام ===== -->
 <script>window.PVKIT_CONFIG={homeUrl:'index.html',breakSec:40,breakMax:2,gameMinutes:30,breakBtn:true};</script>
 <script src="pvkit.js"></script>
+
+<script>
+/* ======================================================================
+   وصلة الترجمة — تربط noona-translations.js باللعبة.
+   بدونها يبقى القاموس محمّلاً دون أن تستعمله اللعبة.
+   ====================================================================== */
+(function(){
+  'use strict';
+
+  function savedLang(){
+    try { return localStorage.getItem('pv_lang') || 'ar'; } catch(e) { return 'ar'; }
+  }
+  function dict(lc){
+    if (typeof NOONA_TRANSLATIONS === 'undefined') return null;
+    return NOONA_TRANSLATIONS[lc] || NOONA_TRANSLATIONS.ar || null;
+  }
+
+  /* ترجمة النصوص الموسومة */
+  function applyStatic(lc){
+    var t = dict(lc); if (!t) return 0;
+    var els = document.querySelectorAll('[data-i18n]'), n = 0;
+    for (var i = 0; i < els.length; i++){
+      var k = els[i].getAttribute('data-i18n');
+      if (t[k]) { els[i].textContent = t[k]; n++; }
+    }
+    return n;
+  }
+
+  /* دالة عامة للنصوص التي تُبنى داخل الجافاسكربت */
+  window.NT = function(key){
+    var t = dict(savedLang());
+    return (t && t[key]) ? t[key] : key;
+  };
+
+  /* أعِد الترجمة بعد كل تغيير في الشاشة، فاللعبة تعيد بناء عناصرها */
+  var pending = false;
+  function refresh(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; applyStatic(savedLang()); }, 60);
+  }
+
+  function boot(){
+    var lc = savedLang();
+    var n = applyStatic(lc);
+    document.documentElement.setAttribute('data-pv-lang', lc);
+    if (window.MutationObserver){
+      var mo = new MutationObserver(refresh);
+      mo.observe(document.body, { childList:true, subtree:true });
+    }
+    if (window.console && console.log){
+      console.log('🌐 نُونا وحَرْفوش — اللغة: ' + lc + ' · عناصر مترجمة: ' + n);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  window.applyNoonaLang = function(lc){ applyStatic(lc || savedLang()); };
+})();
+</script>
 </body>
 </html>
