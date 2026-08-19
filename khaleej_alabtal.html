@@ -1341,30 +1341,30 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
     <div class="scroll">
       <div class="title-wrap">
         <h1 class="display">مغامرات خليج الأبطال<br>مهمات الإنقاذ الكبرى</h1>
-        <p>مع القائد راكسون وفريقه الشجاع · جداول الضرب من ٢ إلى ٦</p>
+        <p data-i18n="gameSub">مع القائد راكسون وفريقه الشجاع · جداول الضرب من ٢ إلى ٦</p>
       </div>
       <div class="team-strip" id="teamStrip"></div>
 
       <button class="mode-card" onclick="pickMode('solo')">
         <div class="mode-ico">🐾</div>
-        <div><h3>فردي</h3><p>لاعبة واحدة · تجمع النقاط وتفتح المستويات</p></div></button>
+        <div><h3 data-i18n="modeSolo">فردي</h3><p data-i18n="modeSoloD">لاعبة واحدة · تجمع النقاط وتفتح المستويات</p></div></button>
 
       <button class="mode-card" onclick="pickMode('duel')">
         <div class="mode-ico">⚔️</div>
-        <div><h3>لاعب ضد لاعب</h3><p>اثنتان على نفس الجهاز · دور بدور والأعلى نقاطاً يفوز</p></div></button>
+        <div><h3 data-i18n="modeDuel">لاعب ضد لاعب</h3><p data-i18n="modeDuelD">اثنتان على نفس الجهاز · دور بدور والأعلى نقاطاً يفوز</p></div></button>
 
       <button class="mode-card" onclick="pickMode('team')">
         <div class="mode-ico">👥</div>
-        <div><h3>جماعي</h3><p>من ٣ إلى ٦ مجموعات · لوحة ترتيب في النهاية</p></div></button>
+        <div><h3 data-i18n="modeTeam">جماعي</h3><p data-i18n="modeTeamD">من ٣ إلى ٦ مجموعات · لوحة ترتيب في النهاية</p></div></button>
 
       <button class="mode-card" onclick="pickMode('exam')">
         <div class="mode-ico">👩‍🏫</div>
-        <div><h3>وضع المعلّمة</h3><p>الطالبة تلعب بدون رؤية نتيجتها · المعلّمة وحدها ترى النتائج</p></div></button>
+        <div><h3 data-i18n="modeExam">وضع المعلّمة</h3><p data-i18n="modeExamD">الطالبة تلعب بدون رؤية نتيجتها · المعلّمة وحدها ترى النتائج</p></div></button>
 
       <div class="foot-links">
-        <button onclick="openWorksheetPicker()">📝 أوراق العمل</button>
-        <button onclick="showScreen('scTeacherGate')">🔑 لوحة المعلّمة</button>
-        <button onclick="toggleMusic()" id="musBtn">🎵 الموسيقى</button>
+        <button onclick="openWorksheetPicker()" data-i18n="worksheets">📝 أوراق العمل</button>
+        <button onclick="showScreen('scTeacherGate')" data-i18n="teacherKey">🔑 لوحة المعلّمة</button>
+        <button onclick="toggleMusic()" id="musBtn" data-i18n="musicBtn">🎵 الموسيقى</button>
       </div>
     </div>
   </section>
@@ -1372,23 +1372,23 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <!-- ===== إعداد اللاعبين ===== -->
   <section class="screen" id="scSetup">
     <div class="scroll">
-      <button class="back-link" onclick="renderHome()">⟶ رجوع</button>
-      <div class="info-head"><h2 class="display" id="setupTitle">اللاعبون</h2>
+      <button class="back-link" onclick="renderHome()" data-i18n="backArrow">⟶ رجوع</button>
+      <div class="info-head"><h2 class="display" id="setupTitle" data-i18n="players">اللاعبون</h2>
         <p id="setupSub"></p></div>
       <div id="countWrap" style="display:none">
-        <div class="tip-box" style="margin-bottom:8px">كم مجموعة سَتلعب؟</div>
+        <div class="tip-box" style="margin-bottom:8px" data-i18n="howManyGroups">كم مجموعة سَتلعب؟</div>
         <div class="count-row" id="countRow"></div>
       </div>
       <div id="nameFields"></div>
-      <button class="big-btn teal" onclick="confirmSetup()">متابعة ⟵</button>
+      <button class="big-btn teal" onclick="confirmSetup()" data-i18n="continueBtn">متابعة ⟵</button>
     </div>
   </section>
 
   <!-- ===== اختيار المستوى ===== -->
   <section class="screen" id="scLevels">
     <div class="scroll">
-      <button class="back-link" onclick="backFromLevels()">⟶ رجوع</button>
-      <div class="info-head"><h2 class="display">اختاري المهمة</h2><p id="lvSub"></p></div>
+      <button class="back-link" onclick="backFromLevels()" data-i18n="backArrow">⟶ رجوع</button>
+      <div class="info-head"><h2 class="display" data-i18n="chooseMission">اختاري المهمة</h2><p id="lvSub"></p></div>
       <div id="levelList"></div>
     </div>
   </section>
@@ -1396,7 +1396,7 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <!-- ===== جدول الضرب المرجعي ===== -->
   <section class="screen" id="scInfo">
     <div class="scroll"><div id="infoBody"></div></div>
-    <button class="big-btn teal" onclick="beginLevel()">تخطّي ⟵ ابدأ المهمة</button>
+    <button class="big-btn teal" onclick="beginLevel()" data-i18n="skipStart">تخطّي ⟵ ابدأ المهمة</button>
   </section>
 
   <!-- ===== اللعب ===== -->
@@ -1412,21 +1412,21 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
     <div id="timeBarWrap"><div id="timeBar"></div></div>
     <div id="playCard">
       <div id="turnZone"></div>
-      <div class="stage-tag" id="stageTag">المرحلة</div>
+      <div class="stage-tag" id="stageTag" data-i18n="level">المرحلة</div>
       <div class="hero-row">
         <div class="avatar" id="heroAv"></div>
         <div class="speech" id="speech"></div>
       </div>
       <div class="qbox">
-        <div class="qlabel">كم الناتج؟</div>
+        <div class="qlabel" data-i18n="whatResult">كم الناتج؟</div>
         <div class="qmath display" id="qMath">٣ × ٢</div>
       </div>
       <div id="answers"></div>
     </div>
     <div id="navRow">
-      <button class="nav-btn" id="btnBack" onclick="prevQ()">⟶ رجوع</button>
-      <button class="nav-btn skip" onclick="skipQ()">تخطّي ⟵</button>
-      <button class="nav-btn" onclick="quitToHome()">🏠 خروج</button>
+      <button class="nav-btn" id="btnBack" onclick="prevQ()" data-i18n="backArrow">⟶ رجوع</button>
+      <button class="nav-btn skip" onclick="skipQ()" data-i18n="skip">تخطّي ⟵</button>
+      <button class="nav-btn" onclick="quitToHome()" data-i18n="exitBtn">🏠 خروج</button>
     </div>
   </section>
 
@@ -1434,14 +1434,14 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <section class="screen" id="scLevelDone">
     <div class="result-wrap">
       <div id="trophyHolder"></div>
-      <h2 class="display" id="ldTitle">أحسنتِ!</h2>
+      <h2 class="display" id="ldTitle" data-i18n="wellDone">أحسنتِ!</h2>
       <p id="ldText"></p>
       <div class="score-pill" id="ldScore"></div>
       <div style="width:100%;max-width:380px">
-        <button class="big-btn teal" id="ldNext" onclick="nextLevel()">المستوى التالي ⟵</button>
-        <button class="big-btn sand" onclick="openWorksheet(state.level,false)">📝 ورقة العمل العادية</button>
-        <button class="big-btn" onclick="openWorksheet(state.level,true)">🔥 ورقة التحدي الصعبة</button>
-        <button class="big-btn navy" onclick="quitToHome()">🏠 الرئيسية</button>
+        <button class="big-btn teal" id="ldNext" onclick="nextLevel()" data-i18n="nextLevelBtn">المستوى التالي ⟵</button>
+        <button class="big-btn sand" onclick="openWorksheet(state.level,false)" data-i18n="wsNormal">📝 ورقة العمل العادية</button>
+        <button class="big-btn" onclick="openWorksheet(state.level,true)" data-i18n="wsHard">🔥 ورقة التحدي الصعبة</button>
+        <button class="big-btn navy" onclick="quitToHome()" data-i18n="homeBtn">🏠 الرئيسية</button>
       </div>
     </div>
   </section>
@@ -1450,13 +1450,13 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <section class="screen" id="scRank">
     <div class="scroll">
       <div style="text-align:center"><div id="rankTrophy"></div>
-        <h2 class="display" style="color:var(--sand);margin:8px 0 4px;font-size:29px">🏆 لوحة الترتيب</h2>
+        <h2 class="display" style="color:var(--sand);margin:8px 0 4px;font-size:29px" data-i18n="leaderboard">🏆 لوحة الترتيب</h2>
         <p style="color:var(--cream);margin:0 0 14px;font-weight:600" id="rankWinner"></p></div>
       <div id="rankList"></div>
     </div>
     <div style="display:flex;gap:9px">
-      <button class="big-btn teal" style="flex:1" onclick="startLevel(state.level)">🔄 إعادة</button>
-      <button class="big-btn navy" style="flex:1" onclick="quitToHome()">🏠 الرئيسية</button>
+      <button class="big-btn teal" style="flex:1" onclick="startLevel(state.level)" data-i18n="againBtn">🔄 إعادة</button>
+      <button class="big-btn navy" style="flex:1" onclick="quitToHome()" data-i18n="homeBtn">🏠 الرئيسية</button>
     </div>
   </section>
 
@@ -1464,12 +1464,12 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <section class="screen" id="scExamDone">
     <div class="result-wrap">
       <div style="font-size:76px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.6))">📋</div>
-      <h2 class="display">تم تسليم إجاباتك</h2>
+      <h2 class="display" data-i18n="submitted">تم تسليم إجاباتك</h2>
       <p>شكراً لك <b id="exName" style="color:var(--sand)"></b>!<br>
          نتيجتك محفوظة عند المعلّمة — سلّمي الجهاز للطالبة التالية.</p>
       <div style="width:100%;max-width:380px">
-        <button class="big-btn teal" onclick="nextStudent()">👤 الطالبة التالية</button>
-        <button class="big-btn navy" onclick="quitToHome()">🏠 الرئيسية</button>
+        <button class="big-btn teal" onclick="nextStudent()" data-i18n="nextStudent">👤 الطالبة التالية</button>
+        <button class="big-btn navy" onclick="quitToHome()" data-i18n="homeBtn">🏠 الرئيسية</button>
       </div>
     </div>
   </section>
@@ -1478,12 +1478,12 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <section class="screen" id="scVictory">
     <div class="result-wrap">
       <div id="genieHolder"></div>
-      <h2 class="display">تُوِّج أبطال المدينة! 🏆</h2>
+      <h2 class="display" data-i18n="crowned">تُوِّج أبطال المدينة! 🏆</h2>
       <p>الصندوق انفتح، وخرج منه <b style="color:var(--sand)">مارد النور الأزرق</b><br>فأضاء الخليج كله… وأنتِ من فتحَ الأقفال.</p>
       <div class="score-pill" id="vScore"></div>
       <div style="width:100%;max-width:380px">
-        <button class="big-btn sand" onclick="openWorksheetPicker()">📝 أوراق العمل</button>
-        <button class="big-btn navy" onclick="quitToHome()">🔁 العب من جديد</button>
+        <button class="big-btn sand" onclick="openWorksheetPicker()" data-i18n="worksheets">📝 أوراق العمل</button>
+        <button class="big-btn navy" onclick="quitToHome()" data-i18n="replayBtn">🔁 العب من جديد</button>
       </div>
     </div>
   </section>
@@ -1492,12 +1492,12 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <section class="screen" id="scRetry">
     <div class="result-wrap">
       <div style="font-size:74px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.6))">🐾</div>
-      <h2 class="display" id="rtTitle">حاوِل مرة أخرى</h2>
-      <p id="rtText">الفريق ما زال ينتظرك. جرّب من جديد وستنجح.</p>
+      <h2 class="display" id="rtTitle" data-i18n="tryAgainBtn">حاوِل مرة أخرى</h2>
+      <p id="rtText" data-i18n="tryAgainMsg">الفريق ما زال ينتظرك. جرّب من جديد وستنجح.</p>
       <div class="score-pill" id="rtScore"></div>
       <div style="width:100%;max-width:380px">
-        <button class="big-btn teal" onclick="startLevel(state.level)">🔄 أعد المحاولة</button>
-        <button class="big-btn navy" onclick="quitToHome()">🏠 الرئيسية</button>
+        <button class="big-btn teal" onclick="startLevel(state.level)" data-i18n="retryBtn">🔄 أعد المحاولة</button>
+        <button class="big-btn navy" onclick="quitToHome()" data-i18n="homeBtn">🏠 الرئيسية</button>
       </div>
     </div>
   </section>
@@ -1506,20 +1506,20 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <section class="screen" id="scWorksheet">
     <div class="scroll"><div class="ws-sheet" id="wsSheet"></div></div>
     <div style="display:flex;gap:9px">
-      <button class="big-btn sand" style="flex:1" onclick="window.print()">🖨 طباعة</button>
-      <button class="big-btn navy" style="flex:1" onclick="quitToHome()">رجوع</button>
+      <button class="big-btn sand" style="flex:1" onclick="window.print()" data-i18n="printBtn">🖨 طباعة</button>
+      <button class="big-btn navy" style="flex:1" onclick="quitToHome()" data-i18n="backBtn">رجوع</button>
     </div>
   </section>
 
   <!-- ===== بوابة المعلّمة ===== -->
   <section class="screen" id="scTeacherGate">
     <div class="result-wrap">
-      <h2 class="display">لوحة المعلّمة</h2>
-      <p>أدخِلي كلمة المرور لعرض النتائج ومفتاح الإجابات.</p>
+      <h2 class="display" data-i18n="teacherPanel">لوحة المعلّمة</h2>
+      <p data-i18n="teacherPass">أدخِلي كلمة المرور لعرض النتائج ومفتاح الإجابات.</p>
       <div style="width:100%;max-width:340px">
         <input id="pwInput" type="password" placeholder="كلمة المرور" autocomplete="off">
-        <button class="big-btn teal" onclick="checkPw()">دخول</button>
-        <button class="big-btn navy" onclick="quitToHome()">رجوع</button>
+        <button class="big-btn teal" onclick="checkPw()" data-i18n="enter">دخول</button>
+        <button class="big-btn navy" onclick="quitToHome()" data-i18n="backBtn">رجوع</button>
       </div>
     </div>
   </section>
@@ -1528,8 +1528,8 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
   <section class="screen" id="scTeacher">
     <div class="scroll"><div class="ws-sheet" id="tSheet"></div></div>
     <div style="display:flex;gap:9px">
-      <button class="big-btn sand" style="flex:1" onclick="window.print()">🖨 طباعة</button>
-      <button class="big-btn navy" style="flex:1" onclick="quitToHome()">رجوع</button>
+      <button class="big-btn sand" style="flex:1" onclick="window.print()" data-i18n="printBtn">🖨 طباعة</button>
+      <button class="big-btn navy" style="flex:1" onclick="quitToHome()" data-i18n="backBtn">رجوع</button>
     </div>
   </section>
 </div>
@@ -1537,15 +1537,15 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
 <div id="tableOverlay">
   <div class="ov-inner">
     <div class="scroll" id="ovBody"></div>
-    <button class="big-btn sand" onclick="closeTableOverlay()">تخطّي ⟵ رجوع للسؤال</button>
+    <button class="big-btn sand" onclick="closeTableOverlay()" data-i18n="skipBack">تخطّي ⟵ رجوع للسؤال</button>
   </div>
 </div>
 
 <div id="pauseOverlay">
-  <h2 class="display">المهمة متوقفة</h2>
-  <p>الوقت واقف الآن. ارجع لما تجهز.</p>
-  <button class="big-btn teal" onclick="endBreak()" style="max-width:330px">▶ متابعة المهمة</button>
-  <button class="big-btn navy" onclick="quitToHome()" style="max-width:330px">🏠 خروج للرئيسية</button>
+  <h2 class="display" data-i18n="paused">المهمة متوقفة</h2>
+  <p data-i18n="pausedMsg">الوقت واقف الآن. ارجع لما تجهز.</p>
+  <button class="big-btn teal" onclick="endBreak()" style="max-width:330px" data-i18n="resumeBtn">▶ متابعة المهمة</button>
+  <button class="big-btn navy" onclick="quitToHome()" style="max-width:330px" data-i18n="exitHome">🏠 خروج للرئيسية</button>
 </div>
 
 <audio id="bgm" loop preload="auto"></audio>
@@ -2193,7 +2193,7 @@ function openWorksheetPicker(){
     `<div class="ws-head"><h2>أوراق عمل خليج الأبطال</h2><p>لكل مستوى ورقتان: عادية للتدريب، وصعبة للتحدي</p></div>`+
     LEVELS.map((lv,i)=>`<div class="ws-sec" style="margin-top:18px">${lv.title}</div>
       <button class="big-btn teal" onclick="openWorksheet(${i},false)">📝 الورقة العادية · جداول ${lv.tables}</button>
-      <button class="big-btn" onclick="openWorksheet(${i},true)">🔥 ورقة التحدي الصعبة</button>`).join('');
+      <button class="big-btn" onclick="openWorksheet(${i},true)" data-i18n="wsHard">🔥 ورقة التحدي الصعبة</button>`).join('');
   setBG('cover'); showScreen('scWorksheet');
 }
 function openHardWorksheet(idx){
@@ -2261,7 +2261,7 @@ function checkPw(){
   else { el.value=''; el.placeholder='كلمة المرور غير صحيحة — حاولي ثانية'; }
 }
 function renderTeacher(){
-  let h=`<div class="ws-head"><h2>لوحة المعلّمة</h2><p>مغامرات خليج الأبطال · النتائج ومفتاح الإجابات</p></div>`;
+  let h=`<div class="ws-head"><h2 data-i18n="teacherPanel">لوحة المعلّمة</h2><p>مغامرات خليج الأبطال · النتائج ومفتاح الإجابات</p></div>`;
   h+=`<div class="ws-sec">أولاً: نتائج الطالبات (وضع المعلّمة)</div>`;
   if(!state.records.length){
     h+=`<p style="font-size:13.5px;color:#556;line-height:1.9">لا توجد نتائج بعد.<br>
@@ -2331,5 +2331,68 @@ renderHome();
 <!-- 🌐 ترجمات لعبة خليج الأبطال - 8 لغات مكتملة -->
 <script src="khaleej-alabtal-translations.js"></script>
 
+
+<script>
+/* ======================================================================
+   وصلة الترجمة — تربط khaleej-alabtal-translations.js باللعبة.
+   بدونها يبقى القاموس محمّلاً دون أن تستعمله اللعبة.
+   ====================================================================== */
+(function(){
+  'use strict';
+
+  function savedLang(){
+    try { return localStorage.getItem('pv_lang') || 'ar'; } catch(e) { return 'ar'; }
+  }
+  function dict(lc){
+    var D = window.HERO_BAY_TRANSLATIONS
+         || (typeof HERO_BAY_TRANSLATIONS !== 'undefined' ? HERO_BAY_TRANSLATIONS : null);
+    if (!D) return null;
+    return D[lc] || D.ar || null;
+  }
+
+  /* ترجمة النصوص الموسومة */
+  function applyStatic(lc){
+    var t = dict(lc); if (!t) return 0;
+    var els = document.querySelectorAll('[data-i18n]'), n = 0;
+    for (var i = 0; i < els.length; i++){
+      var k = els[i].getAttribute('data-i18n');
+      if (t[k]) { els[i].textContent = t[k]; n++; }
+    }
+    return n;
+  }
+
+  /* دالة عامة للنصوص التي تُبنى داخل الجافاسكربت */
+  window.HB = function(key){
+    var t = dict(savedLang());
+    return (t && t[key]) ? t[key] : key;
+  };
+
+  /* أعِد الترجمة بعد كل تغيير في الشاشة، فاللعبة تعيد بناء عناصرها */
+  var pending = false;
+  function refresh(){
+    if (pending) return;
+    pending = true;
+    setTimeout(function(){ pending = false; applyStatic(savedLang()); }, 60);
+  }
+
+  function boot(){
+    var lc = savedLang();
+    var n = applyStatic(lc);
+    document.documentElement.setAttribute('data-pv-lang', lc);
+    if (window.MutationObserver){
+      var mo = new MutationObserver(refresh);
+      mo.observe(document.body, { childList:true, subtree:true });
+    }
+    if (window.console && console.log){
+      console.log('🌐 خليج الأبطال — اللغة: ' + lc + ' · عناصر مترجمة: ' + n);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  window.applyKhaleejLang = function(lc){ applyStatic(lc || savedLang()); };
+})();
+</script>
 </body>
 </html>
