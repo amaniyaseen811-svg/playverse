@@ -1407,7 +1407,7 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
       <div class="chip" id="scoreChip">⭐ ٠</div>
       <div class="spacer"></div>
       <button class="icon-btn" onclick="openTableOverlay()" aria-label="جدول الضرب">🔢</button>
-      <button class="icon-btn" onclick="togglePause()" aria-label="إيقاف مؤقت">⏸</button>
+      <button class="icon-btn" onclick="startBreak()" aria-label="توقف لحظي">⏸</button>
     </div>
     <div id="timeBarWrap"><div id="timeBar"></div></div>
     <div id="playCard">
@@ -1544,7 +1544,7 @@ body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;backgro
 <div id="pauseOverlay">
   <h2 class="display">المهمة متوقفة</h2>
   <p>الوقت واقف الآن. ارجع لما تجهز.</p>
-  <button class="big-btn teal" onclick="togglePause()" style="max-width:330px">▶ متابعة المهمة</button>
+  <button class="big-btn teal" onclick="endBreak()" style="max-width:330px">▶ متابعة المهمة</button>
   <button class="big-btn navy" onclick="quitToHome()" style="max-width:330px">🏠 خروج للرئيسية</button>
 </div>
 
@@ -1790,7 +1790,24 @@ function toggleMusic(){
 
 /* ================= الخلفية ================= */
 let bgFlip=false,curBg='';
-function setBG(key){
+/* ===== خلفية ساحرة تتغيّر مع كل سؤال =====
+   خلفية المرحلة كانت ثابتة طوال أسئلتها. الآن ندوّر على مشاهد اللعبة
+   ونبدّل حركة الزوم مع كل سؤال، فلا يتكرّر المشهد أمام الطفل. */
+const SCENE_KEYS=['forest','mountain','garden','build','fire','sea'];
+let qbgStep=-1, qbgStage=null, qbgOffset=0;
+function setQuestionBG(stageKey, n){
+  n=(typeof n==='number'&&isFinite(n))?n:0;
+  if(n===qbgStep) return;
+  qbgStep=n;
+  const pool=SCENE_KEYS.filter(k=>IMG[k]);
+  if(!pool.length){ setBG(stageKey); return; }
+  /* أول سؤال في المرحلة يعرض مشهدها، ثم ندوّر على باقي المشاهد */
+  if(stageKey!==qbgStage){ qbgStage=stageKey; qbgOffset=0; } else { qbgOffset++; }
+  const start=Math.max(0,pool.indexOf(stageKey));
+  setBG(pool[(start + qbgOffset) % pool.length], true);
+}
+function setBG(key, force){
+  if(force) curBg=null;
   const cv=document.getElementById('coverVid');
   if(cv){
     if(key==='cover'){ cv.classList.add('on'); cv.play().catch(()=>{}); }
@@ -1972,6 +1989,41 @@ function updateTimer(){
   c.classList.toggle('danger',state.timeLeft<=300);
   document.getElementById('timeBar').style.width=(state.timeLeft/TOTAL_SECONDS*100)+'%';
 }
+/* ===== التوقف اللحظي: 40 ثانية · مرتين فقط (مرحلة أساسية) ===== */
+const BREAK_SECONDS=40, BREAK_MAX=2;
+let breaksUsed=0, breakId=null;
+function paintBreakBtn(){
+  const b=document.querySelector('[onclick="startBreak()"]');
+  if(!b) return;
+  const left=BREAK_MAX-breaksUsed;
+  b.title='توقف لحظي — باقي '+left;
+  if(left<=0){ b.disabled=true; b.style.opacity='.4'; }
+}
+function endBreak(){
+  clearInterval(breakId); breakId=null;
+  state.paused=false;
+  document.getElementById('pauseOverlay').classList.remove('on');
+}
+function startBreak(){
+  if(document.getElementById('tableOverlay').classList.contains('on')) return;
+  if(state.paused) return;
+  if(!document.getElementById('scPlay').classList.contains('on')) return;
+  if(breaksUsed>=BREAK_MAX){ alert('خلصت مرات التوقف المسموحة ('+BREAK_MAX+').'); return; }
+  breaksUsed++; paintBreakBtn();
+  state.paused=true;
+  const ovl=document.getElementById('pauseOverlay');
+  ovl.classList.add('on');
+  let num=document.getElementById('pvBreakNum');
+  if(!num){
+    num=document.createElement('div');
+    num.id='pvBreakNum';
+    num.style.cssText='font-size:70px;font-weight:900;margin:8px 0;color:#f7b733';
+    ovl.appendChild(num);
+  }
+  let n=BREAK_SECONDS; num.textContent=n;
+  clearInterval(breakId);
+  breakId=setInterval(()=>{ n--; num.textContent=Math.max(0,n); if(n<=0) endBreak(); },1000);
+}
 function togglePause(){
   if(document.getElementById('tableOverlay').classList.contains('on'))return;
   if(!document.getElementById('scPlay').classList.contains('on')&&!state.paused)return;
@@ -1990,7 +2042,7 @@ const cur=()=>state.players[state.turn];
 
 function renderQ(){
   const q=state.qs[state.i];
-  setBG(q.bg);
+  setQuestionBG(q.bg, state.level*100 + state.i);
   document.getElementById('stageTag').textContent=q.tag;
   document.getElementById('heroAv').style.backgroundImage=`url(${AV[q.bg]})`;
   document.getElementById('speech').innerHTML=q.story;
@@ -2268,5 +2320,9 @@ document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='En
 loadStore();
 renderHome();
 </script>
+
+<!-- ===== PVKit: زر الرجوع للشاشة الرئيسية ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:0,breakBtn:false};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>
