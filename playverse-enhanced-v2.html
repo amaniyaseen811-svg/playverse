@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a1a">
+<title>PlayVerse - Learn, Play, Compete</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { 
+  width: 100%; 
+  height: 100%; 
+  overflow: hidden; 
+  background: #0a0a1a; 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ====== SPLASH SCREEN ====== */
+#splashScreen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle at center, #1a0a3e 0%, #0a0a1a 70%);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity 0.8s ease-out;
+}
+#splashScreen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#particleCanvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+
+.splash-container {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.splash-circles {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.circle-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2.5px solid;
+  width: 100%;
+  height: 100%;
+  animation: rotateCW 20s linear infinite;
+}
+
+.circle-ring:nth-child(1) { 
+  border-color: rgba(59, 130, 246, 0.85);
+  width: 100%;
+  animation-delay: 0s;
+}
+.circle-ring:nth-child(2) { 
+  border-color: rgba(34, 197, 94, 0.65);
+  animation-delay: -5s;
+  animation-direction: reverse;
+  width: 80%;
+  height: 80%;
+  top: 10%; left: 10%;
+}
+.circle-ring:nth-child(3) { 
+  border-color: rgba(249, 115, 22, 0.75);
+  animation-delay: -10s;
+  width: 60%;
+  height: 60%;
+  top: 20%; left: 20%;
+}
+.circle-ring:nth-child(4) { 
+  border-color: rgba(236, 72, 153, 0.85);
+  animation-delay: -15s;
+  animation-direction: reverse;
+  width: 40%;
+  height: 40%;
+  top: 30%; left: 30%;
+}
+
+@keyframes rotateCW { 
+  0% { transform: rotate(0deg); } 
+  100% { transform: rotate(360deg); } 
+}
+
+.splash-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 100px rgba(59, 130, 246, 0.4), 
+    inset 0 0 100px rgba(236, 72, 153, 0.15);
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe { 
+  0%, 100% { transform: scale(1); opacity: 0.6; } 
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+.splash-logo {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle at 35% 35%, rgba(59, 130, 246, 0.3), #000);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 
+    0 0 60px rgba(59, 130, 246, 0.6),
+    inset 0 0 40px rgba(236, 72, 153, 0.2);
+  overflow: hidden;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.splash-logo img {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+}
+
+.splash-text {
+  color: #e2e8f0;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  z-index: 2;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.splash-subtext {
+  color: #a0aec0;
+  font-size: 13px;
+  margin-bottom: 35px;
+  z-index: 2;
+  letter-spacing: 1px;
+}
+
+.splash-btn {
+  padding: 14px 36px;
+  background: linear-gradient(135deg, #f59e0b 0%, #ec4899 50%, #7c3aed 100%);
+  background-size: 200% 200%;
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.5), 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: gradientShift 3s ease infinite, pulse 2s ease infinite;
+  z-index: 2;
+  font-family: inherit;
+  transition: transform 0.2s;
+  letter-spacing: 0.5px;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.5), 0 10px 30px rgba(0, 0, 0, 0.3); }
+  50% { box-shadow: 0 0 50px rgba(245, 158, 11, 0.8), 0 15px 40px rgba(0, 0, 0, 0.4); }
+}
+
+.splash-btn:active { 
+  transform: scale(0.95);
+}
+
+/* ====== MAIN APP ====== */
+#mainApp {
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  overflow: auto;
+  background: #0a0a1a;
+  -webkit-overflow-scrolling: touch;
+}
+
+#appCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-content {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 20px;
+}
+
+header {
+  padding: 20px;
+  text-align: center;
+  background: linear-gradient(to bottom, rgba(10, 10, 26, 0.8), rgba(10, 10, 26, 0.5));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-circles {
+  width: 200px;
+  height: 200px;
+  margin: 15px auto;
+  position: relative;
+}
+
+.logo-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid;
+  width: 100%;
+  height: 100%;
+  animation: spin 15s linear infinite;
+}
+
+.logo-ring:nth-child(1) { 
+  border-color: rgba(59, 130, 246, 0.8); 
+  animation-delay: 0s;
+}
+.logo-ring:nth-child(2) { 
+  border-color: rgba(34, 197, 94, 0.6);
+  animation-delay: -5s;
+  animation-direction: reverse;
+  width: 85%;
+  height: 85%;
+  top: 7.5%;
+  left: 7.5%;
+}
+.logo-ring:nth-child(3) { 
+  border-color: rgba(249, 115, 22, 0.7);
+  animation-delay: -10s;
+  width: 70%;
+  height: 70%;
+  top: 15%;
+  left: 15%;
+}
+
+@keyframes spin { 
+  0% { transform: rotate(0deg); } 
+  100% { transform: rotate(360deg); } 
+}
+
+.logo-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle at 35% 35%, rgba(59, 130, 246, 0.2), #000);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 0 0 60px rgba(59, 130, 246, 0.5), inset 0 0 30px rgba(236, 72, 153, 0.2);
+  overflow: hidden;
+  border: 2px solid rgba(59, 130, 246, 0.4);
+}
+
+.logo-circle img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+}
+
+.slogan {
+  font-size: 13px;
+  color: #a0aec0;
+  margin-top: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 14px 0;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.stats div { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.video-section {
+  padding: 20px;
+  text-align: center;
+}
+
+.video-label {
+  color: #cbd5e1;
+  font-size: 13px;
+  margin-bottom: 10px;
+  text-align: right;
+  padding: 0 10px;
+}
+
+.video-frame {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16/9;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 2px solid;
+  border-image: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.8), 
+    rgba(34, 197, 94, 0.6),
+    rgba(249, 115, 22, 0.7),
+    rgba(236, 72, 153, 0.8)) 1;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+  position: relative;
+}
+
+.video-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.video-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(236, 72, 153, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.games-section {
+  padding: 20px;
+}
+
+.section-title {
+  color: #e2e8f0;
+  font-size: 14px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.game-card {
+  aspect-ratio: 3/4;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(236, 72, 153, 0.15));
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  color: #cbd5e1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  will-change: transform;
+}
+
+.game-card:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+  border-color: rgba(59, 130, 246, 0.8);
+}
+
+.game-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .splash-circles { width: 240px; height: 240px; }
+  .splash-logo { width: 140px; height: 140px; }
+  .header-circles { width: 180px; height: 180px; }
+  .video-frame { border-width: 1.5px; }
+  .games-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== SPLASH SCREEN ====== -->
+<div id="splashScreen">
+  <canvas id="particleCanvas"></canvas>
+  
+  <div class="splash-container">
+    <div class="splash-circles">
+      <div class="splash-glow"></div>
+      <div class="circle-ring"></div>
+      <div class="circle-ring"></div>
+      <div class="circle-ring"></div>
+      <div class="circle-ring"></div>
+      <div class="splash-logo">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAH0AfQDASIAAhEBAxEB/8QAHQEBAAICAwEBAAAAAAAAAAAAAAYHBQgBAwQJAv/EAEoQAAEEAQIEAwUEBwUFBwQDAAABAgMEBQYRBxIhMRNBUQgUImFxIzKBkRVCUqGxwdEWM2Jy4SQlQ2STFxg0U3N0gjZVVrKEksL/xAAcAQEAAgMBAQEAAAAAAAAAAAAABAUCAwYBBwj/xAA3EQACAgECBAMGBQQCAwEBAAAAAQIDBAUREiExUQYTQSJhcYGRoRQyscHRFSPh8EJSM3LxByT/2gAM" alt="PlayVerse" loading="lazy">
+      </div>
+    </div>
+    
+    <div class="splash-text">PlayVerse</div>
+    <div class="splash-subtext">Learn . Play . Compete</div>
+    <button class="splash-btn" onclick="startApp()">اضغط للدخول ✨</button>
+  </div>
+</div>
+
+<!-- ====== MAIN APP ====== -->
+<div id="mainApp">
+  <canvas id="appCanvas"></canvas>
+  
+  <div class="app-content">
+    <header>
+      <div class="header-circles">
+        <svg class="logo-ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+          <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <svg class="logo-ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+          <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <svg class="logo-ring" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+          <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="logo-circle">
+          <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAH0AfQDASIAAhEBAxEB/8QAHQEBAAICAwEBAAAAAAAAAAAAAAYHBQgBAwQJAv/EAEoQAAEEAQIEAwUEBwUFBwQDAAABAgMEBQYRBxIhMRNBUQgUImFxIzKBkRVCUqGxwdEWM2Jy4SQlQ2STFxg0U3N0gjZVVrKEksL/xAAcAQEAAgMBAQEAAAAAAAAAAAAABAUCAwYBBwj/xAA3EQACAgECBAMGBQQCAwEBAAAAAQIDBAUREiExUQYTQSJhcYGRoRQyscHRFSPh8EJSM3LxByT/2gAM" alt="PlayVerse" loading="lazy">
+        </div>
+      </div>
+      <div class="slogan">Learn . Play . Compete</div>
+      <div class="stats">
+        <div>📚 <span id="subjectCount">10</span> مادة</div>
+        <div>🎯 <span id="gameCount">25</span> لعبة</div>
+      </div>
+    </header>
+
+    <div class="video-section">
+      <div class="video-label">🎬 فيديو تعريفي</div>
+      <div class="video-frame">
+        <video id="mainVideo" autoplay muted loop playsinline preload="metadata">
+          <source src="tripo-showcase.mp4" type="video/mp4">
+          <div class="video-placeholder">فيديو اللعبة</div>
+        </video>
+      </div>
+    </div>
+
+    <div class="games-section">
+      <div class="section-title">🎮 الألعاب المميزة</div>
+      <div class="games-grid" id="gamesGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== PERFORMANCE MONITORING ======
+const performance_data = {
+  particles_count: 0,
+  fps: 0,
+  memory: 0
+};
+
+// ====== PARTICLE ENGINE ======
+class ParticleSystem {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: false });
+    this.particles = [];
+    this.time = 0;
+    this.maxParticles = 150;
+    this.spawned = 0;
+    
+    this.resize();
+    window.addEventListener('resize', () => this.resize(), { passive: true });
+  }
+  
+  resize() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+  
+  spawnParticle(x, y, color, size = 3, life = 60) {
+    if (this.particles.length >= this.maxParticles) return;
+    
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.5 + Math.random() * 2;
+    
+    this.particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 0.5,
+      size,
+      color,
+      life,
+      maxLife: life,
+      alpha: 1
+    });
+    this.spawned++;
+  }
+  
+  spawnBurst(x, y, color, count = 3) {
+    for (let i = 0; i < count; i++) {
+      this.spawnParticle(x, y, color, 2, 60);
+    }
+  }
+  
+  update() {
+    this.time++;
+    
+    if (this.time % 10 === 0) {
+      const zones = [
+        { x: this.canvas.width * 0.2, y: this.canvas.height * 0.3 },
+        { x: this.canvas.width * 0.8, y: this.canvas.height * 0.4 },
+        { x: this.canvas.width * 0.5, y: this.canvas.height * 0.7 }
+      ];
+      const zone = zones[Math.floor(Math.random() * zones.length)];
+      this.spawnBurst(zone.x, zone.y, 'rgba(255, 255, 255, 0.7)', 2);
+    }
+    
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life--;
+      p.alpha = p.life / p.maxLife;
+      
+      if (p.life <= 0) {
+        this.particles.splice(i, 1);
+      }
+    }
+    
+    performance_data.particles_count = this.particles.length;
+  }
+  
+  draw() {
+    this.ctx.fillStyle = 'rgba(10, 10, 26, 0.08)';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    this.particles.forEach(p => {
+      this.ctx.fillStyle = p.color;
+      this.ctx.globalAlpha = p.alpha;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+    
+    this.ctx.globalAlpha = 1;
+  }
+  
+  animate() {
+    this.update();
+    this.draw();
+    requestAnimationFrame(() => this.animate());
+  }
+}
+
+// ====== INITIALIZATION ======
+const splashCanvas = document.getElementById('particleCanvas');
+const splashParticles = new ParticleSystem(splashCanvas);
+splashParticles.animate();
+
+function startApp() {
+  document.getElementById('splashScreen').classList.add('fade-out');
+  setTimeout(() => {
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'flex';
+    
+    const appCanvas = document.getElementById('appCanvas');
+    const appParticles = new ParticleSystem(appCanvas);
+    appParticles.animate();
+  }, 800);
+}
+
+// ====== GAMES INITIALIZATION ======
+const games = [
+  { name: 'Chemistry', emoji: '⚗️' },
+  { name: 'Biology', emoji: '🔬' },
+  { name: 'Physics', emoji: '🌊' },
+  { name: 'Math', emoji: '🧮' },
+  { name: 'Arabic', emoji: '📖' },
+  { name: 'English', emoji: '🎭' },
+  { name: 'History', emoji: '🏛️' },
+  { name: 'Geography', emoji: '🌍' }
+];
+
+const gamesGrid = document.getElementById('gamesGrid');
+games.forEach((game, idx) => {
+  const card = document.createElement('div');
+  card.className = 'game-card';
+  card.textContent = game.emoji;
+  card.style.animation = `fadeIn 0.5s ease-out ${idx * 50}ms backwards`;
+  gamesGrid.appendChild(card);
+});
+
+// Add animation style
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+`;
+document.head.appendChild(style);
+
+// Handle visibility
+document.addEventListener('visibilitychange', () => {
+  const video = document.getElementById('mainVideo');
+  if (document.hidden) {
+    if (video && !video.paused) video.pause();
+  } else {
+    if (video && video.paused) video.play().catch(() => {});
+  }
+}, { passive: true });
+
+// Prevent iOS bounce scroll
+document.body.addEventListener('touchmove', (e) => {
+  if (e.target === document.body) {
+    e.preventDefault();
+  }
+}, { passive: false });
+</script>
+
+</body>
+</html>

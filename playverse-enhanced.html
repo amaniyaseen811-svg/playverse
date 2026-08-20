@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a1a">
+<title>PlayVerse - Learn, Play, Compete</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a1a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", sans-serif; }
+
+/* ====== SPLASH SCREEN ====== */
+#splashScreen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle at center, #1a0a3e 0%, #0a0a1a 70%);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+#splashScreen.fade-out {
+  animation: fadeOut 0.8s forwards;
+  pointer-events: none;
+}
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
+#particleCanvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+.splash-circles {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+  z-index: 2;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid;
+  width: 100%;
+  height: 100%;
+  animation: rotateCW 20s linear infinite;
+}
+
+.circle:nth-child(1) {
+  border-color: rgba(59, 130, 246, 0.8);
+  animation-delay: 0s;
+  width: 100%;
+}
+.circle:nth-child(2) {
+  border-color: rgba(34, 197, 94, 0.6);
+  animation-delay: -5s;
+  width: 80%;
+}
+.circle:nth-child(3) {
+  border-color: rgba(249, 115, 22, 0.7);
+  animation-delay: -10s;
+  width: 60%;
+}
+.circle:nth-child(4) {
+  border-color: rgba(236, 72, 153, 0.8);
+  animation-delay: -15s;
+  width: 40%;
+}
+
+@keyframes rotateCW { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes rotateCCW { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+
+.circle:nth-child(2) { animation-name: rotateCCW; }
+.circle:nth-child(4) { animation-name: rotateCCW; }
+
+.splash-glow {
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 80px rgba(59, 130, 246, 0.4), 
+              inset 0 0 80px rgba(236, 72, 153, 0.2);
+  animation: glow 3s ease-in-out infinite;
+}
+@keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+.splash-logo {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  background: #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 0 0 60px rgba(59, 130, 246, 0.6);
+  font-size: 24px;
+  color: #3b82f6;
+  font-weight: 900;
+  text-align: center;
+}
+
+.splash-text {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+  z-index: 2;
+}
+
+.splash-btn {
+  padding: 16px 40px;
+  background: linear-gradient(135deg, #f59e0b, #ec4899, #7c3aed);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
+  animation: pulse 2s infinite;
+  z-index: 2;
+  font-family: inherit;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.5), 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.8), 0 0 0 15px rgba(245, 158, 11, 0); }
+}
+.splash-btn:active { transform: scale(0.95); }
+
+/* ====== MAIN APP ====== */
+#mainApp {
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  overflow: auto;
+  background: #0a0a1a;
+}
+
+#appCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-content {
+  position: relative;
+  z-index: 1;
+}
+
+header {
+  padding: 20px;
+  text-align: center;
+  background: rgba(10, 10, 26, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-circles {
+  width: 220px;
+  height: 220px;
+  margin: 20px auto;
+  position: relative;
+}
+
+.logo-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  border-radius: 50%;
+  box-shadow: 0 0 80px rgba(59, 130, 246, 0.6), inset 0 0 40px rgba(236, 72, 153, 0.3);
+  z-index: 3;
+  font-size: 20px;
+  color: #3b82f6;
+  font-weight: 900;
+}
+
+.logo-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid;
+  width: 100%;
+  height: 100%;
+  animation: spin 15s linear infinite;
+}
+.logo-ring:nth-child(1) { 
+  border-color: rgba(59, 130, 246, 0.8); 
+  animation-delay: 0s;
+}
+.logo-ring:nth-child(2) { 
+  border-color: rgba(34, 197, 94, 0.6);
+  animation-delay: -5s;
+  animation-direction: reverse;
+  width: 85%;
+  height: 85%;
+  top: 7.5%;
+  left: 7.5%;
+}
+.logo-ring:nth-child(3) { 
+  border-color: rgba(249, 115, 22, 0.7);
+  animation-delay: -10s;
+  width: 70%;
+  height: 70%;
+  top: 15%;
+  left: 15%;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.slogan {
+  font-size: 14px;
+  color: #a0aec0;
+  margin-top: 16px;
+  letter-spacing: 2px;
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 16px 0;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.stats div { display: flex; align-items: center; gap: 8px; }
+
+.video-section {
+  padding: 20px;
+  text-align: center;
+}
+
+.video-frame {
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 16/9;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 2px solid;
+  border-image: linear-gradient(135deg, #3b82f6, #22c55e, #f59e0b, #ec4899) 1;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+}
+
+.video-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.games-section {
+  padding: 20px;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.game-card {
+  aspect-ratio: 3/4;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(236, 72, 153, 0.2));
+  cursor: pointer;
+  transition: all 0.3s;
+  overflow: hidden;
+}
+
+.game-card:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+}
+
+.game-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
+</head>
+<body>
+
+<!-- ====== SPLASH SCREEN ====== -->
+<div id="splashScreen">
+  <canvas id="particleCanvas"></canvas>
+  
+  <div class="splash-circles">
+    <div class="splash-glow"></div>
+    <svg class="circle" viewBox="0 0 100 100" style="transform: none;">
+      <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <svg class="circle" viewBox="0 0 100 100" style="transform: none;">
+      <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <svg class="circle" viewBox="0 0 100 100" style="transform: none;">
+      <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <svg class="circle" viewBox="0 0 100 100" style="transform: none;">
+      <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="2"/>
+    </svg>
+    <div class="splash-logo"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAH0AfQDASIAAhEBAxEB/8QAHQEBAAICAwEBAAAAAAAAAAAAAAYHBQgBAwQJAv/EAEoQAAEEAQIEAwUEBwUFBwQDAAABAgMEBQYRBxIhMRNBUQgUImFxIzKBkRVCUqGxwdEWM2Jy4SQlQ2STFxg0U3N0gjZVVrKEksL/xAAcAQEAAgMBAQEAAAAAAAAAAAAABAUCAwYBBwj/xAA3EQACAgECBAMGBQQCAwEBAAAAAQIDBAUREiExUQYTQSJhcYGRoRQyscHRFSPh8EJSM3LxByT/2gAM" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;"></div>
+  </div>
+  
+  <div class="splash-text">Learn . Play . Compete</div>
+  <button class="splash-btn" onclick="startApp()">اضغط للدخول ✨</button>
+</div>
+
+<!-- ====== MAIN APP ====== -->
+<div id="mainApp">
+  <canvas id="appCanvas"></canvas>
+  
+  <div class="app-content">
+    <header>
+      <div class="header-circles">
+        <svg class="logo-ring" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <svg class="logo-ring" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <svg class="logo-ring" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="50" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <div class="logo-circle"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAH0AfQDASIAAhEBAxEB/8QAHQEBAAICAwEBAAAAAAAAAAAAAAYHBQgBAwQJAv/EAEoQAAEEAQIEAwUEBwUFBwQDAAABAgMEBQYRBxIhMRNBUQgUImFxIzKBkRVCUqGxwdEWM2Jy4SQlQ2STFxg0U3N0gjZVVrKEksL/xAAcAQEAAgMBAQEAAAAAAAAAAAAABAUCAwYBBwj/xAA3EQACAgECBAMGBQQCAwEBAAAAAQIDBAUREiExUQYTQSJhcYGRoRQyscHRFSPh8EJSM3LxByT/2gAM" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;"></div>
+      </div>
+      <div class="slogan">Learn . Play . Compete</div>
+      <div class="stats">
+        <div>📚 <span id="subjectCount">10</span> مادة</div>
+        <div>🎯 <span id="gameCount">25</span> لعبة</div>
+      </div>
+    </header>
+
+    <div class="video-section">
+      <div class="video-frame">
+        <video autoplay muted loop playsinline>
+          <source src="tripo-showcase.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+    <div class="games-section">
+      <h3 style="color: #e2e8f0; margin-bottom: 12px;">🎮 الألعاب المميزة</h3>
+      <div class="games-grid" id="gamesGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== PARTICLE ENGINE ======
+class ParticleSystem {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d', { alpha: true });
+    this.particles = [];
+    this.time = 0;
+    
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+  }
+  
+  resize() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+  }
+  
+  spawnParticle(x, y, color, size = 3, life = 60) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.5 + Math.random() * 2;
+    
+    this.particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 0.5,
+      size,
+      color,
+      life,
+      maxLife: life,
+      alpha: 1
+    });
+  }
+  
+  spawnBurst(x, y, color, count = 8) {
+    for (let i = 0; i < count; i++) {
+      this.spawnParticle(x, y, color);
+    }
+  }
+  
+  update() {
+    this.time++;
+    
+    // Spawn particles from zones
+    if (this.time % 8 === 0) {
+      const x = Math.random() * this.canvas.width;
+      const y = Math.random() * this.canvas.height;
+      const colors = ['rgba(59, 130, 246, 0.6)', 'rgba(236, 72, 153, 0.6)', 'rgba(34, 197, 94, 0.5)'];
+      this.spawnParticle(x, y, colors[Math.floor(Math.random() * colors.length)], 2, 80);
+    }
+    
+    // Update particles
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life--;
+      p.alpha = p.life / p.maxLife;
+      
+      if (p.life <= 0) {
+        this.particles.splice(i, 1);
+      }
+    }
+  }
+  
+  draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.globalAlpha = 1;
+    
+    this.particles.forEach(p => {
+      this.ctx.fillStyle = p.color;
+      this.ctx.globalAlpha = p.alpha;
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+  }
+  
+  animate() {
+    this.update();
+    this.draw();
+    requestAnimationFrame(() => this.animate());
+  }
+}
+
+// ====== INITIALIZATION ======
+const splashCanvas = document.getElementById('particleCanvas');
+const splashParticles = new ParticleSystem(splashCanvas);
+splashParticles.animate();
+
+// Start generating splash particles at zones
+setInterval(() => {
+  const zones = [
+    { x: splashCanvas.width * 0.2, y: splashCanvas.height * 0.3 },
+    { x: splashCanvas.width * 0.8, y: splashCanvas.height * 0.4 },
+    { x: splashCanvas.width * 0.5, y: splashCanvas.height * 0.7 }
+  ];
+  const zone = zones[Math.floor(Math.random() * zones.length)];
+  splashParticles.spawnBurst(zone.x, zone.y, 'rgba(255, 255, 255, 0.8)', 2);
+}, 300);
+
+function startApp() {
+  document.getElementById('splashScreen').classList.add('fade-out');
+  setTimeout(() => {
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'flex';
+    
+    // Initialize app particles
+    const appCanvas = document.getElementById('appCanvas');
+    const appParticles = new ParticleSystem(appCanvas);
+    appParticles.animate();
+  }, 800);
+}
+
+// Load games
+const games = [
+  { name: 'Chemistry', emoji: '⚗️' },
+  { name: 'Biology', emoji: '🔬' },
+  { name: 'Physics', emoji: '🌊' },
+  { name: 'Math', emoji: '🧮' },
+  { name: 'Arabic', emoji: '📖' },
+  { name: 'English', emoji: '🎭' }
+];
+
+const gamesGrid = document.getElementById('gamesGrid');
+games.forEach((game, idx) => {
+  const card = document.createElement('div');
+  card.className = 'game-card';
+  card.style.animationDelay = (idx * 100) + 'ms';
+  card.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 32px;">${game.emoji}</div>`;
+  gamesGrid.appendChild(card);
+});
+</script>
+
+</body>
+</html>
