@@ -1714,8 +1714,12 @@ function paintGlobal(){
 /* ============ PAUSE ============ */
 function inPlay(){return $('s-quiz').classList.contains('on')||$('s-story').classList.contains('on');}
 function syncPauseBtn(){$('btnPause').style.opacity=inPlay()?'1':'.35';}
+var coBreaksUsed=0;
 function doPause(){
   if(paused||!inPlay())return;
+  /* الاستراحة مسموحة مرة واحدة فقط */
+  if(coBreaksUsed>=1){ alert('الاستراحة مسموحة مرة واحدة فقط في الجولة.'); return; }
+  coBreaksUsed++;
   paused=true;musStop();$('pauseOv').classList.add('on');$('pQt').textContent=Math.max(0,S.left);paintGlobal();
 }
 function doResume(){paused=false;musPlay();$('pauseOv').classList.remove('on');}
@@ -2226,5 +2230,9 @@ document.addEventListener('click',()=>{A()},{once:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.running)doPause()});
 renderLevels();syncPauseBtn();
 </script>
+
+<!-- ===== PVKit ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:30,homeBtn:true,breakBtn:false};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>

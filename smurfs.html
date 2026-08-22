@@ -98,6 +98,18 @@ body{font-family:Tajawal,Arial,sans-serif;background:#0a0a0a;color:#fff;directio
 /* intro screen controls */
 .intro-home{position:absolute;top:16px;left:16px;z-index:20;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.62);border:1.5px solid rgba(255,255,255,.45);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;text-decoration:none;backdrop-filter:blur(6px)}
 .intro-pause{position:absolute;top:16px;left:70px;z-index:20;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.62);border:1.5px solid rgba(255,255,255,.45);color:#fff;align-items:center;justify-content:center;font-size:1.05rem;cursor:pointer;backdrop-filter:blur(6px);padding:0}
+
+/* ===== الكأس ===== */
+.pv-cup{margin:16px auto 10px;padding:18px 14px;max-width:360px;text-align:center;
+  border-radius:20px;border:2px solid rgba(245,183,49,.5);
+  background:linear-gradient(160deg,rgba(245,183,49,.18),rgba(245,183,49,.05));
+  box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.pv-cup .ico{font-size:66px;line-height:1;
+  filter:drop-shadow(0 8px 16px rgba(245,183,49,.5));
+  animation:pvCup 2.6s ease-in-out infinite}
+.pv-cup .t{font-size:19px;font-weight:900;color:#F5B731;margin-top:8px}
+.pv-cup .s{font-size:13.5px;opacity:.85;margin-top:3px;line-height:1.8}
+@keyframes pvCup{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-9px) rotate(3deg)}}
 </style>
 </head>
 <!-- ===== PlayVerse Chat + Room (mudmaj) ===== -->
@@ -2091,6 +2103,11 @@ function skipIntro(){
 <div style="font-family:Amiri,serif;color:rgba(255,215,150,.8);font-size:clamp(.86rem,2.5vw,1rem);line-height:1.85;margin-bottom:12px">
 <p>شرشبيل فشل مرة أخرى! 😅</p><p>السنافر آمنون في بيت الجد! 🏠</p>
 <p><b>نقاطك: <span id="wsc" style="color:#ffc107">0</span></b></p>
+        <div class="pv-cup">
+          <div class="ico">🏆</div>
+          <div class="t">كأس حارس القرية</div>
+          <div class="s">أنقذتَ السنافر… وعرفتَ أسرار الخلية</div>
+        </div>
 </div>
 <button class="btn bgo" onclick="go(7)">📝 ورقة العمل!</button>
 <button class="btn" onclick="go(0)" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2);margin-top:5px">🔄 العب مجدداً</button>
@@ -2552,9 +2569,15 @@ function startQTmr(){
     if (qTmrLeft <= 0) { stopQTmr(); onQTimeout(); }
   }, 1000);
 }
+var smBreaksUsed = 0;
 function toggleQPause(){
   var pb = document.getElementById('qtmrPause');
   if (!qTmrId) return;
+  /* الاستراحة مسموحة مرة واحدة فقط (الثامن والعاشر) */
+  if (!qTmrPaused) {
+    if (smBreaksUsed >= 1) { alert('الاستراحة مسموحة مرة واحدة فقط في الجولة.'); return; }
+    smBreaksUsed++;
+  }
   qTmrPaused = !qTmrPaused;
   if (pb) {
     pb.textContent = qTmrPaused ? '▶️' : '⏸️';
@@ -2945,5 +2968,9 @@ go = function(n) {
 })();
 </script>
 
+
+<!-- ===== PVKit ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:30,homeBtn:false,breakBtn:false};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>
