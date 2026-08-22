@@ -1,0 +1,26 @@
+﻿#,Game ID,Arabic,English,French,Spanish,Swedish,Russian,Chinese,Hindi,Subject,Topic,Grade,Status
+1,g_samplex,العينة X,Sample X,Échantillon X,Muestra X,Prov X,Образец X,样本 X,नमूना X,الكيمياء,الأحماض والقلويات و pH,11,✅ كاملة
+2,g_mole,بطولة المول الكيميائي,Chemistry Mole Tournament,Tournoi de la Mole,Torneo del Mol Químico,Kemisk Mol-turnering,Химический турнир Молей,化学摩尔锦标赛,रसायन मोल टूर्नामेंट,الكيمياء,المول والحسابات الكيميائية,11,✅ كاملة
+3,g_babgino,بابجينو,Babgino,Babgino,Babgino,Babgino,Бабджино,巴布基诺,बाबजीनो,البيولوجيا,مملكة الأوليات,10,✅ كاملة
+4,g_lumo,عالم اللومو,Lumo World,Le Monde de Lumo,El Mundo de Lumo,Lumos Värld,Мир Лумо,卢莫世界,लूमो की दुनिया,البيولوجيا,الخلية والانقسام,10,✅ كاملة
+5,g_kanaan,لغز الأرجوان,The Purple Enigma,L'Énigme Pourpre,El Enigma Púrpura,Det Purpurfärgade Gåtan,Пурпурная Загадка,紫色之谜,बैंगनी पहेली,الدراسات الاجتماعية,فلسطين وأرض كنعان,6,✅ كاملة
+6,g_wiam,قرية الوئام,The Village of Harmony,Le Village de l'Harmonie,El Pueblo de la Armonía,Harmonins Byar,Деревня Согласия,和睦村,सद्भाव गाँव,التربية الإسلامية,العفو والتسامح,4,✅ كاملة
+7,g_tawjeeh,برج النـوّارة,Al-Nawwara Tower,La Tour Al-Nawwara,Torre Al-Nawwara,Al-Nawwara Torn,Башня Ан-Наввара,娜瓦拉之塔,अल-नव्वारा टॉवर,الإدارة والاقتصاد,التوجيه والقيادة,11,✅ كاملة
+8,g_thread,سرّ الخيط الأخير,The Secret of the Last Thread,Le Secret du Dernier Fil,El Secreto del Último Hilo,Den Sista Trårdens Hemlighet,Тайна Последней Нити,最后一根线的秘密,आख़िरी धागे का रहस्य,تصميم الأزياء,القياس والنماذج,11,✅ كاملة
+9,g_noran,سرّ مدينة نوران,The Secret of Noran City,Le Secret de la Ville de Noran,El Secreto de la Ciudad de Noran,Noranhems Hemligheters,Тайна Города Норан,诺兰之城的秘密,नूरान नगर का रहस्य,الإدارة والاقتصاد,وظائف العملية الإدارية,11,✅ كاملة
+10,g_silent,الآلة الصامتة,The Silent Machine,La Machine Silencieuse,La Máquina Silenciosa,Den Tysta Maskinen,Молчаливая Машина,沉默的机器,मौन मशीन,الإدارة والاقتصاد,المدارس الإدارية الحديثة,11,✅ كاملة
+11,g_arch,مختبر الألغاز,The Puzzle Lab,Le Laboratoire d'Énigmes,El Laboratorio de Acertijos,Gåtlaboratoriet,Лаборатория Загадок,谜题实验室,पहेली प्रयोगशाला,الفيزياء,مبدأ أرخميدس والطفو,9,✅ كاملة
+12,g_khaleej,مغامرات خليج الأبطال,Heroes Bay Adventures,Les Aventures de la Baie des Héros,Las Aventuras de la Bahía de los Héroes,Hjältarnas Vikar Äventyr,Приключения Залива Героев,英雄湾大冒险,हीरोज़ बे के रोमांच,الرياضيات,جداول الضرب 2-6,1-3,✅ كاملة
+13,g_sally,مغامرة سالي مع الأرقام,Sally's Number Adventure,L'Aventure Numérique de Sally,La Aventura Numérica de Sally,Sallys Numeriska Äventyr,Числовое Приключение Салли,莎莉的数字冒险,सैली का संख्या रोमांच,الرياضيات,الأرقام والجمع والطرح,1-3,✅ كاملة
+14,g_noona,نُونا وحَرْفوش,Noona & Harfoosh,Noona & Harfoosh,Noona & Harfoosh,Noona & Harfoosh,Нуна и Харфуш,努娜与哈尔福什,नूना और हरफ़ूश,اللغة الإنجليزية,الأحرف والكلمات,KG,✅ كاملة
+15,g_elmora,أكاديمية إلمورا,Elmora Academy,L'Académie d'Elmora,Academia Elmora,Elmora Akademi,Академия Элмора,埃尔莫拉学院,एल्मोरा अकादमी,اللغة الإنجليزية,جمل الشرط,10,✅ كاملة
+16,g_smurfs,السنافر,The Smurfs,Les Schtroumpfs,Los Pitufos,Smurferna,Смурфики,蓝精灵,स्मर्फ्स,البيولوجيا,الخلية الحيوانية (المستوى 1),"8,10",✅ كاملة
+17,g_island,الجزيرة المسحورة,The Enchanted Island,L'Île Enchantée,La Isla Encantada,Den Förtrollade Ön,Чарованный Остров,魔法之岛,जादुई द्वीप,البيولوجيا,الخلية النباتية (رحلة سندباد),"8,10",✅ كاملة
+18,g_conan,مَن القاتل؟,Who's the Killer?,Qui est l'Assassin?,¿Quién es el Asesino?,Vem är Mördaren?,Кто Убийца?,凶手是谁?,हत्यारा कौन है?,البيولوجيا,الوراثة المندلية,10,✅ كاملة
+19,g_lock,لغز مخطط القفل,The Lock Diagram Puzzle,L'Énigme du Schéma de Verrouillage,El Acertijo del Diagrama de Bloqueo,Låsdiagrammets Gåta,Загадка Диаграммы Замка,锁图谜题,ताला आरेख पहेली,البيولوجيا,الجهاز التناسلي الذكري,10,✅ كاملة
+20,g_cosette,مغامرة كوزيت النحوية,Cosette's Grammar Adventure,L'Aventure Grammaticale de Cosette,La Aventura Gramatical de Cosette,Cosettes Grammatiska Äventyr,Грамматическое Приключение Козетт,珂赛特的语法冒险,कोज़ेट का व्याकरण साहसिक,اللغة العربية,الجمل والبلاغة والنحو,8-10,✅ كاملة
+21,g_castle,لغز القصر الملعون,The Cursed Castle Puzzle,L'Énigme du Château Maudit,El Acertijo del Castillo Maldito,Den Förbannade Slottets Gåta,Загадка Проклятого Замка,诅咒城堡谜题,शापित महल पहेली,اللغة العربية,الكلمات المصغرة,10,✅ كاملة
+22,g_aladdin,علاء الدين والكنز المفقود,Aladdin and the Lost Treasure,Aladdin et le Trésor Perdu,Aladín y el Tesoro Perdido,Aladdin och den Förlorade Skatten,Алладин и Потерянное Сокровище,阿拉丁和失落的宝藏,अलादीन और खोया खजाना,البيولوجيا,أجزاء الخلية (العضيات),10,✅ كاملة
+23,g_factory47,مصنع 47,Factory 47,Usine 47,Fábrica 47,Fabrik 47,Завод 47,47号工厂,फ़ैक्ट्री 47,الفيزياء,القوة والتيار والحمل الكهربائي,11,✅ كاملة
+24,g_room90,الغرفة 90,Room 90,Chambre 90,Habitación 90,Rum 90,Комната 90,90号房间,कमरा 90,الرياضيات,نظرية فيثاغورس,8,✅ كاملة
+25,g_multi,القصر الملعون - تحدي جماعي,The Cursed Castle - Team Challenge,Le Château Maudit - Défi d'Équipe,El Castillo Maldito - Desafío en Equipo,Det Förbannade Slottet - Lagutmaning,Проклятый Замок - Командный Вызов,诅咒城堡 - 团队挑战,शापित महल - टीम चुनौती,اللغة العربية,الكلمات المصغرة (نسخة جماعية),10,✅ كاملة
