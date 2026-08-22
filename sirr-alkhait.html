@@ -1274,7 +1274,11 @@ function stopQTimer(){clearInterval(qIv);}
 function toggleQTimer(){sTap();qtOn=!qtOn;localStorage.setItem('pv_qt',qtOn?'1':'0');
  $('qtBtn').textContent=qtOn?t('timerOn'):t('timerOff');
  if(!qtOn)stopQTimer();paintQ();}
+var khBreaksUsed=0;
 function pauseGame(){if(!$('s-quiz').classList.contains('on')&&!$('s-genie').classList.contains('on'))return;
+ /* الاستراحة مسموحة مرة واحدة فقط (الحادي عشر) */
+ if(khBreaksUsed>=1){ alert('الاستراحة مسموحة مرة واحدة فقط في الجولة.'); return; }
+ khBreaksUsed++;
  sTap();isPaused=true;fadeTo(.05,400);
  $('pauseT').textContent=t('paused');$('pauseM').textContent=t('pausedMsg');
  $('pauseBtn').textContent=t('bResume');$('pauseHome').textContent=t('bHome');
@@ -1666,5 +1670,9 @@ setBg(BG.cover);
   k=(k+1)%seq.length;setBg(seq[k]);},6500);
 })();
 </script>
+
+<!-- ===== PVKit ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:30,homeBtn:true,breakBtn:false};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>
