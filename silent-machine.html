@@ -1824,7 +1824,13 @@ function nextQuestion(){
 }
 
 /* ---------- ٩) الإيقاف والخروج ---------- */
+var siBreaksUsed = 0;
 function togglePause(){
+  /* الاستراحة مسموحة مرة واحدة فقط */
+  if(!S.paused){
+    if(siBreaksUsed >= 1){ alert('الاستراحة مسموحة مرة واحدة فقط في الجولة.'); return; }
+    siBreaksUsed++;
+  }
   S.paused = !S.paused;
   $("pauseVeil").classList.toggle("on", S.paused);
   $("pauseBtn").textContent = S.paused ? "▶" : "❙❙";
@@ -2070,5 +2076,9 @@ window.addEventListener("popstate", () => {
   show(back[cur.id] || "home");
 });
 </script>
+
+<!-- ===== PVKit ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:30,homeBtn:false,breakBtn:false};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>

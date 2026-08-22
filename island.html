@@ -1238,7 +1238,11 @@ function rv(idx){
   document.getElementById("pm").style.display="block";
   document.getElementById("pe").textContent=p.e;document.getElementById("pt").textContent=p.t;document.getElementById("pt").style.color=p.c;document.getElementById("pd").textContent=p.d;
   setTimeout(function(){document.getElementById("pnb").style.display="block";pc=false;},2000);}
-</script></body></html>
+</script>
+<!-- ===== PVKit ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:30,homeBtn:false,breakBtn:false};</script>
+<script src="pvkit.js"></script>
+</body></html>
 
 <a href="index.html" id="homeBtn" title="الرئيسية">🏠 الرئيسية</a>
 <style>
@@ -1376,7 +1380,7 @@ function pause10(){
   if(pauseUsed||islPaused)return;
   var btn=document.getElementById('islPause');
   pauseUsed=true;islPaused=true;btn.disabled=true;
-  var left=10;btn.innerHTML='\u23F3 '+left;
+  var left=20;btn.innerHTML='\u23F3 '+left;
   var pi=setInterval(function(){
     left--;btn.innerHTML='\u23F3 '+left;
     if(left<=0){clearInterval(pi);islPaused=false;btn.style.display='none';}
