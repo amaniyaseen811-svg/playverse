@@ -4670,7 +4670,11 @@ function startStageTimer() {
   }, 1000);
 }
 
+var babBreaksUsed = 0;
 function babPause() {
+  /* الاستراحة مسموحة مرة واحدة فقط */
+  if (babBreaksUsed >= 1) { alert('الاستراحة مسموحة مرة واحدة فقط في الجولة.'); return; }
+  babBreaksUsed++;
   const veil = document.getElementById('babPauseVeil');
   if (veil) veil.classList.add('on');   // الوقت يستمر بالنزول
 }
@@ -5721,5 +5725,9 @@ function babGoHome(){
   }, 400);
 })();
 </script>
+
+<!-- ===== PVKit ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:30,homeBtn:false,breakBtn:false};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>
