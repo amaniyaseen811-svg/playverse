@@ -3394,6 +3394,8 @@ G.toggleMusic=function(){
 G.goHome=function(){
  if(!confirm(t('confirmHome')))return;
  this.panel(false);this.stopTimer();AU.sfx('tap');
+ /* الرجوع إلى الشاشة الرئيسية للتطبيق */
+ try{ location.href='index.html'; return; }catch(e){}
  $('#hud').style.display='none';this.setBg('cover');this.show('#cover');
 };
 G.skipCh=function(){
@@ -3405,7 +3407,14 @@ G.skipCh=function(){
 
 /* ================= استراحة ٢٠ ثانية ================= */
 G.doPause=function(){
- this.panel(false);AU.sfx('tap');
+ this.panel(false);
+ /* الاستراحة مسموحة مرة واحدة فقط (الصف الثامن) */
+ this.breaksUsed=this.breaksUsed||0;
+ if(this.breaksUsed>=1){ alert('الاستراحة مسموحة مرة واحدة فقط في الجولة.'); return; }
+ this.breaksUsed++;
+ try{ var _r=document.querySelector('[onclick="G.doPause()"]');
+      if(_r){ _r.style.opacity='.4'; _r.style.pointerEvents='none'; } }catch(e){}
+ AU.sfx('tap');
  let n=20;const bar=$('#ringBar');
  $('#pnum').textContent=AR(n);
  bar.style.transition='none';bar.style.strokeDashoffset=0;
@@ -3944,5 +3953,9 @@ $('#coverImg').style.backgroundImage='url('+IMG.cover+')';
  v.addEventListener('play',()=>{$('#tapPlay').style.display='none';});
 })();
 </script>
+
+<!-- ===== PVKit ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',gameMinutes:30,homeBtn:false,breakBtn:false};</script>
+<script src="pvkit.js"></script>
 </body>
 </html>
