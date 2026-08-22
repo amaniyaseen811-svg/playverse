@@ -248,6 +248,18 @@ img.ava{object-fit:cover;object-position:center top;padding:0}
 body.shared .bigq{font-size:26px;line-height:2}
 body.shared .opt{font-size:21px;padding:18px 20px}
 body.shared .turnbar{font-size:25px}
+
+/* ===== الكأس ===== */
+.tw-cup{margin:16px auto 10px;padding:18px 14px;max-width:360px;text-align:center;
+  border-radius:20px;border:2px solid rgba(232,183,74,.5);
+  background:linear-gradient(160deg,rgba(232,183,74,.18),rgba(232,183,74,.05));
+  box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.tw-cup .ico{font-size:66px;line-height:1;
+  filter:drop-shadow(0 8px 16px rgba(232,183,74,.5));
+  animation:twCup 2.6s ease-in-out infinite}
+.tw-cup .t{font-size:19px;font-weight:900;color:#E8B74A;margin-top:8px}
+.tw-cup .s{font-size:13.5px;opacity:.85;margin-top:3px;line-height:1.8}
+@keyframes twCup{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-9px) rotate(3deg)}}
 </style>
 </head>
 <!-- ===== PlayVerse Chat + Room (mudmaj) ===== -->
@@ -1368,7 +1380,12 @@ body.shared .turnbar{font-size:25px}
   </div>
   <div class="card" id="endStory"></div>
   <div class="card noprint" id="endStats"></div>
-  <button class="btn noprint" id="toSheet" data-i18n="e_sheet">📝 ورقة العمل</button>
+  <div class="tw-cup">
+        <div class="ico">🏆</div>
+        <div class="t">كأس قائد البرج</div>
+        <div class="s">أدرتَ النوّارة… ووصلتَ إلى القمة</div>
+      </div>
+      <button class="btn noprint" id="toSheet" data-i18n="e_sheet">📝 ورقة العمل</button>
   <button class="btn ghost noprint" id="toCert" data-i18n="e_cert">🎖️ شهادة الإنجاز</button>
   <button class="btn ghost sm noprint back" data-to="s-start" data-i18n="b_home2">🏠 الصفحة الرئيسية</button>
 </div>
@@ -2534,4 +2551,8 @@ if(loadState() && G.name && doneN()>0){
   $('s-start').insertBefore(bar, $('go-mode'));
 }
 </script>
+
+<!-- ===== PVKit ===== -->
+<script>window.PVKIT_CONFIG={homeUrl:'index.html',breakSec:20,breakMax:1,gameMinutes:30,homeBtn:true,breakBtn:true};</script>
+<script src="pvkit.js"></script>
 </body></html>
