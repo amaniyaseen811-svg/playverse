@@ -6,14 +6,7 @@
 <title>🧪 العينة X — تحقيق في مختبر الكيمياء</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<style>
-  /* Fallback للخطوط أثناء التحميل */
-  @font-face {
-    font-family: 'IBM Plex Sans Arabic Fallback';
-    src: local('Segoe UI'), local('Tahoma'), local('Arial');
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#060A16;
@@ -467,10 +460,7 @@ table.dash tr.top td{color:var(--signal)}
 </head>
 <body>
 <div id="cine">
-  <video id="introVid" playsinline webkit-playsinline muted autoplay preload="auto"
-         poster="samplex-cover.jpg">
-    <source src="samplex-intro.mp4" type="video/mp4">
-  </video>
+  <!-- فيديو محذوف -->
   <button id="cineSound">🔇 شغّل الصوت</button>
   <div class="cctv">
     <div class="rec">REC<i></i></div>
@@ -713,8 +703,8 @@ table.dash tr.top td{color:var(--signal)}
   </div>
 </div>
 
-<audio id="bgm2" loop preload="none" src="samplex-genie.mp3"></audio>
-<audio id="bgm" loop preload="none" src="samplex-music.mp3"></audio>
+<audio id="bgm2" loop preload="none" src="bg_music.mp3"></audio>
+<audio id="bgm" loop preload="none" src="bg_music.mp3"></audio>
 
 <script>
 const BG={
@@ -5196,38 +5186,14 @@ $('dashPrint').onclick=()=>{
 };
 
 /* ===== تهيئة اللغة والمحادثة ===== */
-if(document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function initOnLoad() {
-    console.log('✅ DOM محمّل، بدء التهيئة...');
-    try {
-      (function initLang(){
-        const sel=$('langSel');
-        sel.innerHTML=Object.keys(LANGS).map(k=>`<option value="${k}">${LANGS[k].n}</option>`).join("");
-        sel.value=lang;
-        sel.onchange=()=>setLang(sel.value);
-        applyStatic();
-        wireChat();
-      })();
-    } catch(err) {
-      console.error('❌ خطأ في التهيئة:', err);
-    }
-    document.removeEventListener('DOMContentLoaded', initOnLoad);
-  });
-} else {
-  console.log('✅ DOM جاهز بالفعل، بدء التهيئة...');
-  try {
-    (function initLang(){
-      const sel=$('langSel');
-      sel.innerHTML=Object.keys(LANGS).map(k=>`<option value="${k}">${LANGS[k].n}</option>`).join("");
-      sel.value=lang;
-      sel.onchange=()=>setLang(sel.value);
-      applyStatic();
-      wireChat();
-    })();
-  } catch(err) {
-    console.error('❌ خطأ في التهيئة:', err);
-  }
-}
+(function initLang(){
+  const sel=$('langSel');
+  sel.innerHTML=Object.keys(LANGS).map(k=>`<option value="${k}">${LANGS[k].n}</option>`).join("");
+  sel.value=lang;
+  sel.onchange=()=>setLang(sel.value);
+  applyStatic();
+  wireChat();
+})();
 
 /* لوحة المفاتيح: أ ب ج د = 1 2 3 4 */
 document.addEventListener('keydown',e=>{
@@ -5306,6 +5272,58 @@ document.addEventListener('keydown',e=>{
 </div>
 
 <div id="printArea"></div>
+
+
+<!-- زر الرجوع للشاشة الرئيسية -->
+<style>
+  .home-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 999;
+    background: var(--signal);
+    color: #1B1405;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform .15s, filter .15s;
+  }
+  .home-btn:hover { filter: brightness(1.1); }
+  .home-btn:active { transform: scale(.95); }
+  #screen-start .home-btn { display: none; }
+  @media (max-width: 600px) {
+    .home-btn { padding: 6px 10px; font-size: 12px; }
+  }
+</style>
+
+<script>
+function goHome() {
+  if(confirm('العودة للشاشة الرئيسية؟ قد تفقدين التقدم الحالي.')) {
+    document.querySelectorAll('[id^="screen-"]').forEach(s => s.classList.add('hidden'));
+    document.getElementById('screen-start').classList.remove('hidden');
+    gm.mode = null;
+    gm.room = null;
+  }
+}
+
+// إضافة الزر في كل شاشة
+window.addEventListener('load', () => {
+  const screens = ['screen-start', 'screen-mode', 'screen-setup', 'screen-play', 'screen-genie', 'screen-end'];
+  screens.forEach(screenId => {
+    const screen = document.getElementById(screenId);
+    if(screen) {
+      const btn = document.createElement('button');
+      btn.className = 'home-btn';
+      btn.innerHTML = '🏠 رئيسية';
+      btn.onclick = goHome;
+      screen.appendChild(btn);
+    }
+  });
+});
+</script>
 
 </body>
 </html>
