@@ -80,6 +80,77 @@ h1{font-size:clamp(1.2rem,4.6vw,1.9rem);font-weight:900;
 .pg{display:none}
 .pg.on{display:block;animation:fadeIn .35s}
 @keyframes fadeIn{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:none}}
+
+/* ============ SPARK STYLES ============ */
+.spark-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px}
+@media (max-width:480px){.spark-grid{grid-template-columns:1fr}}
+
+.spark-room-card{background:linear-gradient(135deg,rgba(236,72,153,.15),rgba(168,85,247,.15));
+  border:2px solid rgba(236,72,153,.3);border-radius:16px;padding:18px;cursor:pointer;
+  transition:all .3s;position:relative;overflow:hidden}
+.spark-room-card::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(135deg,rgba(236,72,153,.1),transparent);opacity:0;
+  transition:opacity .3s}
+.spark-room-card:hover{transform:translateY(-4px);border-color:var(--pink);
+  box-shadow:0 12px 30px rgba(236,72,153,.2)}
+.spark-room-card:hover::before{opacity:1}
+.spark-room-card .rc-icon{font-size:2.2rem;display:block;margin-bottom:8px;z-index:2;position:relative}
+.spark-room-card .rc-name{font-weight:700;font-size:1rem;margin-bottom:4px;color:var(--text);z-index:2;position:relative}
+.spark-room-card .rc-info{font-size:.75rem;color:var(--text-dim);line-height:1.5;z-index:2;position:relative}
+
+/* CHAT SECTION */
+.chat-box{background:rgba(21,21,40,.8);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:12px;margin-top:16px;max-height:300px;display:flex;flex-direction:column}
+.chat-title{font-size:.85rem;font-weight:700;color:var(--gold);margin-bottom:8px}
+.chat-msgs{flex:1;overflow-y:auto;margin-bottom:8px;max-height:200px}
+.chat-msg{background:rgba(255,255,255,.06);border-left:3px solid var(--pink);
+  padding:6px 10px;margin-bottom:6px;border-radius:4px;font-size:.78rem;line-height:1.4}
+.chat-input{display:flex;gap:6px}
+.chat-input input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  color:var(--text);padding:6px 8px;border-radius:6px;font-size:.8rem;font-family:inherit}
+.chat-input input:focus{outline:none;border-color:var(--pink)}
+.chat-input button{background:var(--pink);color:#fff;border:none;padding:6px 10px;
+  border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;transition:.2s}
+.chat-input button:hover{opacity:.8}
+
+/* VOICE SECTION */
+.voice-box{background:rgba(21,21,40,.8);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:12px;margin-top:12px}
+.voice-title{font-size:.85rem;font-weight:700;color:var(--gold);margin-bottom:8px}
+.voice-btn{width:100%;background:var(--pink);color:#fff;border:none;padding:8px;
+  border-radius:8px;cursor:pointer;font-weight:700;font-size:.85rem;transition:.2s;
+  margin-bottom:8px}
+.voice-btn:hover{opacity:.85}
+.voice-btn.recording{background:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+.project-info{background:rgba(21,21,40,.8);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:12px;margin-top:12px;font-size:.8rem}
+.project-info label{display:block;color:var(--gold);font-weight:700;margin-top:8px;margin-bottom:3px}
+.project-info input,
+.project-info textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  color:var(--text);padding:6px 8px;border-radius:6px;font-family:inherit;font-size:.8rem;resize:vertical}
+.project-info textarea{min-height:60px;max-height:100px}
+.project-info input:focus,
+.project-info textarea:focus{outline:none;border-color:var(--pink)}
+
+/* SPARK ROOM DETAIL PAGE */
+.spark-room-detail{margin-top:20px}
+.spark-room-detail .sec{margin-top:14px}
+
+/* NAV BUTTONS */
+.nav-btn{
+  transition:all .3s;
+  border:none;
+  font-family:inherit;
+}
+.nav-btn:hover{
+  transform:translateY(-6px);
+  box-shadow:0 12px 30px rgba(0,0,0,.4);
+}
+.nav-btn:active{
+  transform:scale(.95);
+}
 </style>
 </head>
 <body>
@@ -87,8 +158,73 @@ h1{font-size:clamp(1.2rem,4.6vw,1.9rem);font-weight:900;
 
 <div class="wrap">
 
-  <!-- 1) المواد -->
-  <div id="pgSubjects" class="pg on">
+  <!-- NAVIGATION TABS -->
+  <div id="pgTabs" class="pg on">
+    <div class="top">
+      <button class="back" onclick="location.href='index.html'">🏠 الرئيسية</button>
+      <div><h1>غرف PlayVerse</h1><div class="sub">اختر ما تريد</div></div>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+      <button class="nav-btn" onclick="showSparkRooms()" style="background:linear-gradient(135deg,#ec4899,#f472b6);padding:20px;border:2px solid #ec4899;border-radius:14px;color:white;font-weight:700;font-size:1.05rem;cursor:pointer;transition:.3s">
+        ✨ Spark<br><span style="font-size:.8rem;opacity:.8">غرفة الإبداع</span>
+      </button>
+      <button class="nav-btn" onclick="showSubjects()" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);padding:20px;border:2px solid #f59e0b;border-radius:14px;color:#000;font-weight:700;font-size:1.05rem;cursor:pointer;transition:.3s">
+        📚 المواد<br><span style="font-size:.8rem;opacity:.8">غرف المناهج</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SPARK غرفة الإبداع -->
+  <div id="pgSpark" class="pg">
+    <div class="top">
+      <button class="back" onclick="showTabs()">🏠 القائمة</button>
+      <div><h1>✨ Spark — غرفة الإبداع</h1><div class="sub">اختر غرفة للعمل الجماعي</div></div>
+    </div>
+    <div class="spark-grid" id="sparkGrid"></div>
+  </div>
+
+  <!-- تفاصيل غرفة Spark -->
+  <div id="pgSparkRoom" class="pg">
+    <div class="top">
+      <button class="back" onclick="backFromSparkRoom()">🔙 الإبداع</button>
+      <div><h1 id="sparkRoomTitle">✨ الغرفة</h1><div class="sub" id="sparkRoomSub">غرفة عمل جماعية</div></div>
+    </div>
+
+    <div class="spark-room-detail">
+      <!-- Project Info -->
+      <div class="project-info">
+        <label>📋 اسم المشروع</label>
+        <input type="text" id="projectName" placeholder="أدخل اسم المشروع..." onchange="saveSparkRoom()">
+        
+        <label>🎯 الأهداف</label>
+        <textarea id="projectGoals" placeholder="اكتب الأهداف..." onchange="saveSparkRoom()"></textarea>
+        
+        <label>✅ الإجراءات</label>
+        <textarea id="projectActions" placeholder="اكتب الإجراءات..." onchange="saveSparkRoom()"></textarea>
+      </div>
+
+      <!-- Chat -->
+      <div class="chat-box">
+        <div class="chat-title">💬 الدردشة الجماعية</div>
+        <div class="chat-msgs" id="sparkChatMsgs"></div>
+        <div class="chat-input">
+          <input type="text" id="sparkChatInput" placeholder="اكتب رسالتك..." autocomplete="off">
+          <button onclick="sendSparkMessage()">إرسال</button>
+        </div>
+      </div>
+
+      <!-- Voice -->
+      <div class="voice-box">
+        <div class="voice-title">🎤 التسجيل الصوتي</div>
+        <button class="voice-btn" id="sparkVoiceBtn" onclick="toggleSparkVoice()">⏺️ ابدأ</button>
+        <div id="sparkRecordings"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- المواد -->
+  <div id="pgSubjects" class="pg">
     <div class="top">
       <button class="back" onclick="location.href='index.html'">🏠 الرئيسية</button>
       <div><h1>📚 غرف المواد</h1><div class="sub">اختر المادة ثم الصف</div></div>
@@ -96,7 +232,7 @@ h1{font-size:clamp(1.2rem,4.6vw,1.9rem);font-weight:900;
     <div class="grid" id="subjGrid"></div>
   </div>
 
-  <!-- 2) الصفوف -->
+  <!-- الصفوف -->
   <div id="pgGrades" class="pg">
     <div class="top">
       <button class="back" onclick="showSubjects()">🔙 المواد</button>
@@ -105,7 +241,7 @@ h1{font-size:clamp(1.2rem,4.6vw,1.9rem);font-weight:900;
     <div class="grid" id="gradeGrid"></div>
   </div>
 
-  <!-- 3) الغرفة -->
+  <!-- الغرفة -->
   <div id="pgRoom" class="pg">
     <div class="top">
       <button class="back" onclick="backToGrades()">🔙 الصفوف</button>
@@ -141,7 +277,7 @@ var CONTENT = {
     ]
   },
   "ar-10": {
-    games: [ { t:"القصر الملعون", d:"التصغير والقواعد العربية", url:"castle.html" } ]
+    games: [ { t:"القصر الملعون", d:"التصغير والقواعس العربية", url:"castle.html" } ]
   }
 };
 
@@ -168,7 +304,171 @@ function arNum(n){
 }
 
 var curSubj = null;
+var curSparkRoom = null;
+var mediaRecorder = null;
+var isRecording = false;
+var audioChunks = [];
 
+// ============ SPARK ============
+var SPARK_ROOMS = [
+  { id:1, icon:"🧸", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:2, icon:"🎨", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:3, icon:"🖍️", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:4, icon:"🔬", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:5, icon:"🧬", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:6, icon:"⚗️", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:7, icon:"➗", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:8, icon:"📖", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:9, icon:"🔤", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:10, icon:"🌍", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} },
+  { id:11, icon:"🕌", data:{name:"",goals:"",actions:"",chat:[],recordings:[]} }
+];
+
+function loadSparkRooms(){
+  var stored = localStorage.getItem('sparkRooms');
+  if(stored){
+    try{ SPARK_ROOMS = JSON.parse(stored); }catch(e){}
+  }
+}
+
+function saveSparkRooms(){
+  localStorage.setItem('sparkRooms',JSON.stringify(SPARK_ROOMS));
+}
+
+function showTabs(){
+  show('pgTabs');
+}
+
+function showSparkRooms(){
+  loadSparkRooms();
+  var grid = document.getElementById('sparkGrid'), h='';
+  for(var i=0;i<SPARK_ROOMS.length;i++){
+    var r = SPARK_ROOMS[i];
+    var displayName = r.data.name || ('غرفة '+(i+1));
+    h += '<div class="spark-room-card" onclick="openSparkRoom('+r.id+'" style="animation-delay:'+(i*0.1)+'s">'
+      +'<div class="rc-icon">'+r.icon+'</div>'
+      +'<div class="rc-name" style="max-height:40px;overflow:hidden;word-break:break-word">'+displayName+'</div>'
+      +'<div class="rc-info">'+(r.data.name ? 'اضغط للفتح' : 'مشروع جديد')+'</div>'
+      +'</div>';
+  }
+  grid.innerHTML = h;
+  show('pgSpark');
+}
+
+function openSparkRoom(rid){
+  loadSparkRooms();
+  var r = null;
+  for(var i=0;i<SPARK_ROOMS.length;i++) if(SPARK_ROOMS[i].id===rid) r=SPARK_ROOMS[i];
+  if(!r) return;
+  curSparkRoom = r;
+  document.getElementById('sparkRoomTitle').textContent = r.icon+' غرفة '+(r.id);
+  document.getElementById('sparkRoomSub').textContent = r.data.name || 'غرفة عمل جماعية';
+  
+  document.getElementById('projectName').value = r.data.name || '';
+  document.getElementById('projectGoals').value = r.data.goals || '';
+  document.getElementById('projectActions').value = r.data.actions || '';
+  
+  renderSparkChat();
+  renderSparkRecordings();
+  
+  requestMic();
+  show('pgSparkRoom');
+}
+
+function backFromSparkRoom(){
+  showTabs();
+}
+
+function saveSparkRoom(){
+  if(!curSparkRoom) return;
+  curSparkRoom.data.name = document.getElementById('projectName').value;
+  curSparkRoom.data.goals = document.getElementById('projectGoals').value;
+  curSparkRoom.data.actions = document.getElementById('projectActions').value;
+  saveSparkRooms();
+}
+
+function renderSparkChat(){
+  var box = document.getElementById('sparkChatMsgs');
+  var msgs = curSparkRoom.data.chat || [];
+  var h = '';
+  for(var i=0;i<msgs.length;i++){
+    h += '<div class="chat-msg">'+esc(msgs[i])+'</div>';
+  }
+  box.innerHTML = h;
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendSparkMessage(){
+  var inp = document.getElementById('sparkChatInput');
+  var txt = inp.value.trim();
+  if(!txt || !curSparkRoom) return;
+  curSparkRoom.data.chat.push(txt);
+  inp.value = '';
+  saveSparkRooms();
+  renderSparkChat();
+}
+
+function toggleSparkVoice(){
+  if(!mediaRecorder){
+    alert('الميكروفون غير متاح');
+    return;
+  }
+  var btn = document.getElementById('sparkVoiceBtn');
+  if(!isRecording){
+    audioChunks = [];
+    mediaRecorder.start();
+    isRecording = true;
+    btn.textContent = '⏹️ إيقاف';
+    btn.classList.add('recording');
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    btn.textContent = '⏺️ ابدأ';
+    btn.classList.remove('recording');
+    mediaRecorder.onstop = function(){
+      var blob = new Blob(audioChunks,{type:'audio/webm'});
+      var url = URL.createObjectURL(blob);
+      if(!curSparkRoom.data.recordings) curSparkRoom.data.recordings = [];
+      curSparkRoom.data.recordings.push({url:url,time:new Date().toLocaleTimeString('ar-SA')});
+      saveSparkRooms();
+      renderSparkRecordings();
+    };
+  }
+}
+
+function renderSparkRecordings(){
+  var box = document.getElementById('sparkRecordings');
+  var recs = (curSparkRoom && curSparkRoom.data.recordings) || [];
+  var h = '';
+  for(var i=0;i<recs.length;i++){
+    h += '<div style="background:rgba(255,255,255,.05);padding:6px 8px;border-radius:6px;'
+      +'margin-top:6px;display:flex;justify-content:space-between;align-items:center;font-size:.75rem">'
+      +'<span>'+recs[i].time+'</span>'
+      +'<button onclick="playSparkAudio(\''+recs[i].url+'\')" '
+      +'style="background:var(--pink);color:#fff;border:none;padding:4px 8px;border-radius:4px;'
+      +'cursor:pointer;font-size:.7rem">▶ تشغيل</button>'
+      +'</div>';
+  }
+  box.innerHTML = h || '<div style="color:var(--text-dim);font-size:.75rem">لا توجد تسجيلات بعد</div>';
+}
+
+function playSparkAudio(url){
+  var audio = new Audio(url);
+  audio.play().catch(function(){alert('خطأ في التشغيل')});
+}
+
+function requestMic(){
+  if(!mediaRecorder){
+    navigator.mediaDevices.getUserMedia({audio:true})
+      .then(function(stream){
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = function(e){ audioChunks.push(e.data); };
+      })
+      .catch(function(){ console.log('لا يمكن الوصول للميكروفون'); });
+  }
+}
+
+// ============ SUBJECTS ============
 function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 function show(id){
@@ -178,7 +478,6 @@ function show(id){
   window.scrollTo(0,0);
 }
 
-/* --- المواد --- */
 function showSubjects(){
   var el=document.getElementById('subjGrid'), h='';
   for(var i=0;i<SUBJECTS.length;i++){
@@ -190,10 +489,15 @@ function showSubjects(){
       +'</div>';
   }
   el.innerHTML=h;
+  
+  // إضافة زر الرجوع للتبز
+  var subjPage = document.getElementById('pgSubjects');
+  var topBtn = subjPage.querySelector('.back');
+  if(topBtn) topBtn.onclick = function(){ showTabs(); };
+  
   show('pgSubjects');
 }
 
-/* --- الصفوف --- */
 function openSubject(k){
   var s=null;
   for(var i=0;i<SUBJECTS.length;i++) if(SUBJECTS[i].k===k) s=SUBJECTS[i];
@@ -221,7 +525,6 @@ function countRoom(key){
   return ((r.videos&&r.videos.length)||0)+((r.games&&r.games.length)||0);
 }
 
-/* --- الغرفة --- */
 function openRoom(gkey){
   var s=curSubj; if(!s) return;
   var idx=s.gk.indexOf(gkey);
@@ -254,7 +557,8 @@ function renderList(listId,countId,arr,icon,color,emptyMsg){
   box.innerHTML=h;
 }
 
-showSubjects();
+// INIT
+showTabs();
 </script>
 </body>
 </html>
