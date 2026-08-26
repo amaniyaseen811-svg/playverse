@@ -479,7 +479,8 @@ function show(id){
 }
 
 function showSubjects(){
-  var el=document.getElementById('subjGrid'), h='';
+  var sparkCard = '<div class="card" style="--c:#ec4899;animation-delay:0s" onclick="showSparkRooms()"><span class="ic">✨</span><div class="nm">Spark</div><span class="pill">11 غرفة</span></div>';
+  var el=document.getElementById('subjGrid'), h=sparkCard;
   for(var i=0;i<SUBJECTS.length;i++){
     var s=SUBJECTS[i];
     h+='<div class="card" style="--c:'+s.c+';animation-delay:'+(i*0.04)+'s" onclick="openSubject(\''+s.k+'\')">'
