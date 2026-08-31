@@ -28,6 +28,22 @@
             to { transform: translateY(0); opacity: 1; }
         }
         
+        @keyframes strongPulse {
+            0% { 
+                transform: scale(1); 
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            }
+            50% { 
+                transform: scale(1.15); 
+                text-shadow: 0 0 30px rgba(123, 44, 191, 0.8), 
+                             0 0 60px rgba(255, 107, 53, 0.6);
+            }
+            100% { 
+                transform: scale(1); 
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            }
+        }
+        
         .container {
             display: flex;
             align-items: center;
@@ -74,6 +90,10 @@
             display: none;
             text-align: center;
             animation: fadeIn 0.5s ease-in;
+        }
+        
+        #sparkMusic {
+            display: none;
         }
         
         .video-container {
@@ -156,6 +176,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: strongPulse 0.8s ease-in-out infinite;
         }
         
         p {
@@ -268,6 +289,11 @@
             </div>
         </div>
         
+        <!-- AUDIO -->
+        <audio id="sparkMusic" loop>
+            <source src="spark-music.mp3" type="audio/mpeg">
+        </audio>
+        
         <!-- STAGE 3: APPLICATION -->
         <div id="appStage">
             <div class="content">
@@ -342,13 +368,22 @@
             document.getElementById('coverStage').style.display = 'block';
             document.getElementById('sparkVideo').pause();
             document.getElementById('sparkVideo').currentTime = 0;
+            document.getElementById('sparkMusic').pause();
         }
         
         function startApp() {
             document.getElementById('videoStage').style.display = 'none';
             document.getElementById('appStage').style.display = 'block';
             document.getElementById('sparkVideo').pause();
+            document.getElementById('sparkMusic').pause();
         }
+        
+        // === تشغيل الموسيقى عند انتهاء الفيديو ===
+        document.getElementById('sparkVideo').addEventListener('ended', function() {
+            const music = document.getElementById('sparkMusic');
+            music.currentTime = 0;
+            music.play();
+        });
         
         // === APP LOGIC ===
         function selectMode(mode) {
