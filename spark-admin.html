@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark - منصة الإبداع والابتكار</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background: linear-gradient(to bottom, #0f172a, #1e1b4b);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes strongPulse {
+            0% { 
+                transform: scale(1); 
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            }
+            50% { 
+                transform: scale(1.15); 
+                text-shadow: 0 0 30px rgba(123, 44, 191, 0.8), 
+                             0 0 60px rgba(255, 107, 53, 0.6);
+            }
+            100% { 
+                transform: scale(1); 
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            }
+        }
+        
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .content {
+            text-align: center;
+            max-width: 800px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        h1 {
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FF6B35, #7B2CBF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: strongPulse 0.8s ease-in-out infinite;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B35, #7B2CBF);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .form-group {
+            margin: 20px 0;
+            text-align: right;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #404060;
+            color: white;
+            border-radius: 6px;
+            font-family: inherit;
+            margin-top: 8px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #94a3b8;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        .user-info {
+            color: #94a3b8;
+        }
+        
+        .admin-badge {
+            background: #fbbf24;
+            color: #1f2937;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .user-card {
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid #7c3aed;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: right;
+        }
+        
+        .projects-list {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .project-item {
+            background: rgba(79, 70, 229, 0.2);
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            text-align: right;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- LOGIN STAGE -->
+        <div id="loginStage" class="content">
+            <h1>Spark</h1>
+            <p style="font-size: 18px; color: #94a3b8; margin-bottom: 40px;">منصة الإبداع والابتكار</p>
+            
+            <div style="margin: 30px 0;">
+                <div class="form-group">
+                    <label>🔑 كود الدخول:</label>
+                    <input type="password" id="adminCode" placeholder="أدخل كود الدخول (spark2026)">
+                </div>
+                
+                <button class="btn btn-primary" onclick="loginAdmin()" style="width: 100%;">🔓 دخول</button>
+            </div>
+        </div>
+        
+        <!-- ADMIN DASHBOARD -->
+        <div id="adminDashboard" class="content" style="display:none;">
+            <div class="header">
+                <button class="btn btn-danger" onclick="logout()">🚪 تسجيل خروج</button>
+                <div class="user-info">
+                    👨‍💼 المسؤول <span class="admin-badge">ADMIN</span>
+                </div>
+            </div>
+            
+            <h1>لوحة التحكم</h1>
+            <p style="font-size: 18px; color: #94a3b8; margin-bottom: 30px;">جميع المستخدمين والمشاريع</p>
+            
+            <div id="allUsers" style="text-align: center;"></div>
+        </div>
+    </div>
+
+    <script>
+        // البيانات المخزنة محلياً
+        const ADMIN_CODE = "spark2026";
+        const users = JSON.parse(localStorage.getItem('spark_users')) || {};
+        const projects = JSON.parse(localStorage.getItem('spark_projects')) || {};
+        let isAdmin = false;
+        
+        // === ADMIN LOGIN ===
+        function loginAdmin() {
+            const code = document.getElementById('adminCode').value;
+            
+            if (!code) {
+                alert('أدخل الكود!');
+                return;
+            }
+            
+            if (code !== ADMIN_CODE) {
+                alert('❌ الكود غير صحيح!');
+                document.getElementById('adminCode').value = '';
+                return;
+            }
+            
+            isAdmin = true;
+            showAdminDashboard();
+        }
+        
+        // === SHOW ADMIN DASHBOARD ===
+        function showAdminDashboard() {
+            document.getElementById('loginStage').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            
+            loadAllUsers();
+        }
+        
+        // === LOAD ALL USERS ===
+        function loadAllUsers() {
+            const container = document.getElementById('allUsers');
+            
+            if (Object.keys(users).length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8; padding: 20px;">لا توجد حسابات حتى الآن</p>';
+                return;
+            }
+            
+            let html = '<div class="grid-2">';
+            
+            for (const email in users) {
+                const user = users[email];
+                const userProjects = projects[email] || [];
+                
+                html += `
+                    <div class="user-card">
+                        <h3 style="color: #FF6B35; margin-bottom: 10px;">👤 ${user.name}</h3>
+                        <p style="color: #94a3b8; margin-bottom: 10px;">📧 ${email}</p>
+                        
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; color: #7c3aed; margin-bottom: 10px;">📋 مشاريع (${userProjects.length}):</p>
+                            <div class="projects-list">
+                                ${userProjects.map((proj, idx) => `
+                                    <div class="project-item">
+                                        <strong>${proj.name}</strong><br>
+                                        <small>${proj.desc}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-danger" onclick="deleteUser('${email}')" style="margin-top: 10px; width: 100%;">❌ حذف الحساب</button>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // === DELETE USER ===
+        function deleteUser(email) {
+            if (confirm(`هل تريد حذف حساب ${users[email].name}؟`)) {
+                delete users[email];
+                delete projects[email];
+                localStorage.setItem('spark_users', JSON.stringify(users));
+                localStorage.setItem('spark_projects', JSON.stringify(projects));
+                loadAllUsers();
+                alert('✅ تم حذف الحساب');
+            }
+        }
+        
+        // === LOGOUT ===
+        function logout() {
+            isAdmin = false;
+            document.getElementById('loginStage').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('adminCode').value = '';
+        }
+    </script>
+</body>
+</html>
