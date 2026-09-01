@@ -682,6 +682,47 @@ body{
   <div id="langGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(370px,94vw)"></div>
 </div>
 
+<!-- ===== صفحة العرض المجاني مع عداد الأيام ===== -->
+<div id="freeOfferScreen" style="position:fixed;inset:0;z-index:2147483646;background:linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0f1629 100%);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px;font-family:'Tajawal','Cairo',sans-serif;overflow-y:auto">
+  
+  <!-- اللوجو المتحرك (الفيديو) -->
+  <div style="position:relative;width:160px;height:160px;margin-top:30px;display:flex;align-items:center;justify-content:center;border:3px solid rgba(74,222,128,.5);border-radius:50%;background:rgba(74,222,128,.05);box-shadow:0 0 30px rgba(74,222,128,.2)">
+    <video autoplay muted loop playsinline preload="auto" style="width:90%;height:90%;object-fit:contain;border-radius:50%">
+      <source src="playverse-logo-animated.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- النص الرئيسي -->
+  <div style="text-align:center;max-width:340px">
+    <h1 style="font-size:22px;font-weight:900;color:#4ade80;margin:0;letter-spacing:0.5px">
+      PlayVerse مجاني الآن!
+    </h1>
+    <p style="font-size:13px;color:#cbd5e1;margin:8px 0 0 0;line-height:1.6">
+      استمتعي بكل الألعاب مجاناً بدون أي كود لفترة محدودة
+    </p>
+  </div>
+
+  <!-- عداد الأيام -->
+  <div style="width:min(320px,90vw);padding:20px 18px;border-radius:16px;border:2px solid rgba(74,222,128,.4);background:rgba(15,22,41,.6);backdrop-filter:blur(8px);text-align:center">
+    <div id="daysCounter" style="font-size:48px;font-weight:900;color:#4ade80;margin:0;text-shadow:0 0 20px rgba(74,222,128,.3)">
+      43
+    </div>
+    <div style="font-size:12px;color:#a0aec0;margin-top:6px;font-weight:500">
+      يوم متبقي على العرض المجاني
+    </div>
+  </div>
+
+  <!-- زر البدء -->
+  <button onclick="startPlayverse()" style="width:min(320px,90vw);padding:16px 20px;border-radius:14px;border:none;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0a1a;font-size:16px;font-weight:900;cursor:pointer;transition:all .3s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 16px rgba(74,222,128,.2),inset 0 1px 0 rgba(255,255,255,.2)">
+    🚀 ابدأ اللعب
+  </button>
+
+  <!-- Footer -->
+  <div style="position:absolute;bottom:20px;font-size:11px;color:#64748b;text-align:center">
+    <p style="margin:0">تم تطويره بواسطة PlayVerse Studio</p>
+  </div>
+</div>
+
 <!-- ===== موسيقى شاشة اللوجو + شاشة اللغة (ملف MP3) ===== -->
 <audio id="pickerAudio" src="bg.mp3" loop preload="metadata"></audio>
 <script>
@@ -993,15 +1034,7 @@ body{
       box.appendChild(s);
     }
   }
-  // نستعير نفس صورة اللوجو الموجودة بشاشة اللغة
-  function loadGateLogo(){
-    var src = document.querySelector('#langPicker .pl-img');
-    var img = document.getElementById('gateLogoImg');
-    if (src && img) img.src = src.src;
-  }
-  if (document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded', loadGateLogo);
-  else loadGateLogo();
+  // ✨ فيديو اللوجو المتحرك يعرض تلقائياً - لا حاجة لتحميل صور إضافية
 })();
 
 function enterFromGate(){
@@ -1677,12 +1710,26 @@ function setLang(l){
   localStorage.setItem('pv_lang', l);
   var p = document.getElementById('langPicker');
   if (p) p.style.display = 'none';
+  
+  // إظهار صفحة العرض المجاني بدل الشاشة الرئيسية مباشرة
+  var freeOffer = document.getElementById('freeOfferScreen');
+  if (freeOffer) freeOffer.style.display = 'flex';
+  
+  applyLang();
+  try { if (typeof stopPickerMusic === 'function') stopPickerMusic(); } catch(e){}
+}
+
+// ===== دالة البدء من صفحة العرض المجاني =====
+function startPlayverse(){
+  var freeOffer = document.getElementById('freeOfferScreen');
+  if (freeOffer) freeOffer.style.display = 'none';
+  
   var sp = document.getElementById('splashScreen');
   if (sp) sp.style.visibility = '';
-  // (1) نفتح قفل صوت الشاشة الرئيسية الآن — نحن داخل لمسة المستخدم، وهذا شرط تشغيل الصوت على الجوال
+  
+  // (1) نفتح قفل صوت الشاشة الرئيسية
   try { if (typeof unlockHomeAudio === 'function') unlockHomeAudio(); } catch(e){}
-  try { if (typeof stopPickerMusic === 'function') stopPickerMusic(); } catch(e){}
-  // (2) ثم نرفع صوتها تدريجيًا بعد أن تنتهي موسيقى شاشة اللغة
+  // (2) ثم نرفع صوتها تدريجيًا
   try {
     setTimeout(function(){
       if (typeof playHomeMusic === 'function') playHomeMusic();
@@ -1701,9 +1748,34 @@ function setLang(l){
       document.addEventListener('click', _hm);
     }, 900);
   } catch(e){}
-  applyLang();
   try { if (typeof showHomeBtn === 'function') showHomeBtn(); } catch(e){}
 }
+
+// ===== حساب الأيام المتبقية للعرض المجاني =====
+(function(){
+  function updateDaysCounter(){
+    // التاريخ الحالي (يمكن تغييره حسب التاريخ المطلوب)
+    // هنا نستخدم: 43 يوم من اليوم
+    var startDate = new Date(2026, 8, 1); // سبتمبر 1، 2026
+    var endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 43);
+    
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    var daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+    if (daysLeft < 0) daysLeft = 0;
+    
+    var counter = document.getElementById('daysCounter');
+    if (counter) counter.textContent = daysLeft;
+  }
+  
+  // تحديث الأيام عند تحميل الصفحة
+  setTimeout(updateDaysCounter, 100);
+  
+  // تحديث الأيام كل 60 ثانية (تحديث تلقائي)
+  setInterval(updateDaysCounter, 60000);
+})();
 
 (function(){
   function init(){
@@ -2550,7 +2622,7 @@ var games = [
   { key:"g_tawjeeh", subjKey:"subj_bus", emoji:"🏙️", file:"tawjeeh.html", color:"#0f2350", cover:COVER_TAWJEEH, animCover:["tawjeeh-cover.mp4"] },
   { key:"g_silent", subjKey:"subj_bus", emoji:"⚙️", file:"silent-machine.html", color:"#0B1F3A", cover:"silent-cover.jpg", animCover:["silent-cover.mp4"] },
   { key:"g_wiam",   subjKey:"subj_isl", emoji:"🕊️", file:"wiam.html", color:"#7A1B1F", cover:"wiam-cover.jpg", animCover:["wiam-cover.mp4"] },
-  { key:"g_spark", subjKey:"subj_inno", emoji:"✨", file:"spark-test-updated.html", color:"#7c3aed", cover:"spark-cover.png", animCover:["spark-cover.png"], intro:true, introFile:"spark-intro.mp4" },
+  { key:"g_spark", subjKey:"subj_inno", emoji:"✨", file:"spark.html", color:"#7c3aed", cover:"spark-cover.png", animCover:["spark-cover.png"], intro:true, introFile:"spark-intro.mp4" },
 ];
 // اسم اللعبة والموضوع والصف تُقرأ من جدول الترجمة T
 games.forEach(function(g){
