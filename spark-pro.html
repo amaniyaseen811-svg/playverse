@@ -6,321 +6,526 @@
     <title>Spark - منصة الإبداع والابتكار</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Cairo', 'Tajawal', sans-serif;
-            background: linear-gradient(to bottom, #0f172a, #1e1b4b);
-            color: #e2e8f0;
-            min-height: 100vh;
+        body { 
+            font-family: 'Cairo', 'Tajawal', sans-serif; 
+            background: linear-gradient(to bottom, #0f172a, #1e1b4b); 
+            color: #e2e8f0; 
+            min-height: 100vh; 
         }
         
-        @keyframes strongPulse {
-            0% { transform: scale(1); text-shadow: 0 0 10px rgba(255, 107, 53, 0.5); }
-            50% { transform: scale(1.15); text-shadow: 0 0 30px rgba(123, 44, 191, 0.8), 0 0 60px rgba(255, 107, 53, 0.6); }
-            100% { transform: scale(1); text-shadow: 0 0 10px rgba(255, 107, 53, 0.5); }
+        .container { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            padding: 20px; 
         }
         
-        @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.6), 0 0 40px rgba(123, 44, 191, 0.4); }
-            50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.8), 0 0 80px rgba(123, 44, 191, 0.6); }
+        .content { 
+            text-align: center; 
+            max-width: 700px; 
         }
         
-        .container { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .content { text-align: center; max-width: 700px; }
-        
-        h1 {
-            font-size: 40px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #FF6B35, #7B2CBF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: strongPulse 0.8s ease-in-out infinite;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 10px #FF6B35; }
+            50% { transform: scale(1.2); text-shadow: 0 0 40px #FF6B35, 0 0 80px #7B2CBF; }
         }
         
-        p { font-size: 18px; color: #94a3b8; margin-bottom: 20px; }
-        
-        .cover-container {
-            width: 200px;
-            height: 200px;
-            margin: 30px auto;
-            border-radius: 20px;
-            overflow: hidden;
-            animation: glowPulse 1.5s ease-in-out infinite;
-            border: 3px solid rgba(255, 107, 53, 0.6);
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px #FF6B35, 0 0 40px #7B2CBF; }
+            50% { box-shadow: 0 0 40px #FF6B35, 0 0 80px #7B2CBF; }
         }
         
-        .cover-container img { width: 100%; height: 100%; object-fit: cover; }
+        h1 { 
+            font-size: 50px; 
+            font-weight: bold; 
+            background: linear-gradient(135deg, #FF6B35, #7B2CBF); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            animation: pulse 1s infinite; 
+            margin-bottom: 20px; 
+        }
         
-        .btn {
-            padding: 15px 40px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
+        p { 
+            font-size: 18px; 
+            color: #94a3b8; 
+            margin-bottom: 20px; 
+        }
+        
+        .cover { 
+            width: 250px; 
+            height: 250px; 
+            margin: 30px auto; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            animation: glow 1.5s infinite; 
+            border: 4px solid #FF6B35; 
+        }
+        
+        .cover img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        
+        .btn { 
+            padding: 15px 30px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin: 10px; 
+            font-family: inherit; 
+            transition: 0.3s; 
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #FF6B35, #7B2CBF); 
+            color: white; 
+            width: 100%; 
+        }
+        
+        .btn-primary:hover { 
+            transform: scale(1.05); 
+        }
+        
+        .btn-back { 
+            background: #404060; 
+            color: white; 
+            width: 100%; 
+        }
+        
+        .btn-exit { 
+            background: #ef4444; 
+            color: white; 
+            width: 100%; 
+        }
+        
+        video { 
+            width: 100%; 
+            max-width: 100%; 
+            border-radius: 12px; 
+            margin: 20px 0; 
+            background: #000; 
+        }
+        
+        .projects-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .project-item {
+            padding: 15px;
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid #7c3aed;
             border-radius: 8px;
-            cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s;
-            font-family: inherit;
+            color: white;
+            font-weight: bold;
         }
         
-        .btn-primary { background: linear-gradient(135deg, #FF6B35, #7B2CBF); color: white; }
-        .btn-primary:hover { transform: scale(1.05); }
+        .input-group { 
+            margin: 20px 0; 
+            text-align: right; 
+        }
         
-        .video-container { margin: 30px 0; border-radius: 12px; overflow: hidden; border: 2px solid rgba(123, 58, 237, 0.6); }
-        video { width: 100%; background: #000; }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            background: #0f172a; 
+            border: 1px solid #404060; 
+            color: white; 
+            border-radius: 6px; 
+            font-family: inherit; 
+            margin-top: 8px; 
+        }
         
-        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin: 30px 0; }
-        .btn-item { padding: 20px; background: rgba(124, 58, 237, 0.3); border: 2px solid #7c3aed; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 16px; transition: all 0.3s; text-align: right; }
-        .btn-item:hover { background: #FF6B35; border-color: #FF6B35; transform: scale(1.02); }
+        label { 
+            display: block; 
+            font-weight: bold; 
+            color: #94a3b8; 
+            margin-bottom: 5px; 
+        }
         
-        .role-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin: 30px 0; }
-        .role-btn { padding: 25px 40px; font-size: 18px; font-weight: bold; border: 2px solid; border-radius: 12px; cursor: pointer; font-family: inherit; transition: all 0.3s; }
-        .role-btn:hover { transform: scale(1.05); }
-        .admin-btn { background: rgba(59, 130, 246, 0.3); border-color: #3b82f6; color: #3b82f6; }
-        .user-btn { background: rgba(16, 185, 129, 0.3); border-color: #10b981; color: #10b981; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0; 
+            font-size: 13px; 
+        }
         
-        .input-group { margin: 20px 0; text-align: right; }
-        input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #404060; color: white; border-radius: 6px; font-family: inherit; margin-top: 8px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #94a3b8; }
+        th, td { 
+            padding: 10px; 
+            border: 1px solid #404060; 
+            text-align: right; 
+        }
         
-        .admin-table { margin: 20px 0; color: #94a3b8; text-align: right; }
-        .admin-table table { width: 100%; border-collapse: collapse; }
-        .admin-table td, .admin-table th { padding: 10px; border: 1px solid #404060; }
-        .admin-table th { background: rgba(79, 70, 229, 0.3); font-weight: bold; }
+        th { 
+            background: rgba(79, 70, 229, 0.3); 
+            font-weight: bold; 
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        
-        <!-- STAGE 1: COVER -->
-        <div id="stage1" class="content">
-            <h1>Spark</h1>
-            <p>منصة الإبداع والابتكار</p>
-            <div class="cover-container">
-                <img src="spark-cover.png" alt="Spark">
-            </div>
-            <button class="btn btn-primary" onclick="goToVideo()" style="width: 100%; margin-top: 30px;">▶️ ابدأ الآن</button>
-        </div>
-        
-        <!-- STAGE 2: VIDEO -->
-        <div id="stage2" class="content" style="display:none;">
-            <h1>Spark</h1>
-            <p>مقدمة سريعة:</p>
-            <div class="video-container">
-                <video id="sparkVideo" controls>
-                    <source src="spark-intro.mp4" type="video/mp4">
-                </video>
-            </div>
-            <button class="btn btn-primary" onclick="goToProjects()" style="width: 100%;">➡️ متابعة</button>
-            <button class="btn btn-primary" onclick="backToCover()" style="background:#404060;">عودة</button>
-        </div>
-        
-        <!-- STAGE 3: SELECT PROJECT -->
-        <div id="stage3" class="content" style="display:none;">
-            <h1>Spark</h1>
-            <p>اختر المشروع:</p>
-            <div class="grid" id="projectsGrid"></div>
-            <button class="btn btn-primary" onclick="backToVideo()" style="background:#404060;">عودة</button>
-        </div>
-        
-        <!-- STAGE 4: LOGIN CHOICE -->
-        <div id="stage4" class="content" style="display:none;">
-            <h1>Spark</h1>
-            <p id="projectNameDisplay" style="font-size: 20px; margin: 20px 0;"></p>
-            <p>اختر نوع الدخول:</p>
-            <div class="role-buttons">
-                <button class="role-btn admin-btn" onclick="goToAdminLogin()">👨‍💼 دخول المشرف</button>
-                <button class="role-btn user-btn" onclick="goToUserForm()">👤 دخول المشارك</button>
-            </div>
-            <button class="btn btn-primary" onclick="backToProjects()" style="background:#404060;">عودة</button>
-        </div>
-        
-        <!-- STAGE 5: ADMIN LOGIN -->
-        <div id="stage5" class="content" style="display:none;">
-            <h1>Spark</h1>
-            <p>دخول المشرف</p>
-            <div class="input-group">
-                <label>🔑 أدخل الكود:</label>
-                <input type="password" id="adminCode" placeholder="أدخل كود المشرف">
-            </div>
-            <button class="btn btn-primary" onclick="checkAdminCode()" style="width: 100%;">🔓 دخول</button>
-            <button class="btn btn-primary" onclick="backToLogin()" style="background:#404060;">عودة</button>
-        </div>
-        
-        <!-- STAGE 6: ADMIN DASHBOARD -->
-        <div id="stage6" class="content" style="display:none;">
-            <h1>Spark</h1>
-            <p>📊 لوحة تحكم المشرف</p>
-            <div style="margin: 20px 0;">
-                <button class="btn btn-primary" onclick="createNewCode()" style="width: 100%; margin-bottom: 10px;">➕ إنشاء كود جديد</button>
-                <button class="btn btn-primary" onclick="viewProjects()" style="width: 100%; margin-bottom: 10px;">📋 متابعة المشاريع</button>
-                <button class="btn btn-primary" onclick="logout()" style="width: 100%; background:#ef4444;">🚪 خروج</button>
-            </div>
-        </div>
-        
-        <!-- STAGE 7: CREATE CODE -->
-        <div id="stage7" class="content" style="display:none;">
-            <h1>Spark</h1>
-            <p>إنشاء كود جديد</p>
-            <div class="input-group">
-                <label>🆔 اسم المستخدم:</label>
-                <input type="text" id="userName" placeholder="أدخل اسم المستخدم">
-            </div>
-            <div class="input-group">
-                <label>🔑 الكود:</label>
-                <input type="text" id="newCode" placeholder="أدخل الكود (مثل: spark2024)">
-            </div>
-            <button class="btn btn-primary" onclick="saveCode()" style="width: 100%;">✅ حفظ الكود</button>
-            <button class="btn btn-primary" onclick="backToAdmin()" style="background:#404060;">عودة</button>
-        </div>
-        
-        <!-- STAGE 8: VIEW PROJECTS -->
-        <div id="stage8" class="content" style="display:none;">
-            <h1>Spark</h1>
-            <p>متابعة المشاريع</p>
-            <div class="admin-table" id="projectsTable"></div>
-            <button class="btn btn-primary" onclick="backToAdmin()" style="background:#404060;">عودة</button>
-        </div>
-        
-        <!-- STAGE 9: USER FORM -->
-        <div id="stage9" class="content" style="display:none;">
-            <h1>Spark</h1>
-            <p>بيانات المشارك</p>
-            <div class="input-group">
-                <label>👤 اسم المستخدم:</label>
-                <input type="text" id="userUsername" placeholder="أدخل اسم المستخدم">
-            </div>
-            <div class="input-group">
-                <label>🔑 الكود:</label>
-                <input type="password" id="userCode" placeholder="أدخل الكود">
-            </div>
-            <div class="input-group">
-                <label>📝 اسم الطالب:</label>
-                <input type="text" id="studentName" placeholder="أدخل اسم الطالب">
-            </div>
-            <div class="input-group">
-                <label>📱 رقم الهاتف:</label>
-                <input type="text" id="studentPhone" placeholder="أدخل رقم الهاتف">
-            </div>
-            <button class="btn btn-primary" onclick="submitUserData()" style="width: 100%;">✅ حفظ</button>
-            <button class="btn btn-primary" onclick="backToLogin()" style="background:#404060;">عودة</button>
-        </div>
-    </div>
-    
-    <audio id="sparkMusic">
-        <source src="spark-music.mp3" type="audio/mpeg">
-    </audio>
+<div class="container">
 
-    <script>
-        const ADMIN_CODE = "spark2026";
-        let allCodes = JSON.parse(localStorage.getItem('sparkCodes')) || {};
-        let allProjects = JSON.parse(localStorage.getItem('sparkProjects')) || [];
-        let selectedProject = null;
-        let videoPlayed = false;
-        
-        const projects = [
-            { name: "قطعة", desc: "منصة المهام المجزأة" },
-            { name: "شرارة", desc: "استوديو الحضور الرقمي" },
-            { name: "صدى", desc: "وكالة التسويق الرقمي" },
-            { name: "بوصلة", desc: "خدمة تحليل السوق" },
-            { name: "نسج", desc: "مركز الحرف والتعليم الهجين" },
-            { name: "خلية", desc: "منصة التعاون الطلابي" },
-            { name: "نوى", desc: "سوق الملاحظات الرقمية" },
-            { name: "شعاع", desc: "استشارات البحث العلمي" },
-            { name: "برعم", desc: "استوديو الحلول التقنية" },
-            { name: "جسر", desc: "منصة فرص التدريب والعمل" },
-            { name: "ذكاء", desc: "منصة التقوية الذكية" },
-            { name: "لوحة", desc: "استوديو المشاريع المدرسية" },
-            { name: "منتدى", desc: "حوارات علمية أسبوعية" },
-            { name: "بطاقة", desc: "استشارات التوجيه الأكاديمي" },
-            { name: "ساعة", desc: "تطبيق جدولة الدراسة الذكي" },
-            { name: "لعبة", desc: "منصة الألعاب التعليمية" },
-            { name: "ورشة", desc: "مركز الفنون والحرف اليدوية" },
-            { name: "حكاية", desc: "منصة القصص التعليمية المصورة" },
-            { name: "دائرة", desc: "برنامج المهارات الاجتماعية" },
-            { name: "دفتر ذكي", desc: "منصة الواجبات المنزلية المتقدمة" }
-        ];
-        
-        function show(id) {
-            document.querySelectorAll('[id^="stage"]').forEach(el => el.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-        }
-        
-        function goToVideo() { show('stage2'); playVideo(); }
-        function goToProjects() { show('stage3'); loadProjects(); }
-        function selectProject(proj) { selectedProject = proj; show('stage4'); document.getElementById('projectNameDisplay').textContent = `المشروع: ${proj.name}`; }
-        function goToAdminLogin() { show('stage5'); }
-        function goToUserForm() { show('stage9'); }
-        function checkAdminCode() { 
-            if (document.getElementById('adminCode').value === ADMIN_CODE) { 
-                show('stage6'); 
-            } else { 
-                alert('❌ كود خاطئ!'); 
-                document.getElementById('adminCode').value = '';
-            } 
-        }
-        function createNewCode() { show('stage7'); }
-        function viewProjects() { show('stage8'); loadProjectsTable(); }
-        function saveCode() { 
-            const userName = document.getElementById('userName').value;
-            const code = document.getElementById('newCode').value;
-            if (!userName || !code) { alert('ملء جميع الحقول!'); return; }
-            allCodes[code] = { userName, project: selectedProject.name };
-            localStorage.setItem('sparkCodes', JSON.stringify(allCodes));
-            alert(`✅ تم إنشاء الكود: ${code}`);
-            show('stage6');
-        }
-        function submitUserData() { 
-            const userName = document.getElementById('userUsername').value;
-            const code = document.getElementById('userCode').value;
-            const studentName = document.getElementById('studentName').value;
-            const studentPhone = document.getElementById('studentPhone').value;
-            
-            if (!userName || !code || !studentName || !studentPhone) { alert('ملء جميع الحقول!'); return; }
-            if (!allCodes[code]) { alert('❌ الكود غير صحيح!'); return; }
-            
-            const projectData = { userName, code, project: selectedProject.name, studentName, studentPhone, date: new Date().toLocaleDateString('ar-SA') };
-            allProjects.push(projectData);
-            localStorage.setItem('sparkProjects', JSON.stringify(allProjects));
-            alert(`✅ تم حفظ المشروع!`);
-            logout();
-        }
-        function loadProjects() { 
-            const grid = document.getElementById('projectsGrid');
-            grid.innerHTML = '';
-            projects.forEach(proj => {
-                const btn = document.createElement('button');
-                btn.className = 'btn-item';
-                btn.innerHTML = `<strong>${proj.name}</strong><br><small>${proj.desc}</small>`;
-                btn.onclick = () => selectProject(proj);
-                grid.appendChild(btn);
-            });
-        }
-        function loadProjectsTable() { 
-            const table = document.getElementById('projectsTable');
-            if (allProjects.length === 0) { table.innerHTML = '<p>لا توجد مشاريع بعد</p>'; return; }
-            let html = '<table><tr><th>اسم المستخدم</th><th>الكود</th><th>المشروع</th><th>الطالب</th><th>الهاتف</th><th>التاريخ</th></tr>';
-            allProjects.forEach(proj => {
-                html += `<tr><td>${proj.userName}</td><td>${proj.code}</td><td>${proj.project}</td><td>${proj.studentName}</td><td>${proj.studentPhone}</td><td>${proj.date}</td></tr>`;
-            });
-            html += '</table>';
-            table.innerHTML = html;
-        }
-        function playVideo() { 
-            if (!videoPlayed) { 
-                const video = document.getElementById('sparkVideo');
-                video.play();
-                videoPlayed = true;
-                video.addEventListener('ended', () => { document.getElementById('sparkMusic').play(); });
-            }
-        }
-        function backToCover() { show('stage1'); }
-        function backToVideo() { show('stage2'); }
-        function backToProjects() { show('stage3'); }
-        function backToLogin() { show('stage4'); }
-        function backToAdmin() { show('stage6'); }
-        function logout() { show('stage1'); videoPlayed = false; }
-    </script>
+<!-- 1: COVER -->
+<div id="stage1" class="content">
+    <h1>Spark</h1>
+    <p>منصة الإبداع والابتكار</p>
+    <div class="cover">
+        <img src="spark-cover.png" alt="Spark">
+    </div>
+    <button class="btn btn-primary" onclick="go('stage2')">▶️ ابدأ الآن</button>
+</div>
+
+<!-- 2: VIDEO -->
+<div id="stage2" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>مقدمة سريعة:</p>
+    <video id="video" controls></video>
+    <button class="btn btn-primary" onclick="go('stage3')">➡️ متابعة</button>
+    <button class="btn btn-back" onclick="go('stage1')">عودة</button>
+</div>
+
+<!-- 3: PROJECTS LIST -->
+<div id="stage3" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>المشاريع المتاحة:</p>
+    <div class="projects-list" id="projectsList"></div>
+    <button class="btn btn-primary" onclick="go('stage4')" style="margin-top: 20px;">➡️ متابعة</button>
+    <button class="btn btn-back" onclick="go('stage2')">عودة</button>
+</div>
+
+<!-- 4: ADMIN LOGIN -->
+<div id="stage4" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>دخول المشرف</p>
+    <div class="input-group">
+        <label>🔑 أدخل الكود:</label>
+        <input type="password" id="adminCode" placeholder="أدخل كود المشرف">
+    </div>
+    <button class="btn btn-primary" onclick="checkAdmin()">🔓 دخول</button>
+    <button class="btn btn-back" onclick="go('stage3')">عودة</button>
+</div>
+
+<!-- 5: ADMIN DASHBOARD -->
+<div id="stage5" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>📊 لوحة تحكم المشرف</p>
+    <button class="btn btn-primary" onclick="go('stage6')" style="margin-bottom: 10px;">➕ إنشاء كود جديد</button>
+    <button class="btn btn-primary" onclick="go('stage7')" style="margin-bottom: 10px;">📋 متابعة المشاريع</button>
+    <button class="btn btn-primary" onclick="go('stage8')" style="margin-bottom: 10px;">👁️ عرض الأكواد</button>
+    <button class="btn btn-primary" onclick="go('stage9')" style="margin-bottom: 10px;">📊 الإحصائيات</button>
+    <button class="btn btn-primary" onclick="go('stage10')" style="margin-bottom: 10px;">👥 إضافة مشرفين</button>
+    <button class="btn btn-exit" onclick="go('stage1')">🚪 خروج</button>
+</div>
+
+<!-- 6: CREATE CODE -->
+<div id="stage6" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>إنشاء كود جديد</p>
+    <div class="input-group">
+        <label>🆔 اسم المستخدم:</label>
+        <input type="text" id="userName" placeholder="أدخل اسم المستخدم">
+    </div>
+    <div class="input-group">
+        <label>📋 اختر المشروع:</label>
+        <select id="projectSelect" style="width:100%; padding:12px; background:#0f172a; border:1px solid #404060; color:white; border-radius:6px; margin-top:8px; font-family:inherit;">
+            <option value="">-- اختر المشروع --</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label>🔑 الكود:</label>
+        <input type="text" id="newCode" placeholder="أدخل الكود (مثل: spark2024)">
+    </div>
+    <button class="btn btn-primary" onclick="saveCode()">✅ حفظ الكود</button>
+    <button class="btn btn-back" onclick="go('stage5')">عودة</button>
+</div>
+
+<!-- 7: VIEW PROJECTS -->
+<div id="stage7" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>متابعة المشاريع</p>
+    <div id="projectsTable"></div>
+    <button class="btn btn-back" onclick="go('stage5')">عودة</button>
+</div>
+
+<!-- 8: VIEW CODES -->
+<div id="stage8" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>عرض الأكواد المنشأة</p>
+    <div id="codesTable"></div>
+    <button class="btn btn-primary" onclick="deleteSelectedCode()" style="margin-bottom: 10px;">🗑️ حذف الكود المحدد</button>
+    <button class="btn btn-back" onclick="go('stage5')">عودة</button>
+</div>
+
+<!-- 9: STATISTICS -->
+<div id="stage9" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>📊 الإحصائيات</p>
+    <div id="statsContent"></div>
+    <button class="btn btn-back" onclick="go('stage5')">عودة</button>
+</div>
+
+<!-- 10: ADD ADMINS -->
+<div id="stage10" class="content" style="display:none;">
+    <h1>Spark</h1>
+    <p>إضافة مشرفين</p>
+    <div class="input-group">
+        <label>👤 اسم المشرف:</label>
+        <input type="text" id="adminName" placeholder="أدخل اسم المشرف">
+    </div>
+    <div class="input-group">
+        <label>🔑 كود المشرف:</label>
+        <input type="password" id="adminPass" placeholder="أدخل كود المشرف">
+    </div>
+    <button class="btn btn-primary" onclick="addAdmin()">✅ إضافة المشرف</button>
+    <button class="btn btn-back" onclick="go('stage5')">عودة</button>
+</div>
+
+</div>
+
+<audio id="music"><source src="spark-music.mp3" type="audio/mpeg"></audio>
+
+<script>
+const ADMIN_CODE = "spark2026";
+let allCodes = JSON.parse(localStorage.getItem('sparkCodes')) || {};
+let allProjects = JSON.parse(localStorage.getItem('sparkProjects')) || [];
+let allAdmins = JSON.parse(localStorage.getItem('sparkAdmins')) || { "spark2026": "المشرف الرئيسي" };
+let videoPlayed = false;
+let selectedCodeToDelete = null;
+
+const projects = [
+    "قطعة - منصة المهام المجزأة",
+    "شرارة - استوديو الحضور الرقمي",
+    "صدى - وكالة التسويق الرقمي",
+    "بوصلة - خدمة تحليل السوق",
+    "نسج - مركز الحرف والتعليم الهجين",
+    "خلية - منصة التعاون الطلابي",
+    "نوى - سوق الملاحظات الرقمية",
+    "شعاع - استشارات البحث العلمي",
+    "برعم - استوديو الحلول التقنية",
+    "جسر - منصة فرص التدريب والعمل",
+    "ذكاء - منصة التقوية الذكية",
+    "لوحة - استوديو المشاريع المدرسية",
+    "منتدى - حوارات علمية أسبوعية",
+    "بطاقة - استشارات التوجيه الأكاديمي",
+    "ساعة - تطبيق جدولة الدراسة الذكي",
+    "لعبة - منصة الألعاب التعليمية",
+    "ورشة - مركز الفنون والحرف اليدوية",
+    "حكاية - منصة القصص التعليمية المصورة",
+    "دائرة - برنامج المهارات الاجتماعية",
+    "دفتر ذكي - منصة الواجبات المنزلية المتقدمة"
+];
+
+function go(id) {
+    document.querySelectorAll('[id^="stage"]').forEach(el => el.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+    
+    if (id === 'stage2') playVideo();
+    if (id === 'stage3') loadProjects();
+    if (id === 'stage6') loadProjectSelect();
+    if (id === 'stage7') loadProjectsTable();
+    if (id === 'stage8') loadCodesTable();
+    if (id === 'stage9') loadStats();
+}
+
+function playVideo() {
+    if (!videoPlayed) {
+        const video = document.getElementById('video');
+        video.src = 'spark-intro.mp4';
+        video.play();
+        videoPlayed = true;
+        video.addEventListener('ended', () => {
+            document.getElementById('music').play();
+        });
+    }
+}
+
+function loadProjects() {
+    const list = document.getElementById('projectsList');
+    list.innerHTML = '';
+    projects.forEach(proj => {
+        const item = document.createElement('div');
+        item.className = 'project-item';
+        item.textContent = proj;
+        list.appendChild(item);
+    });
+}
+
+function loadProjectSelect() {
+    const select = document.getElementById('projectSelect');
+    select.innerHTML = '<option value="">-- اختر المشروع --</option>';
+    projects.forEach(proj => {
+        const option = document.createElement('option');
+        option.value = proj;
+        option.textContent = proj;
+        select.appendChild(option);
+    });
+}
+
+function checkAdmin() {
+    const code = document.getElementById('adminCode').value;
+    if (code === ADMIN_CODE) {
+        go('stage5');
+        document.getElementById('adminCode').value = '';
+    } else {
+        alert('❌ الكود غير صحيح!');
+        document.getElementById('adminCode').value = '';
+    }
+}
+
+function saveCode() {
+    const userName = document.getElementById('userName').value;
+    const project = document.getElementById('projectSelect').value;
+    const code = document.getElementById('newCode').value;
+    
+    if (!userName || !project || !code) {
+        alert('⚠️ الرجاء ملء جميع الحقول!');
+        return;
+    }
+    
+    allCodes[code] = {
+        userName: userName,
+        project: project,
+        createdDate: new Date().toLocaleDateString('ar-SA')
+    };
+    
+    localStorage.setItem('sparkCodes', JSON.stringify(allCodes));
+    alert(`✅ تم إنشاء الكود: ${code}`);
+    
+    document.getElementById('userName').value = '';
+    document.getElementById('projectSelect').value = '';
+    document.getElementById('newCode').value = '';
+    
+    go('stage5');
+}
+
+function loadProjectsTable() {
+    const table = document.getElementById('projectsTable');
+    
+    if (allProjects.length === 0) {
+        table.innerHTML = '<p style="color: #94a3b8;">لا توجد مشاريع مسجلة بعد</p>';
+        return;
+    }
+    
+    let html = '<table>';
+    html += '<tr><th>اسم المستخدم</th><th>المشروع</th><th>الكود</th><th>المشاركون</th><th>التاريخ</th></tr>';
+    
+    allProjects.forEach(proj => {
+        html += '<tr>';
+        html += `<td>${proj.userName}</td>`;
+        html += `<td>${proj.project}</td>`;
+        html += `<td>${proj.code}</td>`;
+        html += `<td>${proj.participants || '-'}</td>`;
+        html += `<td>${proj.date}</td>`;
+        html += '</tr>';
+    });
+    
+    html += '</table>';
+    table.innerHTML = html;
+}
+
+function loadCodesTable() {
+    const table = document.getElementById('codesTable');
+    
+    if (Object.keys(allCodes).length === 0) {
+        table.innerHTML = '<p style="color: #94a3b8;">لم يتم إنشاء أي أكواد بعد</p>';
+        return;
+    }
+    
+    let html = '<table>';
+    html += '<tr><th>الكود</th><th>اسم المستخدم</th><th>المشروع</th><th>التاريخ</th><th>اختر</th></tr>';
+    
+    Object.keys(allCodes).forEach(code => {
+        const codeData = allCodes[code];
+        html += '<tr>';
+        html += `<td>${code}</td>`;
+        html += `<td>${codeData.userName}</td>`;
+        html += `<td>${codeData.project}</td>`;
+        html += `<td>${codeData.createdDate || '-'}</td>`;
+        html += `<td><input type="radio" name="codeSelect" value="${code}" onchange="selectCodeToDelete('${code}')"></td>`;
+        html += '</tr>';
+    });
+    
+    html += '</table>';
+    table.innerHTML = html;
+}
+
+function selectCodeToDelete(code) {
+    selectedCodeToDelete = code;
+}
+
+function deleteSelectedCode() {
+    if (!selectedCodeToDelete) {
+        alert('⚠️ الرجاء اختيار كود للحذف!');
+        return;
+    }
+    
+    if (confirm(`هل أنت متأكد من حذف الكود: ${selectedCodeToDelete}؟`)) {
+        delete allCodes[selectedCodeToDelete];
+        localStorage.setItem('sparkCodes', JSON.stringify(allCodes));
+        alert('✅ تم حذف الكود بنجاح!');
+        selectedCodeToDelete = null;
+        loadCodesTable();
+    }
+}
+
+function loadStats() {
+    const stats = document.getElementById('statsContent');
+    
+    const totalCodes = Object.keys(allCodes).length;
+    const totalProjects = allProjects.length;
+    const totalAdmins = Object.keys(allAdmins).length;
+    
+    html = `
+    <div style="background: rgba(79, 70, 229, 0.2); padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <p style="font-size: 20px; color: #FF6B35; margin: 15px 0;">
+            📊 عدد الأكواد المنشأة: <strong>${totalCodes}</strong>
+        </p>
+        <p style="font-size: 20px; color: #10b981; margin: 15px 0;">
+            📋 عدد المشاريع المسجلة: <strong>${totalProjects}</strong>
+        </p>
+        <p style="font-size: 20px; color: #3b82f6; margin: 15px 0;">
+            👥 عدد المشرفين: <strong>${totalAdmins}</strong>
+        </p>
+        <p style="font-size: 20px; color: #7B2CBF; margin: 15px 0;">
+            🎯 إجمالي المشاركين: <strong>${allProjects.length}</strong>
+        </p>
+    </div>
+    `;
+    
+    stats.innerHTML = html;
+}
+
+function addAdmin() {
+    const adminName = document.getElementById('adminName').value;
+    const adminPass = document.getElementById('adminPass').value;
+    
+    if (!adminName || !adminPass) {
+        alert('⚠️ الرجاء ملء جميع الحقول!');
+        return;
+    }
+    
+    allAdmins[adminPass] = adminName;
+    localStorage.setItem('sparkAdmins', JSON.stringify(allAdmins));
+    alert(`✅ تم إضافة المشرف: ${adminName}`);
+    
+    document.getElementById('adminName').value = '';
+    document.getElementById('adminPass').value = '';
+    
+    go('stage5');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    go('stage1');
+});
+</script>
 </body>
 </html>
