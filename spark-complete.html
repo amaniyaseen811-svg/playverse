@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark - منصة الإبداع والابتكار</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background: linear-gradient(to bottom, #0f172a, #1e1b4b);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes strongPulse {
+            0% { 
+                transform: scale(1); 
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            }
+            50% { 
+                transform: scale(1.15); 
+                text-shadow: 0 0 30px rgba(123, 44, 191, 0.8), 
+                             0 0 60px rgba(255, 107, 53, 0.6);
+            }
+            100% { 
+                transform: scale(1); 
+                text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+            }
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(255, 107, 53, 0.6),
+                            0 0 40px rgba(123, 44, 191, 0.4);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(255, 107, 53, 0.8),
+                            0 0 80px rgba(123, 44, 191, 0.6);
+            }
+        }
+        
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .content {
+            text-align: center;
+            max-width: 700px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        h1 {
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FF6B35, #7B2CBF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: strongPulse 0.8s ease-in-out infinite;
+        }
+        
+        p {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        
+        .cover-container {
+            width: 200px;
+            height: 200px;
+            margin: 30px auto;
+            border-radius: 20px;
+            overflow: hidden;
+            animation: glowPulse 1.5s ease-in-out infinite;
+            border: 3px solid rgba(255, 107, 53, 0.6);
+        }
+        
+        .cover-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B35, #7B2CBF);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+        
+        .video-container {
+            margin: 30px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(123, 58, 237, 0.6);
+        }
+        
+        video {
+            width: 100%;
+            max-width: 100%;
+            background: #000;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .project-btn {
+            padding: 20px;
+            background: rgba(124, 58, 237, 0.3);
+            border: 2px solid #7c3aed;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-align: right;
+        }
+        
+        .project-btn:hover {
+            background: #FF6B35;
+            border-color: #FF6B35;
+            transform: scale(1.02);
+        }
+        
+        .input-group {
+            margin: 20px 0;
+            text-align: right;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #404060;
+            color: white;
+            border-radius: 6px;
+            font-family: inherit;
+            margin-top: 8px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #94a3b8;
+        }
+        
+        .category-btn {
+            width: 48%;
+            padding: 20px;
+            margin: 1%;
+            background: rgba(79, 70, 229, 0.3);
+            border: 2px solid #4f46e5;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .category-btn:hover {
+            background: #4f46e5;
+            transform: scale(1.05);
+        }
+        
+        .categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- STAGE 1: VIDEO INTRO -->
+        <div id="stage1" class="content">
+            <h1>Spark</h1>
+            <p>مقدمة سريعة:</p>
+            
+            <div class="video-container">
+                <video id="sparkVideo" controls autoplay muted>
+                    <source src="spark-intro.mp4" type="video/mp4">
+                </video>
+            </div>
+            
+            <button class="btn btn-primary" onclick="continueAfterVideo()" style="width: 100%;">➡️ متابعة</button>
+        </div>
+        
+        <!-- STAGE 2: CODE LOGIN -->
+        <div id="stage2" class="content" style="display:none;">
+            <h1>Spark</h1>
+            <p>منصة الإبداع والابتكار</p>
+            
+            <div class="cover-container">
+                <img src="spark-cover.png" alt="Spark">
+            </div>
+            
+            <div style="margin: 40px 0;">
+                <div class="input-group">
+                    <label>🔑 أدخل الكود:</label>
+                    <input type="password" id="codeInput" placeholder="أدخل الكود">
+                </div>
+                
+                <button class="btn btn-primary" onclick="checkCode()" style="width: 100%;">🔓 دخول</button>
+                <button class="btn btn-primary" onclick="backToVideo()" style="background:#404060;">عودة</button>
+            </div>
+        </div>
+        
+        <!-- STAGE 3: SELECT CATEGORY -->
+        <div id="stage3" class="content" style="display:none;">
+            <h1>Spark</h1>
+            <p>اختر الفئة التعليمية:</p>
+            
+            <div class="categories-container">
+                <button class="category-btn" onclick="selectCategory('graduates')">👨‍🎓 الخريجون</button>
+                <button class="category-btn" onclick="selectCategory('university')">🎓 الجامعيون</button>
+                <button class="category-btn" onclick="selectCategory('secondary')">📚 الثانوية</button>
+                <button class="category-btn" onclick="selectCategory('primary')">🎨 الابتدائي</button>
+            </div>
+            
+            <button class="btn btn-primary" onclick="backToCode()" style="background:#404060;">عودة</button>
+            <button class="btn btn-primary" onclick="logout()" style="background:#ef4444;">🚪 خروج</button>
+        </div>
+        
+        <!-- STAGE 4: SELECT PROJECT -->
+        <div id="stage4" class="content" style="display:none;">
+            <h1>Spark</h1>
+            <p>اختر المشروع:</p>
+            
+            <div class="projects-grid" id="projectsGrid"></div>
+            
+            <button class="btn btn-primary" onclick="backToCategory()" style="background:#404060;">عودة</button>
+            <button class="btn btn-primary" onclick="logout()" style="background:#ef4444;">🚪 خروج</button>
+        </div>
+        
+        <!-- STAGE 5: PROJECT DATA -->
+        <div id="stage5" class="content" style="display:none;">
+            <h1>Spark</h1>
+            <p>بيانات المشروع</p>
+            
+            <div class="input-group">
+                <label>📝 اسم المشروع:</label>
+                <input type="text" id="projectName" disabled>
+            </div>
+            
+            <div class="input-group">
+                <label>👤 اسم الطالب:</label>
+                <input type="text" id="studentName" placeholder="أدخل اسم الطالب">
+            </div>
+            
+            <div class="input-group">
+                <label>📱 رقم الهاتف:</label>
+                <input type="text" id="studentPhone" placeholder="أدخل رقم الهاتف">
+            </div>
+            
+            <button class="btn btn-primary" onclick="saveProject()" style="width: 100%; margin-bottom: 10px;">✅ حفظ</button>
+            <button class="btn btn-primary" onclick="backToProject()" style="width: 100%; background:#404060;">عودة</button>
+            <button class="btn btn-primary" onclick="logout()" style="width: 100%; background:#ef4444;">🚪 خروج</button>
+        </div>
+    </div>
+    
+    <!-- AUDIO -->
+    <audio id="sparkMusic" loop>
+        <source src="spark-music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const CORRECT_CODE = "spark2026";
+        
+        const categories = {
+            graduates: [
+                { name: "قطعة", desc: "منصة المهام المجزأة" },
+                { name: "شرارة", desc: "استوديو الحضور الرقمي" },
+                { name: "صدى", desc: "وكالة التسويق الرقمي" },
+                { name: "بوصلة", desc: "خدمة تحليل السوق" },
+                { name: "نسج", desc: "مركز الحرف والتعليم الهجين" }
+            ],
+            university: [
+                { name: "خلية", desc: "منصة التعاون الطلابي" },
+                { name: "نوى", desc: "سوق الملاحظات الرقمية" },
+                { name: "شعاع", desc: "استشارات البحث العلمي" },
+                { name: "برعم", desc: "استوديو الحلول التقنية" },
+                { name: "جسر", desc: "منصة فرص التدريب والعمل" }
+            ],
+            secondary: [
+                { name: "ذكاء", desc: "منصة التقوية الذكية" },
+                { name: "لوحة", desc: "استوديو المشاريع المدرسية" },
+                { name: "منتدى", desc: "حوارات علمية أسبوعية" },
+                { name: "بطاقة", desc: "استشارات التوجيه الأكاديمي" },
+                { name: "ساعة", desc: "تطبيق جدولة الدراسة الذكي" }
+            ],
+            primary: [
+                { name: "لعبة", desc: "منصة الألعاب التعليمية" },
+                { name: "ورشة", desc: "مركز الفنون والحرف اليدوية" },
+                { name: "حكاية", desc: "منصة القصص التعليمية المصورة" },
+                { name: "دائرة", desc: "برنامج المهارات الاجتماعية" },
+                { name: "دفتر ذكي", desc: "منصة الواجبات المنزلية المتقدمة" }
+            ]
+        };
+        
+        let selectedCategory = null;
+        let selectedProject = null;
+        
+        function continueAfterVideo() {
+            const video = document.getElementById('sparkVideo');
+            
+            // تفعيل الصوت
+            video.muted = false;
+            
+            // تشغيل الموسيقى عند انتهاء الفيديو
+            video.addEventListener('ended', function playMusicOnce() {
+                const music = document.getElementById('sparkMusic');
+                music.currentTime = 0;
+                music.play();
+                video.removeEventListener('ended', playMusicOnce);
+            });
+            
+            document.getElementById('stage1').style.display = 'none';
+            document.getElementById('stage2').style.display = 'block';
+        }
+        
+        function checkCode() {
+            const code = document.getElementById('codeInput').value;
+            
+            if (code === CORRECT_CODE) {
+                showStage3();
+            } else {
+                alert('❌ الكود غير صحيح!');
+                document.getElementById('codeInput').value = '';
+            }
+        }
+        
+        function showStage3() {
+            document.getElementById('stage2').style.display = 'none';
+            document.getElementById('stage3').style.display = 'block';
+        }
+        
+        function backToVideo() {
+            document.getElementById('stage2').style.display = 'none';
+            document.getElementById('stage1').style.display = 'block';
+        }
+        
+        function backToCode() {
+            document.getElementById('stage3').style.display = 'none';
+            document.getElementById('stage2').style.display = 'block';
+        }
+        
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            showStage4();
+        }
+        
+        function showStage4() {
+            document.getElementById('stage3').style.display = 'none';
+            document.getElementById('stage4').style.display = 'block';
+            
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = '';
+            
+            categories[selectedCategory].forEach((proj) => {
+                const btn = document.createElement('button');
+                btn.className = 'project-btn';
+                btn.innerHTML = `
+                    <strong style="font-size: 18px;">${proj.name}</strong><br>
+                    <small>${proj.desc}</small>
+                `;
+                btn.onclick = () => selectProject(proj);
+                grid.appendChild(btn);
+            });
+        }
+        
+        function selectProject(proj) {
+            selectedProject = proj;
+            document.getElementById('projectName').value = proj.name;
+            document.getElementById('stage4').style.display = 'none';
+            document.getElementById('stage5').style.display = 'block';
+        }
+        
+        function saveProject() {
+            const studentName = document.getElementById('studentName').value;
+            const studentPhone = document.getElementById('studentPhone').value;
+            
+            if (!studentName || !studentPhone) {
+                alert('الرجاء ملء جميع البيانات!');
+                return;
+            }
+            
+            const data = {
+                project: selectedProject.name,
+                student: studentName,
+                phone: studentPhone,
+                date: new Date().toLocaleDateString('ar-SA'),
+                time: new Date().toLocaleTimeString('ar-SA')
+            };
+            
+            alert(`✅ تم حفظ المشروع!\n\nالمشروع: ${data.project}\nالطالب: ${data.student}\nالهاتف: ${data.phone}\nالتاريخ: ${data.date}`);
+            
+            logout();
+        }
+        
+        function backToVideo() {
+            document.getElementById('stage3').style.display = 'none';
+            document.getElementById('stage2').style.display = 'block';
+        }
+        
+        function backToCategory() {
+            document.getElementById('stage4').style.display = 'none';
+            document.getElementById('stage3').style.display = 'block';
+        }
+        
+        function backToProject() {
+            document.getElementById('stage5').style.display = 'none';
+            document.getElementById('stage4').style.display = 'block';
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentPhone').value = '';
+        }
+        
+        function logout() {
+            // إيقاف الفيديو والموسيقى
+            const video = document.getElementById('sparkVideo');
+            const music = document.getElementById('sparkMusic');
+            
+            video.pause();
+            video.currentTime = 0;
+            music.pause();
+            music.currentTime = 0;
+            
+            document.getElementById('stage1').style.display = 'block';
+            document.getElementById('stage2').style.display = 'none';
+            document.getElementById('stage3').style.display = 'none';
+            document.getElementById('stage4').style.display = 'none';
+            document.getElementById('stage5').style.display = 'none';
+            document.getElementById('codeInput').value = '';
+        }
+    </script>
+</body>
+</html>
