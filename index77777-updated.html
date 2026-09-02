@@ -672,7 +672,7 @@ body{
     <div class="pl-orbit"></div>
     <div class="pl-orbit pl-orbit2"></div>
     <div class="pl-spark"></div>
-    <video autoplay muted loop playsinline style="position:absolute;width:60%;height:60%;object-fit:contain;"><source src="playverse-logo-animated.mp4" type="video/mp4">Your browser does not support the video tag.</video>
+    <video autoplay muted loop playsinline style="position:absolute;width:60%;height:60%;object-fit:contain;"><source src="spark-intro.mp4" type="video/mp4">Your browser does not support the video tag.</video>
   </div>
 
   <div id="pickerTitle" style="font-size:18px;font-weight:900;color:#e2e8f0;text-align:center;line-height:1.7">
@@ -683,9 +683,87 @@ body{
 </div>
 
 <!-- ===== صفحة العرض المجاني مع عداد الأيام ===== -->
+<div id="freeOfferScreen" style="position:fixed;inset:0;z-index:2147483646;background:linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0f1629 100%);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px;font-family:'Tajawal','Cairo',sans-serif;overflow-y:auto">
+  
+  <!-- اللوجو المتحرك (الفيديو) -->
+  <div style="position:relative;width:160px;height:160px;margin-top:30px;display:flex;align-items:center;justify-content:center;border:3px solid rgba(74,222,128,.5);border-radius:50%;background:rgba(74,222,128,.05);box-shadow:0 0 30px rgba(74,222,128,.2)">
+    <video autoplay muted loop playsinline preload="auto" style="width:90%;height:90%;object-fit:contain;border-radius:50%">
+      <source src="spark-intro.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- النص الرئيسي -->
+  <div style="text-align:center;max-width:340px">
+    <h1 style="font-size:22px;font-weight:900;color:#4ade80;margin:0;letter-spacing:0.5px">
+      PlayVerse مجاني الآن!
+    </h1>
+    <p style="font-size:13px;color:#cbd5e1;margin:8px 0 0 0;line-height:1.6">
+      استمتعي بكل الألعاب مجاناً بدون أي كود لفترة محدودة
+    </p>
+  </div>
+
+  <!-- عداد الأيام -->
+  <div style="width:min(320px,90vw);padding:20px 18px;border-radius:16px;border:2px solid rgba(74,222,128,.4);background:rgba(15,22,41,.6);backdrop-filter:blur(8px);text-align:center">
+    <div id="daysCounter" style="font-size:48px;font-weight:900;color:#4ade80;margin:0;text-shadow:0 0 20px rgba(74,222,128,.3)">
+      43
+    </div>
+    <div style="font-size:12px;color:#a0aec0;margin-top:6px;font-weight:500">
+      يوم متبقي على العرض المجاني
+    </div>
+  </div>
+
+  <!-- زر البدء -->
+  <button onclick="startPlayverse()" style="width:min(320px,90vw);padding:16px 20px;border-radius:14px;border:none;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0a1a;font-size:16px;font-weight:900;cursor:pointer;transition:all .3s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 16px rgba(74,222,128,.2),inset 0 1px 0 rgba(255,255,255,.2)">
+    🚀 ابدأ اللعب
+  </button>
+
+  <!-- Footer -->
+  <div style="position:absolute;bottom:20px;font-size:11px;color:#64748b;text-align:center">
+    <p style="margin:0">تم تطويره بواسطة PlayVerse Studio</p>
+  </div>
+</div>
+<!-- ===== صفحة العرض المجاني مع عداد الأيام ===== -->
+<div id="freeOfferScreen" style="position:fixed;inset:0;z-index:2147483646;background:linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0f1629 100%);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px;font-family:'Tajawal','Cairo',sans-serif;overflow-y:auto">
+  
+  <!-- اللوجو المتحرك (الفيديو) -->
+  <div style="position:relative;width:160px;height:160px;margin-top:30px;display:flex;align-items:center;justify-content:center;border:3px solid rgba(74,222,128,.5);border-radius:50%;background:rgba(74,222,128,.05);box-shadow:0 0 30px rgba(74,222,128,.2)">
+    <video autoplay muted loop playsinline preload="auto" style="width:90%;height:90%;object-fit:contain;border-radius:50%">
+      <source src="spark-intro.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- النص الرئيسي -->
+  <div style="text-align:center;max-width:340px">
+    <h1 style="font-size:22px;font-weight:900;color:#4ade80;margin:0;letter-spacing:0.5px">
+      PlayVerse مجاني الآن!
+    </h1>
+    <p style="font-size:13px;color:#cbd5e1;margin:8px 0 0 0;line-height:1.6">
+      استمتعي بكل الألعاب مجاناً بدون أي كود لفترة محدودة
+    </p>
+  </div>
+
+  <!-- عداد الأيام -->
+  <div style="width:min(320px,90vw);padding:20px 18px;border-radius:16px;border:2px solid rgba(74,222,128,.4);background:rgba(15,22,41,.6);backdrop-filter:blur(8px);text-align:center">
+    <div id="daysCounter" style="font-size:48px;font-weight:900;color:#4ade80;margin:0;text-shadow:0 0 20px rgba(74,222,128,.3)">
+      43
+    </div>
+    <div style="font-size:12px;color:#a0aec0;margin-top:6px;font-weight:500">
+      يوم متبقي على العرض المجاني
+    </div>
+  </div>
+
+  <!-- زر البدء -->
+  <button onclick="startPlayverse()" style="width:min(320px,90vw);padding:16px 20px;border-radius:14px;border:none;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0a1a;font-size:16px;font-weight:900;cursor:pointer;transition:all .3s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 16px rgba(74,222,128,.2),inset 0 1px 0 rgba(255,255,255,.2)">
+    🚀 ابدأ اللعب
+  </button>
+
+  <!-- Footer -->
+  <div style="position:absolute;bottom:20px;font-size:11px;color:#64748b;text-align:center">
+    <p style="margin:0">تم تطويره بواسطة PlayVerse Studio</p>
+  </div>
+</div>
 
 
-<!-- ===== موسيقى شاشة اللوجو + شاشة اللغة (ملف MP3) ===== -->
 <audio id="pickerAudio" src="bg.mp3" loop preload="metadata"></audio>
 <script>
 (function(){
@@ -973,7 +1051,7 @@ body{
     <div class="gate-spark"></div>
     <div class="gate-spark s2"></div>
     <div class="gate-spark s3"></div>
-    <video autoplay muted loop playsinline preload="auto" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:55%;height:55%;object-fit:contain;z-index:10;border-radius:50%;"><source src="playverse-logo-animated.mp4" type="video/mp4">Your browser does not support video</video>
+    <video autoplay muted loop playsinline preload="auto" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:55%;height:55%;object-fit:contain;z-index:10;border-radius:50%;"><source src="spark-intro.mp4" type="video/mp4">Your browser does not support video</video>
   </div>
   <div class="gate-title" style="display:none;">PlayVerse</div>
   <div class="gate-tap" id="gateTapTxt">✨ اضغط للدخول ✨</div>
@@ -1673,12 +1751,19 @@ function setLang(l){
   var p = document.getElementById('langPicker');
   if (p) p.style.display = 'none';
   
+  // إظهار صفحة العرض المجاني بدل الشاشة الرئيسية مباشرة
+  var freeOffer = document.getElementById('freeOfferScreen');
+  if (freeOffer) freeOffer.style.display = 'flex';
+  
   applyLang();
   try { if (typeof stopPickerMusic === 'function') stopPickerMusic(); } catch(e){}
 }
 
-// ===== دالة البدء =====
+// ===== دالة البدء من صفحة العرض المجاني =====
 function startPlayverse(){
+  var freeOffer = document.getElementById('freeOfferScreen');
+  if (freeOffer) freeOffer.style.display = 'none';
+  
   var sp = document.getElementById('splashScreen');
   if (sp) sp.style.visibility = '';
   
@@ -3002,11 +3087,11 @@ if ('serviceWorker' in navigator) {
     <div style="font-size:15px;color:#fcd34d;font-weight:700;line-height:1.8;margin-bottom:10px;text-shadow:0 2px 10px rgba(0,0,0,.9)">"خلّي وقت انبساط ابنك هو نفسه وقت اكتسابه المعلومة" 🌟</div>
     <div style="font-size:15px;color:#e2e8f0;line-height:2;margin-bottom:15px;text-shadow:0 2px 10px rgba(0,0,0,.9)" data-i18n="teamBody">فريقنا قادر على تحويل <span style="color:#fcd34d;font-weight:700">أي مادة علمية</span> إلى <span style="color:#34d399;font-weight:700">لعبة وقصة تفاعلية</span><br><b>سرعة في الأداء!</b> ما عليك سوى التواصل معنا</div>
     <div style="font-size:14px;color:#e2e8f0;margin-bottom:12px;text-shadow:0 2px 10px rgba(0,0,0,.9)" data-i18n="teamContact">للتواصل معنا ولمزيد من المعلومات 👇</div>
-    <a href="https://wa.me/970569099426" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#fff;padding:14px 28px;border-radius:50px;font-size:16px;font-weight:700;text-decoration:none;font-family:inherit;box-shadow:0 0 26px rgba(37,211,102,.55)">
+    <a href="https://wa.me/972594090764" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#fff;padding:14px 28px;border-radius:50px;font-size:16px;font-weight:700;text-decoration:none;font-family:inherit;box-shadow:0 0 26px rgba(37,211,102,.55)">
       <span style="font-size:24px">📱</span>
       <span data-i18n="waBtn">تواصل معنا عبر واتساب</span>
     </a>
-    <div style="font-size:14px;color:#cbd5e1;margin-top:12px;direction:ltr;text-shadow:0 2px 8px rgba(0,0,0,.9)">00970569099426</div>
+    <div style="font-size:14px;color:#cbd5e1;margin-top:12px;direction:ltr;text-shadow:0 2px 8px rgba(0,0,0,.9)">+972 59 409 0764</div>
   </div>
 </div>
 
@@ -3187,25 +3272,25 @@ function skipGameIntro(){
   box.style.display='none';
   if(_pendingGame){ var f=_pendingGame; _pendingGame=null; window.location.href=f; }
 }/* rotator removed - handled by startAnimCovers */
+
 </script>
+
+<script src="playverse-lock.js"></script>
+</body>
 
 <!-- ===== Contact Information ===== -->
 <div style="position:fixed;bottom:20px;right:20px;z-index:1000;text-align:right;font-size:13px;color:#cbd5e1;font-family:'Tajawal','Cairo',sans-serif">
   <div style="background:rgba(15,22,41,.9);backdrop-filter:blur(10px);border:1px solid rgba(74,222,128,.3);border-radius:12px;padding:15px;box-shadow:0 0 20px rgba(74,222,128,.1)">
     <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;direction:ltr">
-      <span>📧</span>
-      <a href="mailto:playverseapp.ps@gmail.com" style="color:#4ade80;text-decoration:none">playverseapp.ps@gmail.com</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;direction:ltr">
       <span>📱</span>
       <a href="https://wa.me/970569099426" target="_blank" style="color:#4ade80;text-decoration:none">00970569099426</a>
     </div>
+    <div style="display:flex;align-items:center;gap:8px;direction:ltr">
+      <span>📧</span>
+      <a href="mailto:playverseapp.ps@gmail.com" style="color:#4ade80;text-decoration:none">playverseapp.ps@gmail.com</a>
+    </div>
   </div>
 </div>
-
-<script src="playverse-lock.js"></script>
-</body>
-
 
 </html>
 
