@@ -372,6 +372,7 @@ function loadProjectSelect() {
 function checkAdmin() {
     const code = document.getElementById('adminCode').value;
     if (code === ADMIN_CODE) {
+        document.getElementById('music').play();
         go('stage5');
         document.getElementById('adminCode').value = '';
     } else {
